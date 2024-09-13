@@ -3,16 +3,42 @@ import { HydratedDocument } from 'mongoose';
 
 export type UserDocument = HydratedDocument<User>;
 
+export enum Proficiency {
+  BEGINNER = 'Beginner',
+  INTERMEDIATE = 'Intermediate',
+  ADVANCED = 'Advanced',
+}
+
+export enum Languages {
+  PYTHON = 'Python',
+  JAVA = 'Java',
+  CPLUSPLUS = 'C++',
+}
+
 @Schema()
 export class User {
-  @Prop()
-  name: string;
 
-  @Prop()
+  @Prop({required: true})
+  username: string
+
+  @Prop({required:true})
+  displayName: string;
+
+  @Prop({required: true})
   email: string;
 
-  @Prop({required: false})
+  @Prop({required: true})
+  password: string;
+
+  @Prop({required: false, default: ''})
   profilePictureUrl?: string;
+
+  @Prop({ required: true, enum: Proficiency, default: Proficiency.BEGINNER })
+  proficiency: Proficiency;
+
+  @Prop({ required: true, type: [String], enum: Languages })
+  languages: Languages[];
+
 
 }
 
