@@ -1,7 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { CreateUserRequest } from './dto/create-user-request.dto';
 import { ClientProxy } from '@nestjs/microservices';
-import { CreateUserEvent } from './events/create-user.event';
+import { CreateUserDto } from './dto/create-user.dto';
 
 @Injectable()
 export class AppService {
@@ -14,8 +13,7 @@ export class AppService {
     return 'Hello World!';
   }
 
-  createUser(createUserRequest: CreateUserRequest) {
-    this.userClient.emit('user_created', new CreateUserEvent(createUserRequest.email));
-
+  createUser(createUserDto: CreateUserDto) {
+    return this.userClient.send({ cmd: 'create_user' }, createUserDto);
   }
 }

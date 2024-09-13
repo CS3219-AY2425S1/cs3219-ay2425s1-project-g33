@@ -1,20 +1,15 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller } from '@nestjs/common';
 import { AppService } from './app.service';
-import { EventPattern } from '@nestjs/microservices';
-import { CreateUserEvent } from './create-user.event';
+import { MessagePattern } from '@nestjs/microservices';
+import { CreateUserDto } from './dto/create-user.dto';
 
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  @Get()
-  getHello(): string {
-    return this.appService.getHello();
-  }
 
-  @EventPattern('user_created')
-  handleUserCreated(data: CreateUserEvent) {
-    console.log("ok")
-    this.appService.handleUserCreated(data);
+  @MessagePattern({ cmd: 'create_user' })
+  handleUserCreated(data: CreateUserDto) {
+    return this.appService.createUser(data);
   }
 }
