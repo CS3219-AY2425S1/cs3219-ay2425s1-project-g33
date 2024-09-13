@@ -1,7 +1,9 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { ClientsModule, Transport } from '@nestjs/microservices';
+import { UserController } from './user/user.controller';
+import { UserService } from './user/user.service';
+import { QuestionService } from './question/question.service';
+import { QuestionController } from './question/questions.controller';
 
 @Module({
   imports: [
@@ -11,12 +13,20 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
         transport: Transport.TCP,
         options: {
           host: '127.0.0.1',
-          port: 3001,  // Ensure the port matches the event producer
+          port: 3001,
+        },
+      },
+      {
+        name: 'QUESTION_SERVICE',
+        transport: Transport.TCP,
+        options: {
+          host: '127.0.0.1',
+          port: 3002,
         },
       },
     ]),
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [UserController, QuestionController],
+  providers: [UserService, QuestionService],
 })
 export class AppModule {}

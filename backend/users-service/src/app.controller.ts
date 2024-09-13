@@ -8,6 +8,12 @@ import { UpdateUserDto } from './dto/update-user.dto';
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
+  @MessagePattern({ cmd: 'get_user' })
+  async getUser(@Payload() data: { userId: string }) {
+    const { userId } = data;
+    return this.appService.getUser(userId);
+  }
+
   @MessagePattern({ cmd: 'update_user' })
   async updateUser(
     @Payload() data: { userId: string, updateUserDto: UpdateUserDto },
@@ -17,7 +23,7 @@ export class AppController {
   }
 
   @MessagePattern({ cmd: 'create_user' })
-  createUser(data: CreateUserDto) {
+  async createUser(data: CreateUserDto) {
     return this.appService.createUser(data);
   }
 }

@@ -3,14 +3,13 @@ import { ClientProxy } from '@nestjs/microservices';
 import { CreateUserDto } from './dto/create-user.dto';
 
 @Injectable()
-export class AppService {
-
+export class UserService {
   constructor(
     @Inject('USER_SERVICE') private readonly userClient: ClientProxy,
   ) {}
 
   getHello(): string {
-    return 'Hello World!';
+    return 'This is the user service!';
   }
 
   createUser(createUserDto: CreateUserDto) {

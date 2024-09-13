@@ -9,6 +9,16 @@ import { UpdateUserDto } from './dto/update-user.dto';
 export class AppService {
   constructor(@InjectModel('User') private readonly userModel: Model<User>) {}
 
+  async getUser(userId: string) {
+    const user = await this.userModel.findById(userId).exec();
+
+    if (!user) {
+      throw new NotFoundException(`User with ID ${userId} not found`);
+    }
+
+    return user;
+  }
+
   async createUser(createUserDto: CreateUserDto) {
     const user = new this.userModel(createUserDto);
     return await user.save();
