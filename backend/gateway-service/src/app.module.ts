@@ -12,7 +12,7 @@ import { QuestionController } from './question/questions.controller';
         name: 'USER_SERVICE',
         transport: Transport.TCP,
         options: {
-          host: '127.0.0.1',
+          host: 'user-service',
           port: 3001,
         },
       },
@@ -20,7 +20,7 @@ import { QuestionController } from './question/questions.controller';
         name: 'QUESTION_SERVICE',
         transport: Transport.TCP,
         options: {
-          host: '127.0.0.1',
+          host: 'questions-service',
           port: 3002,
         },
       },

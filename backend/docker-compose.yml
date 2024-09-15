@@ -1,0 +1,43 @@
+services:
+  gateway-service:
+    build:
+      context: ./gateway-service
+    container_name: gateway-service
+    ports:
+      - '4000:4000'
+    volumes:
+      - ./gateway-service:/app
+      - /app/node_modules
+    depends_on:
+      - questions-service
+      - users-service
+    networks:
+      - backend-network
+
+  questions-service:
+    build:
+      context: ./questions-service
+    container_name: questions-service
+    volumes:
+      - ./questions-service:/app
+      - /app/node_modules
+    env_file:
+      - ./questions-service/.env
+    networks:
+      - backend-network
+
+  users-service:
+    build:
+      context: ./users-service
+    container_name: users-service
+    volumes:
+      - ./users-service:/app
+      - /app/node_modules
+    env_file:
+      - ./users-service/.env
+    networks:
+      - backend-network
+
+networks:
+  backend-network:
+    driver: bridge
