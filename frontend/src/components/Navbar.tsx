@@ -1,9 +1,8 @@
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Flame, LogOut } from "lucide-react";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { AvatarImage } from "@radix-ui/react-avatar";
+import UserAvatar from "@/components/UserAvatar";
 
 export default function Navbar() {
   const links: NavLinkProps[] = [{ label: "Dashboard", href: "/dashboard" }];
@@ -50,7 +49,7 @@ function NavLinks({ links }: NavLinksProps) {
   return (
     <div className="flex gap-1">
       {links.map((link, i) => (
-        <NavLink href={link.href} label={link.label} />
+        <NavLink key={i} href={link.href} label={link.label} />
       ))}
     </div>
   );
@@ -73,15 +72,9 @@ function NavUserDetails() {
         size={20}
       />
       <small className="whitespace-nowrap">10 days</small>
-      <Avatar>
-      <AvatarImage src="https://nonexistent-link/shadcn.png" alt="@shadcn" />
-        <AvatarFallback className="bg-background-100 rounded-full p-1">
-          JM
-        </AvatarFallback>
-      </Avatar>
-
+      <UserAvatar src={"https://nonexistent-link"} name="Jm San Diego" />
       <Button variant="ghost" className="p-2">
-        <LogOut size={20}/>
+        <LogOut size={20} />
       </Button>
     </div>
   );

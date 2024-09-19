@@ -46,8 +46,8 @@
     --background-100: #404040;
     --background-200: #3c3c3c;
     --foreground: #f3f4f6;
-    --card: #010816;
-    --card-foreground: #f7f9fb;
+    --card: #262626;
+    --card-foreground: #f3f4f6;
     --popover: #010816;
     --popover-foreground: #f7f9fb;
     --primary: #a855f7;
@@ -79,7 +79,7 @@
     --background-100: #404040;
     --background-200: #3c3c3c;
     --foreground: #f7f9fb;
-    --card: #010816;
+    --card: #262626;
     --card-foreground: #f7f9fb;
     --popover: #010816;
     --popover-foreground: #f7f9fb;
