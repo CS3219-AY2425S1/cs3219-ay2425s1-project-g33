@@ -6,7 +6,7 @@ import {
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { CalendarDays } from "lucide-react";
+import { CalendarDays, Zap } from "lucide-react";
 import { Card, CardDescription } from "@/components/ui/card";
 
 export function ProfileMiniDetailsCard() {
@@ -14,7 +14,11 @@ export function ProfileMiniDetailsCard() {
     <Card className="p-5">
       <CardDescription className="flex flex-col gap-5">
         <div className="flex items-center gap-4">
-          <UserAvatar src={"https://non-existent.com"} name={"Jm San Diego"} />
+          <UserAvatar
+            src={"https://non-existent.com"}
+            name={"Jm San Diego"}
+            isHoverEnabled={false}
+          />
           <div>
             <p>Jm San Diego</p>
             <small>@skibidi_toilet</small>
@@ -27,10 +31,12 @@ export function ProfileMiniDetailsCard() {
 }
 
 interface ProfileMiniDetailsHoverCardProps {
-  children: React.ReactNode
+  children: React.ReactNode;
 }
 
-export function ProfileMiniDetailsHoverCard({children}: ProfileMiniDetailsHoverCardProps) {
+export function ProfileMiniDetailsHoverCard({
+  children,
+}: ProfileMiniDetailsHoverCardProps) {
   return (
     <HoverCard>
       <HoverCardTrigger asChild>

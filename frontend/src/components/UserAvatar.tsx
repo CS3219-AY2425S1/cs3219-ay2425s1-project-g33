@@ -1,12 +1,29 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Tooltip } from "@radix-ui/react-tooltip";
+import { ProfileMiniDetailsHoverCard } from "./ProfileMiniDetailsCard";
 
-interface AvatarProps {
+interface UserAvatarProps {
   src: string;
   name: string;
+  isHoverEnabled: boolean;
 }
 
-export default function UserAvatar({ src, name }: AvatarProps) {
+export default function UserAvatar({
+  src,
+  name,
+  isHoverEnabled = true,
+}: UserAvatarProps) {
+  return isHoverEnabled ? (
+    <ProfileMiniDetailsHoverCard>
+      <AvatarWrapper src={src} name={name} />
+    </ProfileMiniDetailsHoverCard>
+  ) : (
+    <AvatarWrapper src={src} name={name} />
+  );
+}
+
+interface AvatarWrapperProps extends Omit<UserAvatarProps, "isHoverEnabled"> {}
+
+function AvatarWrapper({ src, name }: AvatarWrapperProps) {
   function getInitialsFromName(name: string) {
     const chunks = name.split(",");
 
@@ -23,7 +40,7 @@ export default function UserAvatar({ src, name }: AvatarProps) {
   return (
     <Avatar>
       <AvatarImage src={src} alt="@shadcn" />
-      <AvatarFallback>{getInitialsFromName(name)}</AvatarFallback>
+      <AvatarFallback className="text-base font-normal text-foreground ">{getInitialsFromName(name)}</AvatarFallback>
     </Avatar>
   );
 }
