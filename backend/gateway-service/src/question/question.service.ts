@@ -1,5 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
+import { FindQuestionByIdDto, GetQuestionsDto } from './dto';
 
 @Injectable()
 export class QuestionService {
@@ -11,7 +12,25 @@ export class QuestionService {
     return 'This is the questions service!';
   }
 
-  getQuestions() {
-    return this.questionClient.send({ cmd: 'get_questions' }, {});
+  getQuestions(
+    page: number,
+    limit: number,
+    searchQuery?: string,
+    difficulty?: string,
+    categories?: string[],
+  ) {
+    const payload: GetQuestionsDto = {
+      page,
+      limit,
+      searchQuery,
+      difficulty,
+      categories,
+    };
+    return this.questionClient.send({ cmd: 'get_questions' }, payload);
+  }
+
+  getQuestionDetails(id: string) {
+    const payload: FindQuestionByIdDto = { id };
+    return this.questionClient.send({ cmd: 'get_question_details' }, payload);
   }
 }
