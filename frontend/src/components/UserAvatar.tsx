@@ -4,7 +4,7 @@ import { ProfileMiniDetailsHoverCard } from "./ProfileMiniDetailsCard";
 interface UserAvatarProps {
   src: string;
   name: string;
-  isHoverEnabled: boolean;
+  isHoverEnabled?: boolean;
 }
 
 export default function UserAvatar({
@@ -44,3 +44,4 @@ function AvatarWrapper({ src, name }: AvatarWrapperProps) {
     </Avatar>
   );
 }
+

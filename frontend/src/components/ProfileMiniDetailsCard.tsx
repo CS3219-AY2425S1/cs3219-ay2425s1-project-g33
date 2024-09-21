@@ -5,26 +5,54 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { CalendarDays, Zap } from "lucide-react";
 import { Card, CardDescription } from "@/components/ui/card";
+import { Zap } from "lucide-react";
 
+interface ProfileMiniDetailsProps {
+  isViewProfileEnabled?: boolean;
+}
+
+function ProfileMiniDetails({
+  isViewProfileEnabled = false,
+}: ProfileMiniDetailsProps) {
+  return (
+    <div className="flex flex-col gap-5">
+      <div className="flex items-center gap-4">
+        <UserAvatar
+          src={"https://non-existent.com"}
+          name={"Jm San Diego"}
+          isHoverEnabled={false}
+        />
+        <div>
+          <h4>Jm San Diego</h4>
+          <small className="text-card-foreground-100">@skibidi_toilet</small>
+          <p>
+            Proficiency:{" "}
+            <span className="text-card-foreground-100">Expert</span>
+          </p>
+          <p>
+            Elo:{" "}
+            <span className="text-primary">
+              1000 <Zap className="inline" size={14} />
+            </span>
+          </p>
+        </div>
+      </div>
+      {isViewProfileEnabled && (
+        <Button variant="soft" className="w-full">
+          View Profile
+        </Button>
+      )}
+    </div>
+  );
+}
+
+// Normal card variant
 export function ProfileMiniDetailsCard() {
   return (
     <Card className="p-5">
       <CardDescription className="flex flex-col gap-5">
-        <div className="flex items-center gap-4">
-          <UserAvatar
-            src={"https://non-existent.com"}
-            name={"Jm San Diego"}
-            isHoverEnabled={false}
-          />
-          <div>
-            <p>Jm San Diego</p>
-            <small>@skibidi_toilet</small>
-            <p>Elo: 1000</p>
-          </div>
-        </div>
+        <ProfileMiniDetails />
       </CardDescription>
     </Card>
   );
@@ -34,33 +62,17 @@ interface ProfileMiniDetailsHoverCardProps {
   children: React.ReactNode;
 }
 
+// Hover card variant
 export function ProfileMiniDetailsHoverCard({
   children,
 }: ProfileMiniDetailsHoverCardProps) {
   return (
-    <HoverCard>
+    <HoverCard openDelay={300}>
       <HoverCardTrigger asChild>
         <Button variant="link">{children}</Button>
       </HoverCardTrigger>
       <HoverCardContent className="w-80">
-        <div className="flex justify-between space-x-4">
-          <Avatar>
-            <AvatarImage src="https://github.com/vercel.png" />
-            <AvatarFallback>VC</AvatarFallback>
-          </Avatar>
-          <div className="space-y-1">
-            <h4 className="text-sm font-semibold">@nextjs</h4>
-            <p className="text-sm">
-              The React Framework – created and maintained by @vercel.
-            </p>
-            <div className="flex items-center pt-2">
-              <CalendarDays className="w-4 h-4 mr-2 opacity-70" />{" "}
-              <span className="text-xs text-muted-foreground">
-                Joined December 2021
-              </span>
-            </div>
-          </div>
-        </div>
+        <ProfileMiniDetails isViewProfileEnabled={true} />
       </HoverCardContent>
     </HoverCard>
   );

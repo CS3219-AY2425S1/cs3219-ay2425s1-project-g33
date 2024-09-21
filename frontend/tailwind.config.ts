@@ -15,10 +15,16 @@ const config: Config = {
           100: "var(--background-100)",
           200: "var(--background-200)",
         },
-        foreground: "var(--foreground)",
+        foreground: {
+          DEFAULT: "var(--foreground)",
+          100: "var(--foreground-100)",
+        },
         card: {
           DEFAULT: "var(--card)",
-          foreground: "var(--card-foreground)",
+          foreground: {
+            DEFAULT: "var(--card-foreground)",
+            100: "var(--card-foreground-100)",
+          },
         },
         popover: {
           DEFAULT: "var(--popover)",
