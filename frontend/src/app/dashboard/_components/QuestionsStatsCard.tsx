@@ -21,7 +21,7 @@ export function QuestionsStatsCard() {
   return (
     <Card className="flex flex-col items-center gap-1 p-5">
       <DifficultyPieChart />
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1">
         <DifficultySubStatCard type="easy" />
         <DifficultySubStatCard type="medium" />
         <DifficultySubStatCard type="hard" />
@@ -32,8 +32,8 @@ export function QuestionsStatsCard() {
 
 function DifficultySubStatCard({ type }: { type: "easy" | "medium" | "hard" }) {
   return (
-    <Card className="text-center shadow-none">
-      <CardContent className="px-5 py-2">
+    <Card className="text-center shadow-none bg-background-200">
+      <CardContent className="py-2">
         <CardHeader className="p-0">
           <h4
             className={clsx("text-sm ", {
@@ -76,7 +76,7 @@ export function DifficultyPieChart() {
             },
           } satisfies ChartConfig
         }
-        className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 min-h-[190px] mx-auto aspect-square"
+        className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 min-h-[170px] mx-auto aspect-square"
       >
         <ResponsiveContainer aspect={0.6}>
           <PieChart
@@ -85,8 +85,7 @@ export function DifficultyPieChart() {
             margin={{ top: 0, left: 0, right: 0, bottom: 0 }}
           >
             <ChartTooltip
-              position={{ x: 150, y: 85 }}
-              offset={-35}
+              position={{ x: 140, y: 85 }}
               cursor={true}
               content={
                 <ChartTooltipContent hideLabel={false} labelKey="Attempted" />
