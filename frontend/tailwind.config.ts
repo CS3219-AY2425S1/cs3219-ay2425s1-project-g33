@@ -10,15 +10,26 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        difficulty: {
+          "easy": "var(--difficulty-easy)",
+          "medium": "var(--difficulty-medium)",
+          "hard": "var(--difficulty-hard)",
+        },
         background: {
           DEFAULT: "var(--background)",
           100: "var(--background-100)",
           200: "var(--background-200)",
         },
-        foreground: "var(--foreground)",
+        foreground: {
+          DEFAULT: "var(--foreground)",
+          100: "var(--foreground-100)",
+        },
         card: {
           DEFAULT: "var(--card)",
-          foreground: "var(--card-foreground)",
+          foreground: {
+            DEFAULT: "var(--card-foreground)",
+            100: "var(--card-foreground-100)",
+          },
         },
         popover: {
           DEFAULT: "var(--popover)",
@@ -53,6 +64,9 @@ const config: Config = {
           "3": "var(--chart-3)",
           "4": "var(--chart-4)",
           "5": "var(--chart-5)",
+          "difficulty-easy": "var(--chart-difficulty-easy)",
+          "difficulty-medium": "var(--chart-difficulty-medium)",
+          "difficulty-hard": "var(--chart-difficulty-hard)",
         },
       },
       borderRadius: {
