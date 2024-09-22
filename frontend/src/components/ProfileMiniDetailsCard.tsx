@@ -5,7 +5,7 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
-import { Card, CardDescription } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Zap } from "lucide-react";
 
 interface ProfileMiniDetailsProps {
@@ -22,10 +22,11 @@ function ProfileMiniDetails({
           src={"https://non-existent.com"}
           name={"Jm San Diego"}
           isHoverEnabled={false}
+          className="w-16 h-16"
         />
         <div>
-          <h4>Jm San Diego</h4>
-          <small className="text-card-foreground-100">@skibidi_toilet</small>
+          <h4 className="leading-none">Jm San Diego</h4>
+          <small className="inline-block mb-1 text-card-foreground-100">@skibidi_toilet</small>
           <p>
             Proficiency:{" "}
             <span className="text-card-foreground-100">Expert</span>
@@ -51,9 +52,9 @@ function ProfileMiniDetails({
 export function ProfileMiniDetailsCard() {
   return (
     <Card className="p-5">
-      <CardDescription className="flex flex-col gap-5">
+      <div>
         <ProfileMiniDetails />
-      </CardDescription>
+      </div>
     </Card>
   );
 }
