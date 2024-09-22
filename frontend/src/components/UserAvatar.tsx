@@ -1,6 +1,5 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ProfileMiniDetailsHoverCard } from "./ProfileMiniDetailsCard";
-import clsx from "clsx";
 import { twMerge } from "tailwind-merge";
 
 interface UserAvatarProps {
