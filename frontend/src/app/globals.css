@@ -40,6 +40,12 @@
     --chart-3: #264753;
     --chart-4: #e8c468;
     --chart-5: #f4a361;
+    --chart-difficulty-easy: var(--difficulty-easy);
+    --chart-difficulty-medium: var(--difficulty-medium);
+    --chart-difficulty-hard: var(--difficulty-hard);
+    --difficulty-easy: #22c55e;
+    --difficulty-medium: #eab308;
+    --difficulty-hard: #ef4444;
     --radius: 0.5rem;
   }
 
@@ -74,6 +80,13 @@
     --chart-3: #4d5940;
     --chart-4: #ab60c5;
     --chart-5: #d63372;
+    --chart-difficulty-easy: var(--difficulty-easy);
+    --chart-difficulty-medium: var(--difficulty-medium);
+    --chart-difficulty-hard: var(--difficulty-hard);
+    --difficulty-easy: #22c55e;
+    --difficulty-medium: #eab308;
+    --difficulty-hard: #ef4444;
+    --radius: 0.5rem;
   }
 }
 
@@ -109,6 +122,13 @@
     --chart-3: #4d5940;
     --chart-4: #ab60c5;
     --chart-5: #d63372;
+    --chart-difficulty-easy: var(--difficulty-easy);
+    --chart-difficulty-medium: var(--difficulty-medium);
+    --chart-difficulty-hard: var(--difficulty-hard);
+    --difficulty-easy: #22c55e;
+    --difficulty-medium: #eab308;
+    --difficulty-hard: #ef4444;
+    --radius: 0.5rem;
   }
 }
 
