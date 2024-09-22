@@ -8,7 +8,7 @@ export default function Navbar() {
   const links: NavLinkProps[] = [{ label: "Dashboard", href: "/dashboard" }];
 
   return (
-    <header className="sticky top-0 py-2 border-b bg-background">
+    <header className="sticky top-0 py-2 border-b bg-background z-10">
       <nav className="container flex items-center gap-5 mx-auto">
         {/* leave like this for now maybe use an svg icon later on */}
         <NavLogo />
