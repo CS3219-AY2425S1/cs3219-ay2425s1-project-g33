@@ -1,7 +1,6 @@
 #################
 ## DEVELOPMENT ##
 #################
-version: "3"
 services:
   gateway-service:
     build:
@@ -9,6 +8,8 @@ services:
       target: development
     container_name: gateway-service
     command: npm run start:dev
+    env_file:
+      - ./gateway-service/.env
     ports:
       - "4000:4000"
     volumes:
@@ -17,6 +18,7 @@ services:
     depends_on:
       - questions-service
       - users-service
+      - auth-service
     networks:
       - backend-network
 
@@ -33,6 +35,8 @@ services:
       - ./questions-service/.env
     networks:
       - backend-network
+    ports:
+      - "3002:4000"
 
   users-service:
     build:
@@ -47,6 +51,24 @@ services:
       - ./users-service/.env
     networks:
       - backend-network
+    ports:
+      - "3001:4000"
+
+  auth-service:
+    build:
+      context: ./auth-service
+      target: development
+    container_name: auth-service
+    volumes:
+      - ./auth-service:/app
+      - /app/node_modules
+    command: npm run start:dev
+    env_file:
+      - ./auth-service/.env
+    networks:
+      - backend-network
+    ports:
+      - "3003:4000"
 
 networks:
   backend-network:
