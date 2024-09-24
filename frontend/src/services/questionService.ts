@@ -1,7 +1,14 @@
 "use server";
 
-import { Question, Questions, QuestionsArraySchema } from "@/types/Question";
-import { CreateQuestionFormSchema } from "@/validations/form";
+import {
+  NewQuestion,
+  NewQuestionSchema,
+  Questions,
+  QuestionsArraySchema,
+} from "@/types/Question";
+import {
+  CreateQuestionFormSchema,
+} from "@/validations/form";
 import { revalidatePath } from "next/cache";
 
 export default async function getQuestions(): Promise<Questions> {
@@ -27,20 +34,19 @@ export default async function getQuestions(): Promise<Questions> {
   }
 }
 
-export async function createQuestion(data: CreateQuestionFormSchema): Promise<void> {
+export async function createQuestion(
+  data: CreateQuestionFormSchema
+): Promise<void> {
   try {
-    const question = Question.parse(data);
-    
-    await fetch(
-      process.env.PUBLIC_API_URL + "/questions/create",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(question),
-      }
-    );
+    const question: NewQuestion = NewQuestionSchema.parse(data);
+
+    await fetch(process.env.PUBLIC_API_URL + "/questions/create", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(question),
+    });
 
     revalidatePath("/dashboard");
     console.log("Question created successfully");
