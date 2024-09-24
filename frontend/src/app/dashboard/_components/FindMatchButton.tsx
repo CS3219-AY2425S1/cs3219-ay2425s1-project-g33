@@ -11,7 +11,7 @@ import {
 export function FindMatchButton() {
   return (
     <Sheet>
-      <SheetTrigger>
+      <SheetTrigger asChild>
         <Button className="w-full">Practice Now</Button>
       </SheetTrigger>
       <SheetContent>
