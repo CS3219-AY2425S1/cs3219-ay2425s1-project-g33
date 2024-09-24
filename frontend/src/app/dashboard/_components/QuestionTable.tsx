@@ -34,8 +34,11 @@ export default async function QuestionTable() {
               </TableCell>
               <TableCell>{question.title}</TableCell>
               <TableCell className="flex flex-wrap gap-2">
-                {question.categories.map((category) => (
-                  <label className="px-3 py-1 rounded-md bg-background-200 text-primary">
+                {question.categories.map((category, id) => (
+                  <label
+                    key={id}
+                    className="px-3 py-1 rounded-md bg-background-200 text-primary"
+                  >
                     {category}
                   </label>
                 ))}
