@@ -1,12 +1,10 @@
 import { z } from "zod";
 
 export const QuestionSchema = z.object({
-  supportedLanguages: z.array(z.string()),
   _id: z.string(),
   title: z.string(),
-  questionNumber: z.number(),
   slug: z.string(),
-  description: z.string(),
+  description: z.string().optional(),
   difficulty: z.enum(["Easy", "Medium", "Hard"]),
   categories: z.array(z.string()),
 });
