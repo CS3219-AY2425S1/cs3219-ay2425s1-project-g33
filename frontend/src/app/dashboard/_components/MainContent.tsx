@@ -1,7 +1,5 @@
-import QuestionTable from "./QuestionTable";
-import FilterBar from "./FilterBar";
+import QuestionTable from "./QuestionTable/QuestionTable";
 import WelcomeMessage from "./WelcomeMessage";
-import PaginationBar from "./Pagination";
 import { cn } from "@/lib/utils";
 
 export default function MainContent() {
@@ -13,9 +11,7 @@ export default function MainContent() {
       )}
     >
       <WelcomeMessage />
-      <FilterBar />
       <QuestionTable />
-      <PaginationBar />
     </section>
   );
 }

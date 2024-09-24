@@ -12,7 +12,7 @@ export default function SideContents() {
         "col-span-4 xl:col-span-3 2xl:col-span-2"
       )}
     >
-      <aside className="sticky flex flex-col gap-4 h-fit top-20">
+      <aside className="sticky flex flex-col gap-4 h-fit top-[5.5rem]">
         <ProfileMiniDetailsCard />
         <StreakCalendarCard />
         <QuestionsStatsCard />
