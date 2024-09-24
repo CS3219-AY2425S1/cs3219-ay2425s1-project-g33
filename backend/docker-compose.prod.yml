@@ -1,0 +1,47 @@
+################
+## PRODUCTION ##
+################
+version: "3"
+services:
+  gateway-service:
+    build:
+      context: ./gateway-service
+      target: production
+    container_name: gateway-service
+    command: npm run start:prod
+    ports:
+      - "4000:4000"
+    restart: always
+    depends_on:
+      - questions-service
+      - users-service
+    networks:
+      - backend-network
+
+  questions-service:
+    build:
+      context: ./questions-service
+      target: production
+    container_name: questions-service
+    command: npm run start:prod
+    restart: always
+    env_file:
+      - ./questions-service/.env
+    networks:
+      - backend-network
+
+  users-service:
+    build:
+      context: ./users-service
+      target: production
+    container_name: users-service
+    command: npm run start:prod
+    restart: always
+    env_file:
+      - ./users-service/.env
+    networks:
+      - backend-network
+
+networks:
+  backend-network:
+    driver: bridge

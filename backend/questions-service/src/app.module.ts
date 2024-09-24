@@ -8,7 +8,8 @@ import { QuestionSchema } from './schema/question.schema';
 dotenv.config();
 
 @Module({
-  imports: [ MongooseModule.forRoot(process.env.MONGO_CONNECTION_STRING),
+  imports: [
+    MongooseModule.forRoot(process.env.MONGO_CONNECTION_STRING),
     MongooseModule.forFeature([
       {
         name: 'Question',
