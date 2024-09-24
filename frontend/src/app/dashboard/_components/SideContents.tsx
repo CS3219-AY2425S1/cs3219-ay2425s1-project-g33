@@ -9,7 +9,7 @@ export default function SideContents() {
     <div
       className={cn(
         "relative h-full w-full",
-        "col-span-4 xl:col-span-3 2xl:col-span-2"
+        "col-span-4 xl:col-span-3"
       )}
     >
       <aside className="sticky flex flex-col gap-4 h-fit top-20">
