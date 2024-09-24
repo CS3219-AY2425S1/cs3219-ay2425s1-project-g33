@@ -9,7 +9,7 @@ export default function Navbar() {
 
   return (
     <header className="sticky top-0 z-10 py-2 border-b bg-background">
-      <nav className="container flex items-center gap-5 mx-auto">
+      <nav className="container flex items-center gap-5 mx-auto h-10">
         {/* leave like this for now maybe use an svg icon later on */}
         <NavLogo />
         <NavLinks links={links} />

@@ -14,6 +14,7 @@ async function bootstrap() {
     }),
   );
   app.useGlobalInterceptors(new ResponseInterceptor());
+  app.enableCors();
   await app.listen(4000);
   console.log('Gateway Service is listening on port 4000');
 }
