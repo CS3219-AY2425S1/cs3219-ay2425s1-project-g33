@@ -16,7 +16,7 @@ import {
   
   export function TextInput<TFieldValues extends FieldValues>({ label, name, placeholder }: TextInputProps<TFieldValues>) {
     const form = useFormContext();
-    
+
     return (
       <FormField
         control={form.control}
@@ -27,7 +27,7 @@ import {
             <FormControl>
               <Input placeholder={placeholder} {...field} />
             </FormControl>
-            <FormMessage>Error</FormMessage>
+            <FormMessage></FormMessage>
           </FormItem>
         )}
       />

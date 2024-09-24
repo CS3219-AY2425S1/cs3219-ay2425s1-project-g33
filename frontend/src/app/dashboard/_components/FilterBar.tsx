@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -9,6 +10,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import useAdvancedSearchParams from "@/hooks/useAdvancedSearchParams";
+import { CreateQuestionModal } from "./CreateQuestionModal";
 
 export default function FilterBar() {
   const params = useAdvancedSearchParams();
@@ -51,9 +53,12 @@ export default function FilterBar() {
             </SelectContent>
           </Select>
         </div>
-        <div className="flex flex-row gap-4">
+        <div className="flex flex-row flex-1 gap-4">
           <Input placeholder="Search" />
         </div>
+        <CreateQuestionModal>
+          <Button variant="soft">Add Question</Button>
+        </CreateQuestionModal>
       </div>
       {/*
       TODO: Show all the search params

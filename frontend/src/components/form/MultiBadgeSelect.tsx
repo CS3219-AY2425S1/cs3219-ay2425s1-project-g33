@@ -390,10 +390,11 @@ MultiBadgeSelect.displayName = "MultiBadgeSelect";
 interface MultiBadgeSelectInputProps<TFieldValues extends FieldValues> {
   label: string;
   name: FieldPathByValue<TFieldValues, string[]>;
+  options: { value: string; label: string }[];
 }
 export default function MultiBadgeSelectInput<
   TFieldValues extends FieldValues
->({ label, name }: MultiBadgeSelectInputProps<TFieldValues>) {
+>({ label, name, options }: MultiBadgeSelectInputProps<TFieldValues>) {
   const form = useFormContext();
 
   return (
@@ -407,16 +408,10 @@ export default function MultiBadgeSelectInput<
             <MultiBadgeSelect
               defaultValue={field.value}
               maxCount={10}
-              options={[
-                { value: "Two Sum", label: "Two Sum" },
-                { value: "Sliding Window", label: "Sliding Window" },
-                { value: "Dynamic Programming", label: "Dynamic Programming" },
-                { value: "String", label: "String" },
-                { value: "Trees", label: "Trees" },
-              ]}
+              options={options}
               onValueChange={(value) => {
-                // @ts-expect-error: we ignore since PathByValue should ensure name are of type string[] from the props 
-                // but rhf currently has this issue according to github discussion hence ignoring the ts issue
+                // @ts-expect-error: we ignore since PathByValue should ensure name are of type string[] from the props
+                // but rhf currently has this issue according to github discussion hence ignoring the ts issue by: jmsandiegoo
                 form.setValue(name, value);
               }}
             />
