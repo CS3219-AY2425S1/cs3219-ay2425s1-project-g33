@@ -3,6 +3,7 @@ import {
   NestInterceptor,
   ExecutionContext,
   CallHandler,
+  HttpStatus,
   HttpException,
 } from '@nestjs/common';
 import { Observable, throwError } from 'rxjs';
@@ -12,6 +13,7 @@ interface ResponseFormat<T> {
   statusCode: number;
   message: string;
   data?: T;
+  error?: { [key: string]: any };
 }
 
 @Injectable()
@@ -28,10 +30,19 @@ export class ResponseInterceptor<T> implements NestInterceptor {
       })),
       catchError((error) => {
         // Handle errors and format the response
+        const statusCode =
+          error instanceof HttpException
+            ? error.getStatus()
+            : HttpStatus.INTERNAL_SERVER_ERROR;
+
+        const message = error.message || 'Internal Server Error';
+
         const response = {
-          statusCode: error instanceof HttpException ? error.getStatus() : 500,
-          message: error.message || 'Internal Server Error',
+          statusCode,
+          message,
+          error: error.response || error.stack || null,
         };
+
         return throwError(() => response);
       }),
     );
