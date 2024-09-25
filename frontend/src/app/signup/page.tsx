@@ -18,16 +18,28 @@ export default function SignUpPage() {
     confirmPassword: '',
   });
 
+  const [errors, setErrors] = useState<{ [key: string]: string}>({});
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({...formData, [e.target.name]: e.target.value});
   };
 
+  const validateForm = () => {
+    let formErrors: { [key:string]: string } = {};
 
+    if (!formData.username) formErrors.username = "Please choose a username.";
+    if (!formData.email) formErrors.email = "Please enter a valid email address.";
+    if (!formData.password) formErrors.password = "Password is required.";
+    if (formData.password !== formData.confirmPassword) formErrors.confirmPassword = "Passwords do not match.";
+
+    setErrors(formErrors);
+    return Object.keys(formErrors).length === 0;
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+    if (!validateForm()) return;
 
     try {
       const response = await fetch('/api/signup', {
@@ -64,6 +76,7 @@ export default function SignUpPage() {
                     onChange={handleChange}
                     className="rounded-md w-full py-2 pl-10 bg-input-foreground"
                     />
+                    {errors.username && <p className="text-destructive">{errors.username}</p>}
                 </div>
 
 
@@ -76,28 +89,31 @@ export default function SignUpPage() {
                     onChange={handleChange}
                     className="rounded-md w-full py-2 pl-10 bg-input-foreground"
                     />
+                    {errors.email && <p className="text-destructive">{errors.email}</p>}
                 </div>
 
                 <div>
                   <input
-                    type="text"
-                    name="passwrod"
+                    type="password"
+                    name="password"
                     placeholder="Password"
                     value={formData.password}
                     onChange={handleChange}
                     className="rounded-md w-full py-2 pl-10 bg-input-foreground"
                     />
+                    {errors.password && <p className="text-destructive">{errors.password}</p>}
                 </div>
 
                 <div>
                   <input
-                    type="text"
-                    name="confirm password"
+                    type="password"
+                    name="confirmPassword"
                     placeholder="Confirm Password"
                     value={formData.confirmPassword}
                     onChange={handleChange}
                     className="rounded-md w-full py-2 pl-10 bg-input-foreground"
                     />
+                    {errors.confirmPassword && <p className="text-destructive">{errors.confirmPassword}</p>}
                 </div>
               </div>
               
@@ -106,9 +122,10 @@ export default function SignUpPage() {
                 <a href="#" className="hover: underline text-sm"> Forgot password? </a>
               </div>
               
+              {/* Sign in Button */}
               <button 
-                type="button"
-                className="w-full bg-primary rounded-md py-2"
+                type="submit"
+                className="w-full bg-primary font-bold rounded-md py-2"
               > 
               Sign In
               </button>
