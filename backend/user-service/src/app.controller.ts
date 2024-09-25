@@ -115,10 +115,13 @@ export class AppController {
         if (
           await this.appService.comparePasswords(data.password, user.password)
         ) {
+          const userObj = user.toObject();
+          delete userObj.password;
+
           result = {
             status: HttpStatus.OK,
             message: 'user_validated',
-            user: user,
+            user: userObj,
             errors: null,
           };
         } else {

@@ -3,12 +3,11 @@ import { Inject, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Credentials, OAuth2Client } from 'google-auth-library';
 import { ClientProxy } from '@nestjs/microservices';
-import { GenerateJwtDto, ValidateUserCredDto } from './dto';
+import { GenerateJwtDto } from './dto';
 import { HttpService } from '@nestjs/axios';
 import { RpcException } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import axios, { AxiosResponse } from 'axios';
-import { IAuthGenerateJwt } from './interfaces';
 
 @Injectable()
 export class AppService {
@@ -31,19 +30,6 @@ export class AppService {
     return this.jwtService.sign(payload);
   }
 
-  async validateUser(data: ValidateUserCredDto): Promise<boolean> {
-    const { password, hashedPassword } = data;
-
-    if (this.validatePassword(password, hashedPassword)) {
-      return true;
-    }
-    return false;
-  }
-
-  private async validatePassword(password: string, hashedPassword: string) {
-    return bcrypt.compare(password, hashedPassword);
-  }
-
   async validateGoogleUser(code: string): Promise<any> {
     try {
       const tokens = await this.exchangeGoogleCodeForTokens(code);
@@ -52,7 +38,7 @@ export class AppService {
 
       const payload = { email: user.email, sub: user.id };
       const jwtToken = this.jwtService.sign(payload);
-      
+
       return { token: jwtToken, user };
     } catch (error) {
       throw new RpcException('Unable to validate Google user');

@@ -21,15 +21,17 @@ export class AppService {
     });
 
     const createdUser = await userModel.save();
-    const userObject = createdUser.toObject();
-    delete userObject.password;
+    const userObj = createdUser.toObject();
+    delete userObj.password;
 
-    return userObject;
+    return userObj;
   }
 
   public async getUserByEmail(params: GetUserByEmailDto): Promise<IUser> {
     const email = params.email;
-    return await this.userModel.findOne({ email }).exec();
+    const user = await this.userModel.findOne({ email }).exec();
+
+    return user;
   }
 
   public async comparePasswords(

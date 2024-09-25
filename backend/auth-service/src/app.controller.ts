@@ -2,7 +2,6 @@ import { Controller, Get, HttpStatus } from '@nestjs/common';
 import { AppService } from './app.service';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { IAuthGenerateJwt, IAuthJwtResponse } from './interfaces';
-import { ValidateUserDto } from './dto';
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
@@ -34,17 +33,6 @@ export class AppController {
         message: 'token_create_bad_request',
         token: null,
       };
-    }
-
-    return result;
-  }
-
-  @MessagePattern({ cmd: 'validate-user' })
-  async validateUser(@Payload() data: ValidateUserDto): Promise<boolean> {
-    let result = false;
-
-    if (data) {
-      result = await this.appService.validateUser(data);
     }
 
     return result;
