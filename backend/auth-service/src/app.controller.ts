@@ -21,7 +21,6 @@ export class AppController {
   async googleAuthRedirect(data: { code: string }) {
     const { code } = data;
     const response = await this.appService.validateGoogleUser(code);
-    console.log(response);
     return { token: response.token, user: response.user };
   }
 

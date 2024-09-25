@@ -23,6 +23,12 @@ export class QuestionController {
     return this.questionService.getQuestions(dto);
   }
 
+  // Get question categories
+  @Get('categories')
+  getQuestionCategories() {
+    return this.questionService.getCategories();
+  }
+
   // Get question details by slug
   @Get(':slug')
   getQuestionDetailsBySlug(@Param('slug') slug: string) {
