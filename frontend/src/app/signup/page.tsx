@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
+import Link from "next/link";
 
 interface FormData {
   username: string;
@@ -153,7 +154,7 @@ export default function SignUpPage() {
 
             {/* Sign up here */}
             <div className="text-center justify-center text-sm mt-6"> 
-              <p> Already have an account? Click here to <a href="#" className="hover:underline">Sign in</a> </p>
+              <p> Already have an account? Click here to <Link href="/signin" className="hover:underline">Sign in</Link> </p>
             </div>
 
         </div>
