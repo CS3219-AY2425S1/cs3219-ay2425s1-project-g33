@@ -7,7 +7,7 @@ export default function MainContent() {
     <section
       className={cn(
         "flex flex-col gap-4 h-full",
-        "col-span-8 xl:col-span-9 2xl:col-span-10"
+        "col-span-8 xl:col-span-9"
       )}
     >
       <WelcomeMessage />
