@@ -22,7 +22,6 @@ export class AuthController {
   @Get('google')
   async googleAuth(@Res() res: Response) {
     const redirectUrl = this.authService.getGoogleOAuthUrl();
-    console.log(redirectUrl);
     res.redirect(redirectUrl);
 
     // In actuality, return url back to client

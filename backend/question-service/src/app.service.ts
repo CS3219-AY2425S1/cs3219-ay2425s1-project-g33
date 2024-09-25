@@ -4,6 +4,7 @@ import { Model, Types } from 'mongoose';
 import { Question } from './schema/question.schema';
 import { CreateQuestionDto, GetQuestionsResponse } from './dto';
 import { RpcException } from '@nestjs/microservices';
+import { QUESTION_CATEGORIES } from './constants/question-categories.constant';
 
 @Injectable()
 export class AppService {
@@ -35,7 +36,8 @@ export class AppService {
     const attributes = {
       title: 1,
       slug: 1,
-      questionId: 1,
+      description: 1,
+      questionNumber: 1,
       difficulty: 1,
       categories: 1,
     };
@@ -53,14 +55,8 @@ export class AppService {
         .select(attributes)
         .exec();
 
-      // Fetch all unique categories from the questions collection
-      const categoriesAggregation = await this.questionModel
-        .distinct('categories')
-        .exec();
-
       return {
         questions,
-        totalCategories: categoriesAggregation,
         totalCount,
         currentPage: page,
         totalPages: Math.ceil(totalCount / limit),
@@ -111,6 +107,7 @@ export class AppService {
 
       return newQuestion.save();
     } catch (error) {
+      console.error(error)
       throw new RpcException(error.message);
     }
   }
@@ -150,5 +147,9 @@ export class AppService {
     } catch (error) {
       throw new RpcException(error.message);
     }
+  }
+
+  async getCategories():Promise<{ categories: string[] }>{
+    return {categories: QUESTION_CATEGORIES}
   }
 }
