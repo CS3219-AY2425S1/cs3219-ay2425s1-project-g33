@@ -10,12 +10,19 @@ async function bootstrap() {
       transport: Transport.TCP,
       options: {
         host: '0.0.0.0',
-        port: 3003,
+        port: 3002,
       },
     },
   );
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+      transformOptions: { enableImplicitConversion: true },
+      whitelist: true,
+      forbidNonWhitelisted: true,
+    }),
+  );
   await app.listen();
-  console.log('Auth Service is listening on port 3003');
+  console.log('Question Service is listening on port 3002');
 }
 bootstrap();
