@@ -1,9 +1,51 @@
+"use client";
+
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
-import { FaGithub, FaGoogle } from "react-icons/fa";
-import { FiUser, FiLock } from "react-icons/fi";
+
+interface FormData {
+  username: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+}
 
 export default function SignUpPage() {
-  return <div className="min-h-screen max-w-sm container grid gap-4 mx-auto items-center">
+  const [formData, setFormData] = useState<FormData>({
+    username:'',
+    email: '',
+    password: '',
+    confirmPassword: '',
+  });
+
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({...formData, [e.target.name]: e.target.value});
+  };
+
+
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+
+    try {
+      const response = await fetch('/api/signup', {
+        method: 'POST', 
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify (formData),
+      });
+      if (response.ok) {
+        alert('Sign up successful!');
+      } else {
+        alert('Sign up failed.');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+
+  return (<div className="min-h-screen max-w-sm container grid gap-4 mx-auto items-center">
     <section className="col-span-9 flex flex-col gap-4 ">
         <Card className="bg-background-200 p-2">
           <div className="flex flex-col p-8">
@@ -11,14 +53,16 @@ export default function SignUpPage() {
             <h2 className="mb-6">Join PeerPrep today and start your journey toward acing tech interviews!</h2>
 
             {/* To input log in details */}
-            <form>
+            <form onSubmit={handleSubmit}>
               <div className="flex flex-col gap-y-4"> 
                 <div>
                   <input
                     type="text"
                     name="username"
                     placeholder="Username"
-                    className="rounded-md w-full py-2 pl-10 bg-muted-foreground"
+                    value={formData.username}
+                    onChange={handleChange}
+                    className="rounded-md w-full py-2 pl-10 bg-input-foreground"
                     />
                 </div>
 
@@ -28,7 +72,9 @@ export default function SignUpPage() {
                     type="text"
                     name="email"
                     placeholder="Email"
-                    className="rounded-md w-full py-2 pl-10 bg-muted-foreground"
+                    value={formData.email}
+                    onChange={handleChange}
+                    className="rounded-md w-full py-2 pl-10 bg-input-foreground"
                     />
                 </div>
 
@@ -37,7 +83,9 @@ export default function SignUpPage() {
                     type="text"
                     name="passwrod"
                     placeholder="Password"
-                    className="rounded-md w-full py-2 pl-10 bg-muted-foreground"
+                    value={formData.password}
+                    onChange={handleChange}
+                    className="rounded-md w-full py-2 pl-10 bg-input-foreground"
                     />
                 </div>
 
@@ -46,7 +94,9 @@ export default function SignUpPage() {
                     type="text"
                     name="confirm password"
                     placeholder="Confirm Password"
-                    className="rounded-md w-full py-2 pl-10 bg-muted-foreground"
+                    value={formData.confirmPassword}
+                    onChange={handleChange}
+                    className="rounded-md w-full py-2 pl-10 bg-input-foreground"
                     />
                 </div>
               </div>
@@ -76,11 +126,11 @@ export default function SignUpPage() {
             {/* Socials */}
             <div className="flex flex-row gap-x-4 justify-center">
               <button className="rounded-md">
-                <FaGithub size={24}/>
+                {/*<FaGithub size={24}/> */}
               </button>
 
               <button className="rounded-md">
-                <FaGoogle size={24}/>
+               {/* <FaGoogle size={24}/>*/}
               </button>
             </div>
 
@@ -92,6 +142,6 @@ export default function SignUpPage() {
         </div>
         </Card>
     </section>
-  </div>;
+  </div>
+  );
 }
-
