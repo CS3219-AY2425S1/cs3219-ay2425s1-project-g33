@@ -10,8 +10,8 @@ import { Observable, throwError } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 
 interface ResponseFormat<T> {
-  statusCode?: number;
-  message?: string;
+  statusCode: number;
+  message: string;
   data?: T;
   error?: { [key: string]: any };
 }
@@ -24,6 +24,8 @@ export class ResponseInterceptor<T> implements NestInterceptor {
   ): Observable<ResponseFormat<T>> {
     return next.handle().pipe(
       map((data) => ({
+        statusCode: HttpStatus.OK,
+        message: 'Success',
         data,
       })),
       catchError((error) => {

@@ -1,7 +1,7 @@
-import { Inject, Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
-import { AuthDto, ValidateUserCredDto } from './dto';
+import { AuthDto } from './dto';
 import { Token } from './interfaces';
 
 @Injectable()

@@ -3,7 +3,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Credentials, OAuth2Client } from 'google-auth-library';
 import { ClientProxy } from '@nestjs/microservices';
-import { AuthDto, ValidateUserCredDto } from './dto';
+import { AuthDto } from './dto';
 import { HttpService } from '@nestjs/axios';
 import { RpcException } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
@@ -28,19 +28,80 @@ export class AppService {
     });
   }
 
-  private hashData(data: string): Promise<string> {
-    return bcrypt.hash(data, SALT_ROUNDS);
-  }
+  public async signUpLocal(dto: AuthDto): Promise<Token> {
+    const hashedPassword = await this.hashData(dto.password);
 
-  async updateRefreshToken(id: string, refreshToken: string) {
-    const hash = await this.hashData(refreshToken);
-
-    return await firstValueFrom(
+    const newUser = await firstValueFrom(
       this.userClient.send(
-        { cmd: 'update-refresh-token' },
-        { id, refreshToken: hash },
+        { cmd: 'create-user' },
+        {
+          email: dto.email,
+          password: hashedPassword,
+        },
       ),
     );
+
+    // Bringing this method after receiving the response from the user service
+    // As we want the user id/other user info to be involved in generating the tokens
+    const userId = newUser._id.toString();
+    const tokens = await this.generateTokens({
+      id: userId,
+      email: newUser.email,
+    });
+    const updateResponse = await firstValueFrom(
+      this.userClient.send(
+        { cmd: 'update-refresh-token' },
+        { id: userId, refreshToken: tokens.refresh_token },
+      ),
+    );
+
+    if (!updateResponse) {
+      throw new RpcException('Error updating refresh token');
+    }
+
+    return tokens;
+  }
+
+  public async logInLocal(dto: AuthDto): Promise<Token> {
+    const user = await firstValueFrom(
+      this.userClient.send(
+        {
+          cmd: 'get-user-by-email',
+        },
+        dto.email,
+      ),
+    );
+
+    if (!user) {
+      throw new RpcException('Invalid User Credentials. Access Denied');
+    }
+
+    const passwordMatch = await bcrypt.compare(dto.password, user.password);
+    if (!passwordMatch) {
+      throw new RpcException('Invalid User Credentials. Access Denied');
+    }
+
+    const userId = user._id.toString();
+    const tokens = await this.generateTokens({
+      id: userId,
+      email: user.email,
+    });
+    const updateResponse = await firstValueFrom(
+      this.userClient.send(
+        { cmd: 'update-refresh-token' },
+        { id: userId, refreshToken: tokens.refresh_token },
+      ),
+    );
+
+    if (!updateResponse) {
+      throw new RpcException('Error updating refresh token');
+    }
+
+    return tokens;
+  }
+
+  private hashData(data: string): Promise<string> {
+    return bcrypt.hash(data, SALT_ROUNDS);
   }
 
   // Could include my fields like roles in the future
@@ -74,57 +135,6 @@ export class AppService {
       access_token: accessToken,
       refresh_token: refreshToken,
     };
-  }
-
-  async signUpLocal(data: AuthDto): Promise<Token> {
-    const hashedPassword = await this.hashData(data.password);
-
-    const newUser = await firstValueFrom(
-      this.userClient.send(
-        { cmd: 'create-user' },
-        {
-          email: data.email,
-          password: hashedPassword,
-        },
-      ),
-    );
-
-    // Bringing this method after receiving the response from the user service
-    // As we want the user id/other user info to be involved in generating the tokens
-    const userId = newUser._id.toString();
-    const tokens = await this.generateTokens({
-      id: userId,
-      email: newUser.email,
-    });
-    const updateResponse = await firstValueFrom(
-      this.userClient.send(
-        { cmd: 'update-refresh-token' },
-        { id: userId, refreshToken: tokens.refresh_token },
-      ),
-    );
-
-    if (!updateResponse) {
-      throw new RpcException('Error updating refresh token');
-    }
-
-    return tokens;
-  }
-
-  async validateUserCred(data: ValidateUserCredDto): Promise<boolean> {
-    try {
-      const { password, hashedPassword } = data;
-
-      if (this.validatePassword(password, hashedPassword)) {
-        return true;
-      }
-      return false;
-    } catch (error) {
-      throw new RpcException('Error validating user credentials');
-    }
-  }
-
-  private async validatePassword(password: string, hashedPassword: string) {
-    return bcrypt.compare(password, hashedPassword);
   }
 
   async validateGoogleUser(code: string): Promise<any> {

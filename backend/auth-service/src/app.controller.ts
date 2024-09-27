@@ -1,20 +1,20 @@
 import { Controller, Get } from '@nestjs/common';
 import { AppService } from './app.service';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { AuthDto, ValidateUserCredDto } from './dto';
+import { AuthDto } from './dto';
 
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
   @MessagePattern({ cmd: 'local-sign-up' })
-  signUpLocal(@Payload() data: AuthDto) {
-    return this.appService.signUpLocal(data);
+  signUpLocal(@Payload() dto: AuthDto) {
+    return this.appService.signUpLocal(dto);
   }
 
-  @MessagePattern({ cmd: 'validate-user-cred' })
-  validateUser(@Payload() data: ValidateUserCredDto) {
-    return this.appService.validateUserCred(data);
+  @MessagePattern({ cmd: 'local-log-in' })
+  logInLocal(@Payload() dto: AuthDto) {
+    return this.appService.logInLocal(dto);
   }
 
   @MessagePattern({ cmd: 'google-auth-redirect' })
