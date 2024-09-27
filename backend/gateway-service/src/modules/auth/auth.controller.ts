@@ -21,16 +21,35 @@ export class AuthController {
 
   @Get('google')
   async googleAuth(@Res() res: Response) {
-    const redirectUrl = await this.authService.getGoogleOAuthUrl();
+    const redirectUrl = this.authService.getGoogleOAuthUrl();
     res.redirect(redirectUrl);
+
+    // In actuality, return url back to client
+    // return {url: redirectUrl}
   }
 
   @Get('google/callback')
-  async googleAuthRedirect(@Query('code') code: string, @Res() res: Response) {
+  async googleAuthCallback(@Query('code') code: string) {
     const response = await this.authService.getGoogleAuthRedirect(code);
 
-    const jwtToken = response.token;
-    // Redirect the user with the JWT token (or you can set a cookie here)
-    return { token: jwtToken };
+    return { token: response.token, user: response.user };
+  }
+
+  @Get('github')
+  async githubLogin(@Res() res: Response) {
+    const redirectUrl = this.authService.getGithubOAuthUrl();
+    res.redirect(redirectUrl);
+    // In actuality, return url back to client
+    // return {url: redirectUrl}
+  }
+
+  @Get('github/callback')
+  async githubAuthCallback(@Query('code') code: string) {
+    const response = await this.authService.getGithubAuthRedirect(code);
+
+    return {
+      token: response.token,
+      user: response.user,
+    };
   }
 }

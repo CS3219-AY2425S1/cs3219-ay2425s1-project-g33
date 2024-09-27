@@ -1,4 +1,4 @@
-import { Controller, Get, UseInterceptors } from '@nestjs/common';
+import { Controller } from '@nestjs/common';
 import { AppService } from './app.service';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import {
@@ -44,5 +44,10 @@ export class AppController {
   async updateQuestion(@Payload() data: UpdateQuestionDto) {
     const { id, updatedQuestionInfo } = data;
     return this.appService.updateQuestion(id, updatedQuestionInfo);
+  }
+
+  @MessagePattern({cmd: 'get-categories'})
+  async getCategories() {
+    return this.appService.getCategories()
   }
 }
