@@ -5,6 +5,7 @@ import { Model } from 'mongoose';
 import { RpcException } from '@nestjs/microservices';
 import { User } from './schema/user.schema';
 import { CreateUserDto } from './dto';
+import { GetUserResponse } from './interfaces';
 
 const SALT_ROUNDS = 10;
 
@@ -32,8 +33,12 @@ export class AppService {
     return savedUser;
   }
 
-  public async getUserByEmail(email: string): Promise<User> {
-    const user = await this.userModel.findOne({ email }).exec();
+  public async getUserByEmail(email: string): Promise<GetUserResponse> {
+    const user = await this.userModel.findOne({ email: email }).exec();
+
+    if (!user) {
+      throw new RpcException('User not found');
+    }
 
     return user;
   }
