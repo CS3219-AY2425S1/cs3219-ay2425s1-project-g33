@@ -23,9 +23,7 @@ async function bootstrap() {
     allowedHeaders: 'Content-Type, Accept',
   });
   app.useGlobalInterceptors(new ResponseInterceptor());
-
-  setupSwagger(app);
-
+  app.enableCors();
   await app.listen(4000);
   console.log('Gateway Service is listening on port 4000');
 }
