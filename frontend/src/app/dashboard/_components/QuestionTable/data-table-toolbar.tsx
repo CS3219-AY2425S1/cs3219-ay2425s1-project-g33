@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { LucidePlus, LucideSearch } from "lucide-react";
 import { DataTableFacetedFilter } from "./data-table-faceted-filter";
 import { Table } from "@tanstack/react-table";
+import { CreateQuestionModal } from "../Forms/CreateQuestionModal";
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>;
@@ -23,7 +24,6 @@ export default function DataTableToolbar<TData>({
             <DataTableFacetedFilter
               column={table.getColumn("topics")}
               title="Topics"
-              // TODO: Get the topics from the API
               options={
                 categories?.map((category) => ({
                   label: category,
@@ -58,10 +58,12 @@ export default function DataTableToolbar<TData>({
               className="max-w-sm pl-10"
             />
           </div>
-          <Button variant="soft">
-            <LucidePlus className="mr-2" />
-            Create question
-          </Button>
+          <CreateQuestionModal>
+            <Button variant="soft">
+              <LucidePlus className="mr-2" />
+              Create question
+            </Button>
+          </CreateQuestionModal>
         </div>
       </div>
     </div>
