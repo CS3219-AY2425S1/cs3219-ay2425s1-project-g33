@@ -1,20 +1,43 @@
 import { z } from "zod";
+import { createResponseSchema } from "./Response";
+import { CategoriesSchema } from "./Category";
 
-export const QuestionSchema = z.object({
+const QuestionSchema = z.object({
   _id: z.string(),
   title: z.string(),
   slug: z.string(),
-  description: z.string().optional(),
+  description: z.string(),
   difficulty: z.enum(["Easy", "Medium", "Hard"]),
-  categories: z.array(z.string()),
+  categories: CategoriesSchema,
 });
 
-export const NewQuestionSchema = QuestionSchema.omit({ _id: true, slug: true });
+const NewQuestionSchema = QuestionSchema.omit({ _id: true, slug: true });
 
-export const QuestionsArraySchema = z.array(QuestionSchema);
+const QuestionsSchema = z.array(QuestionSchema);
 
-export type NewQuestion = z.infer<typeof NewQuestionSchema>;
+const QuestionsDataSchema = z.object({
+  questions: QuestionsSchema,
+});
 
-export type Question = z.infer<typeof QuestionSchema>;
+const QuestionResponseSchema = createResponseSchema(QuestionSchema);
+const QuestionsResponseSchema = createResponseSchema(QuestionsDataSchema);
 
-export type Questions = z.infer<typeof QuestionsArraySchema>;
+type Question = z.infer<typeof QuestionSchema>;
+type NewQuestion = z.infer<typeof NewQuestionSchema>;
+type Questions = z.infer<typeof QuestionsSchema>;
+type QuestionResponse = z.infer<typeof QuestionResponseSchema>;
+type QuestionsResponse = z.infer<typeof QuestionsResponseSchema>;
+
+export {
+  QuestionSchema,
+  NewQuestionSchema,
+  QuestionsSchema,
+  QuestionsDataSchema,
+  QuestionResponseSchema,
+  QuestionsResponseSchema,
+  type Question,
+  type NewQuestion,
+  type Questions,
+  type QuestionResponse,
+  type QuestionsResponse,
+};

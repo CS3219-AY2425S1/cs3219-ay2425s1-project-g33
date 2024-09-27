@@ -34,4 +34,8 @@ export class QuestionService {
     const payload: UpdateQuestionDto = { id, updatedQuestionInfo: data };
     return this.questionClient.send({ cmd: 'update-question' }, payload);
   }
+
+  getCategories() {
+    return this.questionClient.send({cmd: "get-categories"}, {})
+  }
 }
