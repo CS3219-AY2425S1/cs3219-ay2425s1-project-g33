@@ -35,7 +35,7 @@ export function TextAreaInput<TFieldValues extends FieldValues>({
               {...field}
             />
           </FormControl>
-          <FormMessage></FormMessage>
+          <FormMessage />
         </FormItem>
       )}
     />

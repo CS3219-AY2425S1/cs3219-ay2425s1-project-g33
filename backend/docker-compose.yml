@@ -16,39 +16,39 @@ services:
       - ./gateway-service:/app
       - /app/node_modules
     depends_on:
-      - questions-service
-      - users-service
+      - question-service
+      - user-service
       - auth-service
     networks:
       - backend-network
 
-  questions-service:
+  question-service:
     build:
-      context: ./questions-service
+      context: ./question-service
       target: development
-    container_name: questions-service
+    container_name: question-service
     volumes:
-      - ./questions-service:/app
+      - ./question-service:/app
       - /app/node_modules
     command: npm run start:dev
     env_file:
-      - ./questions-service/.env
+      - ./question-service/.env
     networks:
       - backend-network
     ports:
       - "3002:4000"
 
-  users-service:
+  user-service:
     build:
-      context: ./users-service
+      context: ./user-service
       target: development
-    container_name: users-service
+    container_name: user-service
     command: npm run start:dev
     volumes:
-      - ./users-service:/app
+      - ./user-service:/app
       - /app/node_modules
     env_file:
-      - ./users-service/.env
+      - ./user-service/.env
     networks:
       - backend-network
     ports:

@@ -1,6 +1,7 @@
 import { z } from "zod";
+import { createResponseSchema } from "./Response";
 
-export const QuestionSchema = z.object({
+const QuestionSchema = z.object({
   _id: z.string(),
   title: z.string(),
   slug: z.string(),
@@ -9,12 +10,34 @@ export const QuestionSchema = z.object({
   categories: z.array(z.string()),
 });
 
-export const NewQuestionSchema = QuestionSchema.omit({ _id: true, slug: true });
+const NewQuestionSchema = QuestionSchema.omit({ _id: true, slug: true });
 
-export const QuestionsArraySchema = z.array(QuestionSchema);
+const QuestionsSchema = z.array(QuestionSchema);
 
-export type NewQuestion = z.infer<typeof NewQuestionSchema>;
+const QuestionsDataSchema = z.object({
+  questions: QuestionsSchema,
+  totalCategories: z.array(z.string()),
+});
 
-export type Question = z.infer<typeof QuestionSchema>;
+const QuestionResponseSchema = createResponseSchema(QuestionSchema);
+const QuestionsResponseSchema = createResponseSchema(QuestionsDataSchema);
 
-export type Questions = z.infer<typeof QuestionsArraySchema>;
+type Question = z.infer<typeof QuestionSchema>;
+type NewQuestion = z.infer<typeof NewQuestionSchema>;
+type Questions = z.infer<typeof QuestionsSchema>;
+type QuestionResponse = z.infer<typeof QuestionResponseSchema>;
+type QuestionsResponse = z.infer<typeof QuestionsResponseSchema>;
+
+export {
+  QuestionSchema,
+  NewQuestionSchema,
+  QuestionsSchema as QuestionsArraySchema,
+  QuestionsDataSchema as QuestionDataSchema,
+  QuestionResponseSchema,
+  QuestionsResponseSchema,
+  type Question,
+  type NewQuestion,
+  type Questions,
+  type QuestionResponse,
+  type QuestionsResponse,
+};
