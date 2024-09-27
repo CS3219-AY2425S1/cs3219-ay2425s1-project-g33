@@ -24,7 +24,7 @@ export class ResponseInterceptor<T> implements NestInterceptor {
   ): Observable<ResponseFormat<T>> {
     return next.handle().pipe(
       map((data) => ({
-        statusCode: 200,
+        statusCode: HttpStatus.OK,
         message: 'Success',
         data,
       })),

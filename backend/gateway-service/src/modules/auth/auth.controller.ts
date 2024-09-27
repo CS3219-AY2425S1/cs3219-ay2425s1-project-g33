@@ -1,22 +1,34 @@
-import { Body, Controller, Get, Post, Query, Res } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Post,
+  Query,
+  Res,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Response } from 'express';
 import { ApiTags } from '@nestjs/swagger';
-import { SignUpDto, LogInDto } from './dto';
+import { AuthDto } from './dto';
+import { Token } from './interfaces';
 
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Post('signup')
-  signUp(@Body() data: SignUpDto) {
-    return this.authService.signUp(data);
+  @Post('local/signup')
+  @HttpCode(HttpStatus.CREATED)
+  signUp(@Body() data: AuthDto): Promise<Token> {
+    return this.authService.signUpLocal(data);
   }
 
-  @Post('login')
-  logIn(@Body() data: LogInDto) {
-    return this.authService.logIn(data);
+  @Post('local/login')
+  @HttpCode(HttpStatus.OK)
+  logIn(@Body() data: AuthDto): Promise<Token> {
+    return this.authService.logInLocal(data);
   }
 
   @Get('google')

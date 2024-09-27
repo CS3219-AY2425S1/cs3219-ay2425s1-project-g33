@@ -3,19 +3,20 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
-import { GoogleStrategy } from './strategy/google.strategy';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { GithubStrategy } from './strategy/github.strategy';
 import { HttpModule } from '@nestjs/axios';
+import {
+  AccessTokenStrategy,
+  RefreshTokenStrategy,
+  GoogleStrategy,
+  GithubStrategy,
+} from './strategies';
 
 @Module({
   imports: [
     PassportModule,
     HttpModule,
-    JwtModule.register({
-      secret: process.env.JWT_SECRET,
-      signOptions: { expiresIn: '1h' },
-    }),
+    JwtModule.register({}),
     ClientsModule.register([
       {
         name: 'USER_SERVICE',
@@ -28,6 +29,12 @@ import { HttpModule } from '@nestjs/axios';
     ]),
   ],
   controllers: [AppController],
-  providers: [AppService, GoogleStrategy, GithubStrategy],
+  providers: [
+    AppService,
+    AccessTokenStrategy,
+    RefreshTokenStrategy,
+    GoogleStrategy,
+    GithubStrategy,
+  ],
 })
 export class AppModule {}

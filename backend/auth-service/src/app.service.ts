@@ -3,11 +3,14 @@ import { Inject, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Credentials, OAuth2Client } from 'google-auth-library';
 import { ClientProxy } from '@nestjs/microservices';
-import { GenerateJwtDto, ValidateUserCredDto } from './dto';
+import { AuthDto } from './dto';
 import { HttpService } from '@nestjs/axios';
 import { RpcException } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import axios, { AxiosResponse } from 'axios';
+import { Token, TokenPayload } from './interfaces';
+
+const SALT_ROUNDS = 10;
 
 @Injectable()
 export class AppService {
@@ -25,26 +28,121 @@ export class AppService {
     });
   }
 
-  async generateJwt(user: GenerateJwtDto) {
-    const payload = { ...user };
-    return this.jwtService.sign(payload);
-  }
-
-  async validateUserCred(data: ValidateUserCredDto): Promise<boolean> {
+  public async signUpLocal(dto: AuthDto): Promise<Token> {
     try {
-      const { password, hashedPassword } = data;
+      const hashedPassword = await this.hashData(dto.password);
 
-      if (this.validatePassword(password, hashedPassword)) {
-        return true;
+      const newUser = await firstValueFrom(
+        this.userClient.send(
+          { cmd: 'create-user' },
+          {
+            email: dto.email,
+            password: hashedPassword,
+          },
+        ),
+      );
+
+      // Bringing this method after receiving the response from the user service
+      // As we want the user id/other user info to be involved in generating the tokens
+      const userId = newUser._id.toString();
+      const tokens = await this.generateTokens({
+        id: userId,
+        email: newUser.email,
+      });
+      const updateResponse = await firstValueFrom(
+        this.userClient.send(
+          { cmd: 'update-refresh-token' },
+          { id: userId, refreshToken: tokens.refresh_token },
+        ),
+      );
+
+      if (!updateResponse) {
+        throw new RpcException('Error updating refresh token');
       }
-      return false;
+
+      return tokens;
     } catch (error) {
-      throw new RpcException('Error validating user credentials');
+      throw new RpcException(error.message || 'Error creating user');
     }
   }
 
-  private async validatePassword(password: string, hashedPassword: string) {
-    return bcrypt.compare(password, hashedPassword);
+  public async logInLocal(dto: AuthDto): Promise<Token> {
+    try {
+      const user = await firstValueFrom(
+        this.userClient.send(
+          {
+            cmd: 'get-user-by-email',
+          },
+          dto.email,
+        ),
+      );
+
+      if (!user) {
+        throw new RpcException('Invalid User Credentials. Access Denied');
+      }
+
+      const passwordMatch = await bcrypt.compare(dto.password, user.password);
+      if (!passwordMatch) {
+        throw new RpcException('Invalid User Credentials. Access Denied');
+      }
+
+      const userId = user._id.toString();
+      const tokens = await this.generateTokens({
+        id: userId,
+        email: user.email,
+      });
+      const updateResponse = await firstValueFrom(
+        this.userClient.send(
+          { cmd: 'update-refresh-token' },
+          { id: userId, refreshToken: tokens.refresh_token },
+        ),
+      );
+
+      if (!updateResponse) {
+        throw new RpcException('Error updating refresh token');
+      }
+
+      return tokens;
+    } catch (error) {
+      throw new RpcException(error.message || 'Error logging in user');
+    }
+  }
+
+  private hashData(data: string): Promise<string> {
+    return bcrypt.hash(data, SALT_ROUNDS);
+  }
+
+  // Could include other fields like roles in the future
+  private async generateTokens(payload: TokenPayload): Promise<Token> {
+    const { id, email } = payload;
+
+    const [accessToken, refreshToken] = await Promise.all([
+      this.jwtService.signAsync(
+        {
+          sub: id,
+          email,
+        },
+        {
+          secret: process.env.JWT_SECRET,
+          expiresIn: '15m', // 15 minute
+        },
+      ),
+      this.jwtService.signAsync(
+        {
+          sub: id,
+          email,
+        },
+        {
+          secret: process.env.JWT_REFRESH_SECRET,
+          expiresIn: '7d', // 1 week
+        },
+      ),
+    ]);
+
+    return {
+      access_token: accessToken,
+      refresh_token: refreshToken,
+    };
   }
 
   async validateGoogleUser(code: string): Promise<any> {
@@ -55,7 +153,7 @@ export class AppService {
 
       const payload = { email: user.email, sub: user.id };
       const jwtToken = this.jwtService.sign(payload);
-      
+
       return { token: jwtToken, user };
     } catch (error) {
       throw new RpcException('Unable to validate Google user');
