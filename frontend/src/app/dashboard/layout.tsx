@@ -1,4 +1,5 @@
 import Navbar from "@/components/Navbar";
+import { Toaster } from "@/components/ui/toaster";
 import { ReactNode } from "react";
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
@@ -6,6 +7,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     <>
       <Navbar />
       <main>{children}</main>
+      <Toaster />
     </>
   );
 }
