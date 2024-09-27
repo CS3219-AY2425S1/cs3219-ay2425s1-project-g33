@@ -8,14 +8,30 @@ import {
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 import { MoreHorizontal } from "lucide-react";
+import { useState } from "react";
+import { EditQuestionModal } from "../../Forms/EditQuestionModal";
+import DeleteQuestionDialog from "../../Forms/DeleteQuestionDialog";
 
 const ActionsColumn: ColumnDef<Question> = {
   id: "Action",
   header: () => <div className="w-24 px-4 text-right">Actions</div>,
   cell: ({ row }) => {
+    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const question = QuestionSchema.parse(row.original);
+
     return (
       <div className="px-4 text-right">
+        <DeleteQuestionDialog
+          isOpen={isDeleteDialogOpen}
+          setIsOpen={setIsDeleteDialogOpen}
+          question={question}
+        />
+        <EditQuestionModal
+          isOpen={isEditModalOpen}
+          setIsOpen={setIsEditModalOpen}
+          question={question}
+        />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon">
@@ -26,16 +42,12 @@ const ActionsColumn: ColumnDef<Question> = {
           <DropdownMenuContent align="end">
             <DropdownMenuItem
               onClick={() => {
-                console.log("Edit", question._id);
+                setIsEditModalOpen(true);
               }}
             >
               Edit
             </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => {
-                console.log("Delete", question._id);
-              }}
-            >
+            <DropdownMenuItem onClick={() => setIsDeleteDialogOpen(true)}>
               Delete
             </DropdownMenuItem>
           </DropdownMenuContent>
