@@ -21,10 +21,10 @@ export class UserService {
     return user;
   }
 
-  async createUser(data: CreateUserDto) {
-    const createdUser = await firstValueFrom(
-      this.userClient.send({ cmd: 'create-user' }, data),
-    );
-    return createdUser;
-  }
+  // async createUser(data: CreateUserDto) {
+  //   const createdUser = await firstValueFrom(
+  //     this.userClient.send({ cmd: 'create-user' }, data),
+  //   );
+  //   return createdUser;
+  // }
 }

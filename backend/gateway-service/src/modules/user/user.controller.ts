@@ -22,9 +22,9 @@ export class UserController {
     return this.userService.getUserByEmail(email);
   }
 
-  @Post()
-  @HttpCode(HttpStatus.CREATED)
-  createUser(@Body() createUserDto: CreateUserDto) {
-    return this.userService.createUser(createUserDto);
-  }
+  // @Post()
+  // @HttpCode(HttpStatus.CREATED)
+  // createUser(@Body() createUserDto: CreateUserDto) {
+  //   return this.userService.createUser(createUserDto);
+  // }
 }
