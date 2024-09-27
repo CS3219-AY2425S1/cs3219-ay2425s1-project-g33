@@ -14,5 +14,5 @@ export class CreateUserDto {
   })
   @IsString()
   @IsNotEmpty()
-  hashedPassword: string;
+  password: string;
 }

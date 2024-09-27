@@ -1,6 +1,6 @@
-import { Inject, Injectable, HttpException } from '@nestjs/common';
-import { ClientProxy, RpcException } from '@nestjs/microservices';
-import { first, firstValueFrom } from 'rxjs';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
+import { firstValueFrom } from 'rxjs';
 import { CreateUserDto } from './dto';
 
 @Injectable()
@@ -15,7 +15,7 @@ export class UserService {
     );
 
     if (!user) {
-      throw new RpcException('User not found');
+      throw new NotFoundException('User not found');
     }
 
     return user;

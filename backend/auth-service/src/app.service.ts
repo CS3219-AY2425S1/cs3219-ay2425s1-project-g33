@@ -3,11 +3,14 @@ import { Inject, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Credentials, OAuth2Client } from 'google-auth-library';
 import { ClientProxy } from '@nestjs/microservices';
-import { GenerateJwtDto, ValidateUserCredDto } from './dto';
+import { AuthDto, ValidateUserCredDto } from './dto';
 import { HttpService } from '@nestjs/axios';
 import { RpcException } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import axios, { AxiosResponse } from 'axios';
+import { Token, TokenPayload } from './interfaces';
+
+const SALT_ROUNDS = 10;
 
 @Injectable()
 export class AppService {
@@ -25,9 +28,86 @@ export class AppService {
     });
   }
 
-  async generateJwt(user: GenerateJwtDto) {
-    const payload = { ...user };
-    return this.jwtService.sign(payload);
+  private hashData(data: string): Promise<string> {
+    return bcrypt.hash(data, SALT_ROUNDS);
+  }
+
+  async updateRefreshToken(id: string, refreshToken: string) {
+    const hash = await this.hashData(refreshToken);
+
+    return await firstValueFrom(
+      this.userClient.send(
+        { cmd: 'update-refresh-token' },
+        { id, refreshToken: hash },
+      ),
+    );
+  }
+
+  // Could include my fields like roles in the future
+  private async generateTokens(payload: TokenPayload): Promise<Token> {
+    const { id, email } = payload;
+
+    const [accessToken, refreshToken] = await Promise.all([
+      this.jwtService.signAsync(
+        {
+          sub: id,
+          email,
+        },
+        {
+          secret: process.env.JWT_SECRET,
+          expiresIn: '15m', // 15 minute
+        },
+      ),
+      this.jwtService.signAsync(
+        {
+          sub: id,
+          email,
+        },
+        {
+          secret: process.env.JWT_REFRESH_SECRET,
+          expiresIn: '7d', // 1 week
+        },
+      ),
+    ]);
+
+    return {
+      access_token: accessToken,
+      refresh_token: refreshToken,
+    };
+  }
+
+  async signUpLocal(data: AuthDto): Promise<Token> {
+    const hashedPassword = await this.hashData(data.password);
+
+    const newUser = await firstValueFrom(
+      this.userClient.send(
+        { cmd: 'create-user' },
+        {
+          email: data.email,
+          password: hashedPassword,
+        },
+      ),
+    );
+
+    // Bringing this method after receiving the response from the user service
+    // As we want the user id/other user info to be involved in generating the tokens
+    const userId = newUser._id.toString();
+    const tokens = await this.generateTokens({
+      id: userId,
+      email: newUser.email,
+    });
+    const updateResponse = await firstValueFrom(
+      this.userClient.send(
+        { cmd: 'update-refresh-token' },
+        { id: userId, refreshToken: tokens.refresh_token },
+      ),
+    );
+
+    if (!updateResponse) {
+      throw new RpcException('Error updating refresh token');
+    }
+
+    return tokens;
   }
 
   async validateUserCred(data: ValidateUserCredDto): Promise<boolean> {
@@ -55,7 +135,7 @@ export class AppService {
 
       const payload = { email: user.email, sub: user.id };
       const jwtToken = this.jwtService.sign(payload);
-      
+
       return { token: jwtToken, user };
     } catch (error) {
       throw new RpcException('Unable to validate Google user');

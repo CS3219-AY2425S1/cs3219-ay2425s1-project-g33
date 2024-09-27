@@ -4,7 +4,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { RpcException } from '@nestjs/microservices';
 import { User } from './schema/user.schema';
-import { CreateUserDto } from './dto';
+import { CreateUserDto, UpdateRefreshTokenDto } from './dto';
 
 const SALT_ROUNDS = 10;
 
@@ -12,8 +12,13 @@ const SALT_ROUNDS = 10;
 export class AppService {
   constructor(@InjectModel('User') private readonly userModel: Model<User>) {}
 
+  public async getUserByEmail(email: string): Promise<User> {
+    const user = await this.userModel.findOne({ email: email }).exec();
+    return user;
+  }
+
   public async createUser(data: CreateUserDto): Promise<User> {
-    const { email, hashedPassword } = data;
+    const { email, password } = data;
 
     const existingUser = await this.getUserByEmail(email);
     if (existingUser) {
@@ -22,7 +27,7 @@ export class AppService {
 
     const newUser = new this.userModel({
       email,
-      password: hashedPassword,
+      password: password,
     });
 
     const savedUser = await newUser.save();
@@ -30,9 +35,20 @@ export class AppService {
     return savedUser;
   }
 
-  public async getUserByEmail(email: string): Promise<User> {
-    const user = await this.userModel.findOne({ email: email }).exec();
+  async updateRefreshToken(data: UpdateRefreshTokenDto) {
+    const { id, refreshToken } = data;
 
-    return user;
+    const user = await this.userModel.findById(id).exec();
+    if (!user) {
+      throw new RpcException('User not found');
+    }
+
+    try {
+      user.refreshToken = refreshToken;
+      await user.save();
+      return true;
+    } catch (error) {
+      throw new RpcException('Error updating refresh token');
+    }
   }
 }

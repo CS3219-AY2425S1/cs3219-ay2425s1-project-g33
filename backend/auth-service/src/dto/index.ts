@@ -1,2 +1,2 @@
-export { GenerateJwtDto } from './generate-jwt.dto';
+export { AuthDto } from './auth.dto';
 export { ValidateUserCredDto } from './validate-user-cred.dto';

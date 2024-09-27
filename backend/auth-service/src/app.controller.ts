@@ -1,15 +1,15 @@
 import { Controller, Get } from '@nestjs/common';
 import { AppService } from './app.service';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { GenerateJwtDto, ValidateUserCredDto } from './dto';
+import { AuthDto, ValidateUserCredDto } from './dto';
 
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  @MessagePattern({ cmd: 'generate-jwt' })
-  generateJwt(@Payload() data: GenerateJwtDto) {
-    return this.appService.generateJwt(data);
+  @MessagePattern({ cmd: 'local-sign-up' })
+  signUpLocal(@Payload() data: AuthDto) {
+    return this.appService.signUpLocal(data);
   }
 
   @MessagePattern({ cmd: 'validate-user-cred' })
