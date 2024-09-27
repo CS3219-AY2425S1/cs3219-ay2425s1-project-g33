@@ -1,6 +1,7 @@
 import { Inject, Injectable, HttpException } from '@nestjs/common';
-import { ClientProxy } from '@nestjs/microservices';
-import { firstValueFrom } from 'rxjs';
+import { ClientProxy, RpcException } from '@nestjs/microservices';
+import { first, firstValueFrom } from 'rxjs';
+import { CreateUserDto } from './dto';
 
 @Injectable()
 export class UserService {
@@ -12,7 +13,18 @@ export class UserService {
     const user = await firstValueFrom(
       this.userClient.send({ cmd: 'get-user-by-email' }, email),
     );
-    console.log(user);
+
+    if (!user) {
+      throw new RpcException('User not found');
+    }
+
     return user;
+  }
+
+  async createUser(data: CreateUserDto) {
+    const createdUser = await firstValueFrom(
+      this.userClient.send({ cmd: 'create-user' }, data),
+    );
+    return createdUser;
   }
 }
