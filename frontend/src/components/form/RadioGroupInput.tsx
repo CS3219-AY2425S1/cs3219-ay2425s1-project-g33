@@ -54,7 +54,7 @@ export function RadioGroupInput<TFieldValues extends FieldValues>({
               ))}
             </RadioGroup>
           </FormControl>
-          <FormMessage></FormMessage>
+          <FormMessage />
         </FormItem>
       )}
     />

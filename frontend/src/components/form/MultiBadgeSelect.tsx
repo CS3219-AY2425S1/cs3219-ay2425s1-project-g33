@@ -416,7 +416,7 @@ export default function MultiBadgeSelectInput<
               }}
             />
           </FormControl>
-          <FormMessage>Error</FormMessage>
+          <FormMessage />
         </FormItem>
       )}
     />
