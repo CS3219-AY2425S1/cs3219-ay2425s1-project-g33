@@ -1,5 +1,6 @@
 "use server";
 
+import { CategoriesResponse, CategoriesResponseSchema } from "@/types/Category";
 import {
   Question,
   NewQuestion,
@@ -56,6 +57,30 @@ export async function getQuestions(): Promise<QuestionsResponse> {
     const resObj = await res.json();
 
     return QuestionsResponseSchema.parse(resObj);
+  } catch (error) {
+    return {
+      statusCode: 500,
+      message: String(error),
+    };
+  }
+}
+
+export async function getQuestionCategories(): Promise<CategoriesResponse> {
+  try {
+    const res: Response = await fetch(
+      process.env.PUBLIC_API_URL + `/api/questions/categories`,
+      {
+        cache: "no-cache",
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    const resObj = await res.json();
+
+    return CategoriesResponseSchema.parse(resObj);
   } catch (error) {
     return {
       statusCode: 500,
