@@ -2,7 +2,10 @@
 
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
+import { Github } from "lucide-react";
 import Link from "next/link";
+import { Input } from "@/components/ui/input";
+
 
 interface FormData {
   username: string;
@@ -39,24 +42,28 @@ export default function SignUpPage() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
+  
     if (!validateForm()) return;
-
+  
     try {
-      const response = await fetch('/api/signup', {
-        method: 'POST', 
+      const response = await fetch('/api/auth/local/signup', {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify (formData),
+        body: JSON.stringify(formData),
       });
+  
       if (response.ok) {
+        const data = await response.json(); 
         alert('Sign up successful!');
       } else {
-        alert('Sign up failed.');
+        const errorData = await response.json();
+        alert(`Sign up failed: ${errorData.message}`);
       }
     } catch (error) {
       console.error('Error:', error);
     }
   };
+  
 
   return (<div className="min-h-screen max-w-sm container grid gap-4 mx-auto items-center">
     <section className="col-span-9 flex flex-col gap-4 ">
@@ -77,7 +84,7 @@ export default function SignUpPage() {
                     onChange={handleChange}
                     className="rounded-md w-full py-2 pl-10 bg-input-foreground"
                     />
-                    {errors.username && <p className="text-destructive">{errors.username}</p>}
+                    {errors.username && <p className="text-difficulty-hard">{errors.username}</p>}
                 </div>
 
 
@@ -90,7 +97,7 @@ export default function SignUpPage() {
                     onChange={handleChange}
                     className="rounded-md w-full py-2 pl-10 bg-input-foreground"
                     />
-                    {errors.email && <p className="text-destructive">{errors.email}</p>}
+                    {errors.email && <p className="text-difficulty-hard">{errors.email}</p>}
                 </div>
 
                 <div>
@@ -102,7 +109,7 @@ export default function SignUpPage() {
                     onChange={handleChange}
                     className="rounded-md w-full py-2 pl-10 bg-input-foreground"
                     />
-                    {errors.password && <p className="text-destructive">{errors.password}</p>}
+                    {errors.password && <p className="text-difficulty-hard">{errors.password}</p>}
                 </div>
 
                 <div>
@@ -114,7 +121,7 @@ export default function SignUpPage() {
                     onChange={handleChange}
                     className="rounded-md w-full py-2 pl-10 bg-input-foreground"
                     />
-                    {errors.confirmPassword && <p className="text-destructive">{errors.confirmPassword}</p>}
+                    {errors.confirmPassword && <p className="text-difficulty-hard">{errors.confirmPassword}</p>}
                 </div>
               </div>
               
@@ -128,7 +135,7 @@ export default function SignUpPage() {
                 type="submit"
                 className="w-full bg-primary font-bold rounded-md py-2"
               > 
-              Sign In
+              Sign Up
               </button>
               
             </form>
@@ -144,6 +151,7 @@ export default function SignUpPage() {
             {/* Socials */}
             <div className="flex flex-row gap-x-4 justify-center">
               <button className="rounded-md">
+                <Github />
                 {/*<FaGithub size={24}/> */}
               </button>
 
