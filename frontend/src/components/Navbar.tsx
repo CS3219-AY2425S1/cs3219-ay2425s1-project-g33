@@ -1,16 +1,15 @@
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Flame, LogOut } from "lucide-react";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { AvatarImage } from "@radix-ui/react-avatar";
+import UserAvatar from "@/components/UserAvatar";
 
 export default function Navbar() {
   const links: NavLinkProps[] = [{ label: "Dashboard", href: "/dashboard" }];
 
   return (
-    <header className="sticky top-0 py-2 border-b bg-background">
-      <nav className="container mx-auto flex gap-5 items-center">
+    <header className="sticky top-0 z-10 py-2 border-b bg-background">
+      <nav className="container flex items-center gap-5 mx-auto h-10">
         {/* leave like this for now maybe use an svg icon later on */}
         <NavLogo />
         <NavLinks links={links} />
@@ -23,7 +22,7 @@ export default function Navbar() {
 
 function NavLogo() {
   return (
-    <h1 className="text-nowrap text-xl font-semibold">
+    <h1 className="text-xl font-semibold text-nowrap">
       <span className="text-primary">{"</>"}</span> PeerPrep
     </h1>
   );
@@ -50,7 +49,7 @@ function NavLinks({ links }: NavLinksProps) {
   return (
     <div className="flex gap-1">
       {links.map((link, i) => (
-        <NavLink href={link.href} label={link.label} />
+        <NavLink key={i} href={link.href} label={link.label} />
       ))}
     </div>
   );
@@ -67,21 +66,15 @@ function NavSearchBar() {
 function NavUserDetails() {
   const noOfStreakDays = 1;
   return (
-    <div className="flex gap-3 items-center">
+    <div className="flex items-center gap-3">
       <Flame
         className={noOfStreakDays > 0 ? "stroke-primary" : "stroke-muted"}
         size={20}
       />
       <small className="whitespace-nowrap">10 days</small>
-      <Avatar>
-      <AvatarImage src="https://nonexistent-link/shadcn.png" alt="@shadcn" />
-        <AvatarFallback className="bg-background-100 rounded-full p-1">
-          JM
-        </AvatarFallback>
-      </Avatar>
-
+      <UserAvatar src={"https://nonexistent-link"} name="Jm San Diego" />
       <Button variant="ghost" className="p-2">
-        <LogOut size={20}/>
+        <LogOut size={20} />
       </Button>
     </div>
   );
