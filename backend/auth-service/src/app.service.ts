@@ -29,82 +29,90 @@ export class AppService {
   }
 
   public async signUpLocal(dto: AuthDto): Promise<Token> {
-    const hashedPassword = await this.hashData(dto.password);
+    try {
+      const hashedPassword = await this.hashData(dto.password);
 
-    const newUser = await firstValueFrom(
-      this.userClient.send(
-        { cmd: 'create-user' },
-        {
-          email: dto.email,
-          password: hashedPassword,
-        },
-      ),
-    );
+      const newUser = await firstValueFrom(
+        this.userClient.send(
+          { cmd: 'create-user' },
+          {
+            email: dto.email,
+            password: hashedPassword,
+          },
+        ),
+      );
 
-    // Bringing this method after receiving the response from the user service
-    // As we want the user id/other user info to be involved in generating the tokens
-    const userId = newUser._id.toString();
-    const tokens = await this.generateTokens({
-      id: userId,
-      email: newUser.email,
-    });
-    const updateResponse = await firstValueFrom(
-      this.userClient.send(
-        { cmd: 'update-refresh-token' },
-        { id: userId, refreshToken: tokens.refresh_token },
-      ),
-    );
+      // Bringing this method after receiving the response from the user service
+      // As we want the user id/other user info to be involved in generating the tokens
+      const userId = newUser._id.toString();
+      const tokens = await this.generateTokens({
+        id: userId,
+        email: newUser.email,
+      });
+      const updateResponse = await firstValueFrom(
+        this.userClient.send(
+          { cmd: 'update-refresh-token' },
+          { id: userId, refreshToken: tokens.refresh_token },
+        ),
+      );
 
-    if (!updateResponse) {
-      throw new RpcException('Error updating refresh token');
+      if (!updateResponse) {
+        throw new RpcException('Error updating refresh token');
+      }
+
+      return tokens;
+    } catch (error) {
+      throw new RpcException(error.message || 'Error creating user');
     }
-
-    return tokens;
   }
 
   public async logInLocal(dto: AuthDto): Promise<Token> {
-    const user = await firstValueFrom(
-      this.userClient.send(
-        {
-          cmd: 'get-user-by-email',
-        },
-        dto.email,
-      ),
-    );
+    try {
+      const user = await firstValueFrom(
+        this.userClient.send(
+          {
+            cmd: 'get-user-by-email',
+          },
+          dto.email,
+        ),
+      );
 
-    if (!user) {
-      throw new RpcException('Invalid User Credentials. Access Denied');
+      if (!user) {
+        throw new RpcException('Invalid User Credentials. Access Denied');
+      }
+
+      const passwordMatch = await bcrypt.compare(dto.password, user.password);
+      if (!passwordMatch) {
+        throw new RpcException('Invalid User Credentials. Access Denied');
+      }
+
+      const userId = user._id.toString();
+      const tokens = await this.generateTokens({
+        id: userId,
+        email: user.email,
+      });
+      const updateResponse = await firstValueFrom(
+        this.userClient.send(
+          { cmd: 'update-refresh-token' },
+          { id: userId, refreshToken: tokens.refresh_token },
+        ),
+      );
+
+      if (!updateResponse) {
+        throw new RpcException('Error updating refresh token');
+      }
+
+      return tokens;
+    } catch (error) {
+      throw new RpcException(error.message || 'Error logging in user');
     }
-
-    const passwordMatch = await bcrypt.compare(dto.password, user.password);
-    if (!passwordMatch) {
-      throw new RpcException('Invalid User Credentials. Access Denied');
-    }
-
-    const userId = user._id.toString();
-    const tokens = await this.generateTokens({
-      id: userId,
-      email: user.email,
-    });
-    const updateResponse = await firstValueFrom(
-      this.userClient.send(
-        { cmd: 'update-refresh-token' },
-        { id: userId, refreshToken: tokens.refresh_token },
-      ),
-    );
-
-    if (!updateResponse) {
-      throw new RpcException('Error updating refresh token');
-    }
-
-    return tokens;
   }
 
   private hashData(data: string): Promise<string> {
     return bcrypt.hash(data, SALT_ROUNDS);
   }
 
-  // Could include my fields like roles in the future
+  // Could include other fields like roles in the future
   private async generateTokens(payload: TokenPayload): Promise<Token> {
     const { id, email } = payload;
 
