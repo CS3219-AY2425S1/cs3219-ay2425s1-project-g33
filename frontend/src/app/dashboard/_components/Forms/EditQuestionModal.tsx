@@ -19,7 +19,10 @@ import MultiBadgeSelectInput from "@/components/form/MultiBadgeSelect";
 import { RadioGroupInput } from "@/components/form/RadioGroupInput";
 import { TextAreaInput } from "@/components/form/TextAreaInput";
 import { TextInput } from "@/components/form/TextInput";
-import { editQuestion, getQuestions } from "@/services/questionService";
+import {
+  editQuestion,
+  getQuestionCategories,
+} from "@/services/questionService";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { useForm } from "react-hook-form";
@@ -67,11 +70,11 @@ export function EditQuestionModal({
 
   // Get all categories
   useEffect(() => {
-    getQuestions().then((questions) => {
-      if (!questions.data) {
+    getQuestionCategories().then((categoriesResponse) => {
+      if (!categoriesResponse.data) {
         return;
       }
-      setCategories(questions.data.totalCategories);
+      setCategories(categoriesResponse.data.categories);
     });
   }, []);
 

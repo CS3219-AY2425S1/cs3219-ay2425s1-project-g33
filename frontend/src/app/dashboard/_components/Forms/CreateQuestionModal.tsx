@@ -19,7 +19,10 @@ import MultiBadgeSelectInput from "@/components/form/MultiBadgeSelect";
 import { Button } from "@/components/ui/button";
 import { TextAreaInput } from "@/components/form/TextAreaInput";
 import { RadioGroupInput } from "@/components/form/RadioGroupInput";
-import { createQuestion, getQuestions } from "@/services/questionService";
+import {
+  createQuestion,
+  getQuestionCategories,
+} from "@/services/questionService";
 import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
 
@@ -45,11 +48,11 @@ export function CreateQuestionModal({ children }: PropsWithChildren) {
 
   // Get all categories
   useEffect(() => {
-    getQuestions().then((questions) => {
-      if (!questions.data) {
+    getQuestionCategories().then((categories) => {
+      if (!categories.data) {
         return;
       }
-      setCategories(questions.data.totalCategories);
+      setCategories(categories.data.categories);
     });
   }, []);
 
