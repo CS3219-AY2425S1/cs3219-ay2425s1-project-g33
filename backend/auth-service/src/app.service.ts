@@ -3,12 +3,13 @@ import { Inject, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Credentials, OAuth2Client } from 'google-auth-library';
 import { ClientProxy } from '@nestjs/microservices';
-import { AuthDto, AuthIdDto } from './dto';
+import { AuthDto, AuthIdDto, RefreshTokenDto } from './dto';
 import { HttpService } from '@nestjs/axios';
 import { RpcException } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import axios, { AxiosResponse } from 'axios';
 import { Token, TokenPayload } from './interfaces';
+import { decode } from 'punycode';
 
 const SALT_ROUNDS = 10;
 
@@ -30,7 +31,7 @@ export class AppService {
 
   public async signUpLocal(dto: AuthDto): Promise<Token> {
     try {
-      const hashedPassword = await this.hashData(dto.password);
+      const hashedPassword = await bcrypt.hash(dto.password, SALT_ROUNDS);
 
       const newUser = await firstValueFrom(
         this.userClient.send(
@@ -49,16 +50,10 @@ export class AppService {
         id: userId,
         email: newUser.email,
       });
-      const updateResponse = await firstValueFrom(
-        this.userClient.send(
-          { cmd: 'update-refresh-token' },
-          { id: userId, refreshToken: tokens.refresh_token },
-        ),
-      );
-
-      if (!updateResponse) {
-        throw new RpcException('Error updating refresh token');
-      }
+      await this.updateRefreshToken({
+        id: userId,
+        refreshToken: tokens.refresh_token,
+      });
 
       return tokens;
     } catch (error) {
@@ -78,7 +73,7 @@ export class AppService {
       );
 
       if (!user) {
-        throw new RpcException('Invalid User Credentials. Access Denied');
+        throw new RpcException('User not Found. Access Denied');
       }
 
       const passwordMatch = await bcrypt.compare(dto.password, user.password);
@@ -91,16 +86,10 @@ export class AppService {
         id: userId,
         email: user.email,
       });
-      const updateResponse = await firstValueFrom(
-        this.userClient.send(
-          { cmd: 'update-refresh-token' },
-          { id: userId, refreshToken: tokens.refresh_token },
-        ),
-      );
-
-      if (!updateResponse) {
-        throw new RpcException('Error updating refresh token');
-      }
+      await this.updateRefreshToken({
+        id: userId,
+        refreshToken: tokens.refresh_token,
+      });
 
       return tokens;
     } catch (error) {
@@ -119,32 +108,32 @@ export class AppService {
     }
   }
 
-  public async refreshToken(dto: AuthIdDto): Promise<Token> {
+  public async refreshToken(dto: RefreshTokenDto): Promise<Token> {
     try {
-      const { id } = dto;
+      const { id, refreshToken } = dto;
 
       const user = await firstValueFrom(
         this.userClient.send({ cmd: 'get-user-by-id' }, id),
       );
+      if (!user || !user.refreshToken) {
+        throw new RpcException(
+          'User does not have valid refresh token. Please sign in.',
+        );
+      }
 
-      if (!user) {
-        throw new RpcException('User not found');
+      const refreshTokenMatch = await bcrypt.compare(
+        refreshToken,
+        user.refreshToken,
+      );
+      if (!refreshTokenMatch) {
+        throw new RpcException('Invalid Refresh Token');
       }
 
       const tokens = await this.generateTokens({
         id: id,
         email: user.email,
       });
-      const updateResponse = await firstValueFrom(
-        this.userClient.send(
-          { cmd: 'update-refresh-token' },
-          { id: id, refreshToken: tokens.refresh_token },
-        ),
-      );
-
-      if (!updateResponse) {
-        throw new RpcException('Error updating refresh token');
-      }
+      await this.updateRefreshToken({ id, refreshToken: tokens.refresh_token });
 
       return tokens;
     } catch (error) {
@@ -152,30 +141,41 @@ export class AppService {
     }
   }
 
-  public async validateToken(token: string): Promise<any> {
+  public async validateAccessToken(accessToken: string): Promise<any> {
     try {
-      const payload = this.jwtService.verify(token, {
+      const decoded = this.jwtService.verify(accessToken, {
         secret: process.env.JWT_SECRET,
       });
-      return { id: payload.sub, ...payload };
+      return decoded;
     } catch (error) {
-      throw new RpcException('Invalid token');
+      throw new RpcException('Invalid access token');
     }
   }
 
   public async validateRefreshToken(refreshToken: string): Promise<any> {
     try {
-      const payload = this.jwtService.verify(refreshToken, {
+      const decoded = this.jwtService.verify(refreshToken, {
         secret: process.env.JWT_REFRESH_SECRET,
       });
-      return { id: payload.sub, ...payload };
+      return decoded;
     } catch (error) {
-      throw new RpcException('Invalid refresh token');
+      throw new RpcException('Invalid Refresh Token');
     }
   }
 
-  private hashData(data: string): Promise<string> {
-    return bcrypt.hash(data, SALT_ROUNDS);
+  private async updateRefreshToken(dto: RefreshTokenDto) {
+    const { id, refreshToken } = dto;
+    const hashedRefreshToken = await bcrypt.hash(refreshToken, SALT_ROUNDS);
+    const response = await firstValueFrom(
+      this.userClient.send(
+        { cmd: 'update-refresh-token' },
+        { id: id, refreshToken: hashedRefreshToken },
+      ),
+    );
+
+    if (!response) {
+      throw new RpcException('Error updating refresh token');
+    }
   }
 
   // Could include other fields like roles in the future

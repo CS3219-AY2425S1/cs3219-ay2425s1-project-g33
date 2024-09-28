@@ -7,7 +7,6 @@ import {
   Inject,
   Post,
   Query,
-  Req,
   Res,
   UseGuards,
 } from '@nestjs/common';
@@ -18,9 +17,9 @@ import { AuthDto } from './dto';
 import { Token } from './interfaces';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
-import { JwtGuard, JwtRefreshGuard } from './guards';
+import { RtAuthGuard } from '../../common/guards';
 import { GetCurrentUserId } from 'src/common/decorators/get-current-user-id.decorator';
-import { Public } from 'src/common/decorators';
+import { GetCurrentUser, Public } from 'src/common/decorators';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -57,12 +56,18 @@ export class AuthController {
   }
 
   @Public()
-  @UseGuards(JwtRefreshGuard)
+  @UseGuards(RtAuthGuard)
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
-  async refreshToken(@GetCurrentUserId() userId: string): Promise<any> {
+  async refreshToken(
+    @GetCurrentUserId() userId: string,
+    @GetCurrentUser('refreshToken') refreshToken: string,
+  ) {
     return await firstValueFrom(
-      this.authClient.send({ cmd: 'refresh-token' }, { id: userId }),
+      this.authClient.send(
+        { cmd: 'refresh-token' },
+        { id: userId, refreshToken: refreshToken },
+      ),
     );
   }
 

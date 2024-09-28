@@ -6,15 +6,15 @@ import { JwtModule } from '@nestjs/jwt';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { HttpModule } from '@nestjs/axios';
 import {
-  AccessTokenStrategy,
-  RefreshTokenStrategy,
   GoogleStrategy,
   GithubStrategy,
+  AccessTokenStrategy,
+  RefreshTokenStrategy,
 } from './strategies';
 
 @Module({
   imports: [
-    PassportModule,
+    PassportModule.register({ defaultStrategy: 'jwt' }),
     HttpModule,
     JwtModule.register({}),
     ClientsModule.register([

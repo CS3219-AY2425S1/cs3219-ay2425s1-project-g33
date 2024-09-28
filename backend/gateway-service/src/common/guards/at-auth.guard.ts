@@ -4,16 +4,26 @@ import {
   Inject,
   Injectable,
 } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
 import { ClientProxy } from '@nestjs/microservices';
-import { firstValueFrom, Observable } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable()
-export class JwtRefreshGuard implements CanActivate {
+export class AtAuthGuard implements CanActivate {
   constructor(
     @Inject('AUTH_SERVICE') private readonly authClient: ClientProxy,
+    private reflector: Reflector,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
+    const isPublic = this.reflector.getAllAndOverride<boolean>('isPublic', [
+      context.getHandler(),
+      context.getClass(),
+    ]);
+    if (isPublic) {
+      return true;
+    }
+
     const request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeader(request);
     if (!token) {
@@ -22,7 +32,7 @@ export class JwtRefreshGuard implements CanActivate {
 
     try {
       const user = await firstValueFrom(
-        this.authClient.send({ cmd: 'validate-refresh-token' }, token),
+        this.authClient.send({ cmd: 'validate-access-token' }, token),
       );
       request.user = user;
       return true;

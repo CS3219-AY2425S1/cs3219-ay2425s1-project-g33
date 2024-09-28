@@ -1,7 +1,7 @@
 import { Controller } from '@nestjs/common';
 import { AppService } from './app.service';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { AuthDto, AuthIdDto } from './dto';
+import { AuthDto, AuthIdDto, RefreshTokenDto } from './dto';
 
 @Controller()
 export class AppController {
@@ -23,13 +23,13 @@ export class AppController {
   }
 
   @MessagePattern({ cmd: 'refresh-token' })
-  refreshToken(@Payload() dto: AuthIdDto) {
+  refreshToken(@Payload() dto: RefreshTokenDto) {
     return this.appService.refreshToken(dto);
   }
 
-  @MessagePattern({ cmd: 'validate-token' })
-  validateToken(token: string) {
-    return this.appService.validateToken(token);
+  @MessagePattern({ cmd: 'validate-access-token' })
+  validateToken(accessToken: string) {
+    return this.appService.validateAccessToken(accessToken);
   }
 
   @MessagePattern({ cmd: 'validate-refresh-token' })

@@ -1,8 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
-import { AuthDto } from './dto';
-import { Token } from './interfaces';
 
 @Injectable()
 export class AuthService {

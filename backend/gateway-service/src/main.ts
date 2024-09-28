@@ -3,7 +3,6 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
 import { setupSwagger } from './common/configs/swagger.config';
-import { JwtGuard } from './modules/auth/guards';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);

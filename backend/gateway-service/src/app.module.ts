@@ -7,7 +7,7 @@ import { QuestionService } from './modules/question/question.service';
 import { QuestionController } from './modules/question/question.controller';
 import { AuthService } from './modules/auth/auth.service';
 import { APP_GUARD } from '@nestjs/core';
-import { JwtGuard } from './modules/auth/guards';
+import { AtAuthGuard, RtAuthGuard } from './common/guards';
 
 @Module({
   imports: [
@@ -43,9 +43,10 @@ import { JwtGuard } from './modules/auth/guards';
     UserService,
     QuestionService,
     AuthService,
+    RtAuthGuard,
     {
       provide: APP_GUARD,
-      useClass: JwtGuard,
+      useClass: AtAuthGuard,
     },
   ],
 })
