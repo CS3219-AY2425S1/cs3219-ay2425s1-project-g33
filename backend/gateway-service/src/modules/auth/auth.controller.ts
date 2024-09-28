@@ -4,6 +4,7 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Inject,
   Post,
   Query,
   Res,
@@ -13,22 +14,31 @@ import { Response } from 'express';
 import { ApiTags } from '@nestjs/swagger';
 import { AuthDto } from './dto';
 import { Token } from './interfaces';
+import { ClientProxy } from '@nestjs/microservices';
+import { firstValueFrom } from 'rxjs';
 
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    @Inject('AUTH_SERVICE') private readonly authClient: ClientProxy,
+  ) {}
 
   @Post('local/signup')
   @HttpCode(HttpStatus.CREATED)
-  signUp(@Body() data: AuthDto): Promise<Token> {
-    return this.authService.signUpLocal(data);
+  async signUp(@Body() data: AuthDto): Promise<Token> {
+    return await firstValueFrom(
+      this.authClient.send({ cmd: 'local-sign-up' }, data),
+    );
   }
 
   @Post('local/login')
   @HttpCode(HttpStatus.OK)
-  logIn(@Body() data: AuthDto): Promise<Token> {
-    return this.authService.logInLocal(data);
+  async logIn(@Body() data: AuthDto): Promise<Token> {
+    return await firstValueFrom(
+      this.authClient.send({ cmd: 'local-log-in' }, data),
+    );
   }
 
   @Get('google')

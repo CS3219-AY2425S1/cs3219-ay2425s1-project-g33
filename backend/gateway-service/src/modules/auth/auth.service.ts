@@ -10,18 +10,6 @@ export class AuthService {
     @Inject('AUTH_SERVICE') private readonly authClient: ClientProxy,
   ) {}
 
-  async signUpLocal(data: AuthDto): Promise<Token> {
-    return await firstValueFrom(
-      this.authClient.send({ cmd: 'local-sign-up' }, data),
-    );
-  }
-
-  async logInLocal(data: AuthDto): Promise<Token> {
-    return await firstValueFrom(
-      this.authClient.send({ cmd: 'local-log-in' }, data),
-    );
-  }
-
   getGoogleOAuthUrl(): string {
     const clientId = process.env.GOOGLE_CLIENT_ID;
     const redirectUri = process.env.GOOGLE_CALLBACK_URL;
