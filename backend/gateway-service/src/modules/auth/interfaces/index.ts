@@ -1,2 +1,3 @@
 export { Token } from './token.interface';
-export { AuthRequest } from './auth-request.interface';
+export { JwtPayload } from './jwt-payload.interface';
+export { JwtPayloadRefreshToken } from './jwt-payload-refresh-token.interface';

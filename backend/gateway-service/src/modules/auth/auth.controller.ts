@@ -11,15 +11,16 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth.service';
 import { Response } from 'express';
 import { ApiTags } from '@nestjs/swagger';
 import { AuthDto } from './dto';
-import { AuthRequest, Token } from './interfaces';
+import { Token } from './interfaces';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { JwtGuard, JwtRefreshGuard } from './guards';
+import { GetCurrentUserId } from 'src/common/decorators/get-current-user-id.decorator';
+import { Public } from 'src/common/decorators';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -29,6 +30,7 @@ export class AuthController {
     @Inject('AUTH_SERVICE') private readonly authClient: ClientProxy,
   ) {}
 
+  @Public()
   @Post('local/signup')
   @HttpCode(HttpStatus.CREATED)
   async signUp(@Body() data: AuthDto): Promise<Token> {
@@ -37,6 +39,7 @@ export class AuthController {
     );
   }
 
+  @Public()
   @Post('local/login')
   @HttpCode(HttpStatus.OK)
   async logIn(@Body() data: AuthDto): Promise<Token> {
@@ -45,27 +48,25 @@ export class AuthController {
     );
   }
 
-  @UseGuards(JwtGuard)
   @Post('logout')
   @HttpCode(HttpStatus.OK)
-  async logOut(@Req() req: AuthRequest): Promise<boolean> {
-    const user = req.user;
+  async logOut(@GetCurrentUserId() userId: string): Promise<boolean> {
     return await firstValueFrom(
-      this.authClient.send({ cmd: 'logout' }, { id: user.id }),
+      this.authClient.send({ cmd: 'logout' }, { id: userId }),
     );
   }
 
+  @Public()
   @UseGuards(JwtRefreshGuard)
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
-  async refreshToken(@Req() req: AuthRequest): Promise<any> {
-    const user = req.user;
-    console.log('user', user);
+  async refreshToken(@GetCurrentUserId() userId: string): Promise<any> {
     return await firstValueFrom(
-      this.authClient.send({ cmd: 'refresh-token' }, { id: user.id }),
+      this.authClient.send({ cmd: 'refresh-token' }, { id: userId }),
     );
   }
 
+  @Public()
   @Get('google')
   async googleAuth(@Res() res: Response) {
     const redirectUrl = this.authService.getGoogleOAuthUrl();
@@ -75,6 +76,7 @@ export class AuthController {
     // return {url: redirectUrl}
   }
 
+  @Public()
   @Get('google/callback')
   async googleAuthCallback(@Query('code') code: string) {
     const response = await this.authService.getGoogleAuthRedirect(code);
@@ -82,6 +84,7 @@ export class AuthController {
     return { token: response.token, user: response.user };
   }
 
+  @Public()
   @Get('github')
   async githubLogin(@Res() res: Response) {
     const redirectUrl = this.authService.getGithubOAuthUrl();
@@ -90,6 +93,7 @@ export class AuthController {
     // return {url: redirectUrl}
   }
 
+  @Public()
   @Get('github/callback')
   async githubAuthCallback(@Query('code') code: string) {
     const response = await this.authService.getGithubAuthRedirect(code);
