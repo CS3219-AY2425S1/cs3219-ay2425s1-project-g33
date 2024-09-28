@@ -5,6 +5,7 @@ import {
   HttpCode,
   HttpStatus,
   Inject,
+  Param,
   Post,
   Query,
   Res,
@@ -12,7 +13,7 @@ import {
 import { AuthService } from './auth.service';
 import { Response } from 'express';
 import { ApiTags } from '@nestjs/swagger';
-import { AuthDto } from './dto';
+import { AuthDto, LogOutDto } from './dto';
 import { Token } from './interfaces';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
@@ -39,6 +40,12 @@ export class AuthController {
     return await firstValueFrom(
       this.authClient.send({ cmd: 'local-log-in' }, data),
     );
+  }
+
+  @Post('logout')
+  @HttpCode(HttpStatus.OK)
+  async logOut(@Body() data: LogOutDto): Promise<boolean> {
+    return await firstValueFrom(this.authClient.send({ cmd: 'logout' }, data));
   }
 
   @Get('google')

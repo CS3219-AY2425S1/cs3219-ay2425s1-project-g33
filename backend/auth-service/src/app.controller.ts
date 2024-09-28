@@ -1,7 +1,7 @@
 import { Controller, Get } from '@nestjs/common';
 import { AppService } from './app.service';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { AuthDto } from './dto';
+import { AuthDto, LogOutDto } from './dto';
 
 @Controller()
 export class AppController {
@@ -15,6 +15,11 @@ export class AppController {
   @MessagePattern({ cmd: 'local-log-in' })
   logInLocal(@Payload() dto: AuthDto) {
     return this.appService.logInLocal(dto);
+  }
+
+  @MessagePattern({ cmd: 'logout' })
+  logout(@Payload() dto: LogOutDto) {
+    return this.appService.logout(dto);
   }
 
   @MessagePattern({ cmd: 'google-auth-redirect' })

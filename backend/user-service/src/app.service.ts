@@ -4,7 +4,11 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { RpcException } from '@nestjs/microservices';
 import { User } from './schema/user.schema';
-import { CreateUserDto, UpdateRefreshTokenDto } from './dto';
+import {
+  CreateUserDto,
+  DeleteRefreshTokenDto,
+  UpdateRefreshTokenDto,
+} from './dto';
 
 const SALT_ROUNDS = 10;
 
@@ -35,7 +39,9 @@ export class AppService {
     return savedUser;
   }
 
-  async updateRefreshToken(data: UpdateRefreshTokenDto) {
+  public async updateRefreshToken(
+    data: UpdateRefreshTokenDto,
+  ): Promise<boolean> {
     const { id, refreshToken } = data;
 
     const user = await this.userModel.findById(id).exec();
@@ -49,6 +55,27 @@ export class AppService {
       return true;
     } catch (error) {
       throw new RpcException('Error updating refresh token');
+    }
+  }
+
+  public async deleteRefreshToken(
+    data: DeleteRefreshTokenDto,
+  ): Promise<boolean> {
+    const { id } = data;
+
+    const user = await this.userModel
+      .findOne({ _id: id, refreshToken: { $ne: null } })
+      .exec();
+    if (!user) {
+      throw new RpcException('User not found or refresh token is already null');
+    }
+
+    try {
+      user.refreshToken = null;
+      await user.save();
+      return true;
+    } catch (error) {
+      throw new RpcException('Error deleting refresh token');
     }
   }
 }

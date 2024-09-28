@@ -3,7 +3,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Credentials, OAuth2Client } from 'google-auth-library';
 import { ClientProxy } from '@nestjs/microservices';
-import { AuthDto } from './dto';
+import { AuthDto, LogOutDto } from './dto';
 import { HttpService } from '@nestjs/axios';
 import { RpcException } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
@@ -105,6 +105,17 @@ export class AppService {
       return tokens;
     } catch (error) {
       throw new RpcException(error.message || 'Error logging in user');
+    }
+  }
+
+  public async logout(dto: LogOutDto): Promise<boolean> {
+    try {
+      const response = await firstValueFrom(
+        this.userClient.send({ cmd: 'delete-refresh-token' }, dto),
+      );
+      return response;
+    } catch (error) {
+      throw new RpcException(error.message || 'Error logging out user');
     }
   }
 
