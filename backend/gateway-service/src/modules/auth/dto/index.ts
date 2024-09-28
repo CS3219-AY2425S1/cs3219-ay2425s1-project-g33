@@ -1,3 +1,2 @@
-export { SignUpDto } from './sign-up.dto';
-export { LogInDto } from './log-in.dto';
+export { AuthDto } from './auth.dto';
 export { ValidateUserCredDto } from './validate-user-cred.dto';
