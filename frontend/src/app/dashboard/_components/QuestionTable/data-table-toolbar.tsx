@@ -6,6 +6,8 @@ import { LucidePlus, LucideSearch } from "lucide-react";
 import { DataTableFacetedFilter } from "./data-table-faceted-filter";
 import { Table } from "@tanstack/react-table";
 import { CreateQuestionModal } from "../Forms/CreateQuestionModal";
+import { QuestionTableContext } from "@/contexts/QuestionTableContext";
+import { useContext } from "react";
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>;
@@ -14,8 +16,9 @@ interface DataTableToolbarProps<TData> {
 
 export default function DataTableToolbar<TData>({
   table,
-  categories,
 }: DataTableToolbarProps<TData>) {
+  const { categories } = useContext(QuestionTableContext);
+
   return (
     <div className="flex flex-col">
       <div className="flex flex-row justify-between gap-4">
