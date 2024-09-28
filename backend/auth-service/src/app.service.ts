@@ -9,7 +9,6 @@ import { RpcException } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import axios, { AxiosResponse } from 'axios';
 import { Token, TokenPayload } from './interfaces';
-import { decode } from 'punycode';
 
 const SALT_ROUNDS = 10;
 
@@ -219,7 +218,7 @@ export class AppService {
 
       const payload = { email: user.email, sub: user.id };
       const jwtToken = this.jwtService.sign(payload);
-
+      
       return { token: jwtToken, user };
     } catch (error) {
       throw new RpcException('Unable to validate Google user');

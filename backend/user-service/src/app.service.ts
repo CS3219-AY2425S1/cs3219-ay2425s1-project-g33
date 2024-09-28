@@ -37,6 +37,7 @@ export class AppService {
     const newUser = new this.userModel({
       email,
       password: password,
+      password: password,
     });
 
     const savedUser = await newUser.save();

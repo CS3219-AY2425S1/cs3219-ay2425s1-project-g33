@@ -6,10 +6,10 @@ import { JwtModule } from '@nestjs/jwt';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { HttpModule } from '@nestjs/axios';
 import {
-  GoogleStrategy,
-  GithubStrategy,
   AccessTokenStrategy,
   RefreshTokenStrategy,
+  GoogleStrategy,
+  GithubStrategy,
 } from './strategies';
 
 @Module({
