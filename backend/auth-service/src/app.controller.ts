@@ -1,7 +1,7 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller } from '@nestjs/common';
 import { AppService } from './app.service';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { AuthDto, LogOutDto } from './dto';
+import { AuthDto, AuthIdDto } from './dto';
 
 @Controller()
 export class AppController {
@@ -18,8 +18,23 @@ export class AppController {
   }
 
   @MessagePattern({ cmd: 'logout' })
-  logout(@Payload() dto: LogOutDto) {
+  logout(@Payload() dto: AuthIdDto) {
     return this.appService.logout(dto);
+  }
+
+  @MessagePattern({ cmd: 'refresh-token' })
+  refreshToken(@Payload() dto: AuthIdDto) {
+    return this.appService.refreshToken(dto);
+  }
+
+  @MessagePattern({ cmd: 'validate-token' })
+  validateToken(token: string) {
+    return this.appService.validateToken(token);
+  }
+
+  @MessagePattern({ cmd: 'validate-refresh-token' })
+  validateRefreshToken(refreshToken: string) {
+    return this.appService.validateRefreshToken(refreshToken);
   }
 
   @MessagePattern({ cmd: 'google-auth-redirect' })

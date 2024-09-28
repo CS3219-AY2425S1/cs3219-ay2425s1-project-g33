@@ -5,18 +5,21 @@ import {
   HttpCode,
   HttpStatus,
   Inject,
-  Param,
   Post,
   Query,
+  Req,
   Res,
+  UseGuards,
 } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth.service';
 import { Response } from 'express';
 import { ApiTags } from '@nestjs/swagger';
-import { AuthDto, LogOutDto } from './dto';
-import { Token } from './interfaces';
+import { AuthDto } from './dto';
+import { AuthRequest, Token } from './interfaces';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
+import { JwtGuard, JwtRefreshGuard } from './guards';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -42,10 +45,25 @@ export class AuthController {
     );
   }
 
+  @UseGuards(JwtGuard)
   @Post('logout')
   @HttpCode(HttpStatus.OK)
-  async logOut(@Body() data: LogOutDto): Promise<boolean> {
-    return await firstValueFrom(this.authClient.send({ cmd: 'logout' }, data));
+  async logOut(@Req() req: AuthRequest): Promise<boolean> {
+    const user = req.user;
+    return await firstValueFrom(
+      this.authClient.send({ cmd: 'logout' }, { id: user.id }),
+    );
+  }
+
+  @UseGuards(JwtRefreshGuard)
+  @Post('refresh')
+  @HttpCode(HttpStatus.OK)
+  async refreshToken(@Req() req: AuthRequest): Promise<any> {
+    const user = req.user;
+    console.log('user', user);
+    return await firstValueFrom(
+      this.authClient.send({ cmd: 'refresh-token' }, { id: user.id }),
+    );
   }
 
   @Get('google')

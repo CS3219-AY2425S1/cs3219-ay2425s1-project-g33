@@ -3,7 +3,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Credentials, OAuth2Client } from 'google-auth-library';
 import { ClientProxy } from '@nestjs/microservices';
-import { AuthDto, LogOutDto } from './dto';
+import { AuthDto, AuthIdDto } from './dto';
 import { HttpService } from '@nestjs/axios';
 import { RpcException } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
@@ -108,7 +108,7 @@ export class AppService {
     }
   }
 
-  public async logout(dto: LogOutDto): Promise<boolean> {
+  public async logout(dto: AuthIdDto): Promise<boolean> {
     try {
       const response = await firstValueFrom(
         this.userClient.send({ cmd: 'delete-refresh-token' }, dto),
@@ -116,6 +116,61 @@ export class AppService {
       return response;
     } catch (error) {
       throw new RpcException(error.message || 'Error logging out user');
+    }
+  }
+
+  public async refreshToken(dto: AuthIdDto): Promise<Token> {
+    try {
+      const { id } = dto;
+
+      const user = await firstValueFrom(
+        this.userClient.send({ cmd: 'get-user-by-id' }, id),
+      );
+
+      if (!user) {
+        throw new RpcException('User not found');
+      }
+
+      const tokens = await this.generateTokens({
+        id: id,
+        email: user.email,
+      });
+      const updateResponse = await firstValueFrom(
+        this.userClient.send(
+          { cmd: 'update-refresh-token' },
+          { id: id, refreshToken: tokens.refresh_token },
+        ),
+      );
+
+      if (!updateResponse) {
+        throw new RpcException('Error updating refresh token');
+      }
+
+      return tokens;
+    } catch (error) {
+      throw new RpcException(error.message || 'Error refreshing token');
+    }
+  }
+
+  public async validateToken(token: string): Promise<any> {
+    try {
+      const payload = this.jwtService.verify(token, {
+        secret: process.env.JWT_SECRET,
+      });
+      return { id: payload.sub, ...payload };
+    } catch (error) {
+      throw new RpcException('Invalid token');
+    }
+  }
+
+  public async validateRefreshToken(refreshToken: string): Promise<any> {
+    try {
+      const payload = this.jwtService.verify(refreshToken, {
+        secret: process.env.JWT_REFRESH_SECRET,
+      });
+      return { id: payload.sub, ...payload };
+    } catch (error) {
+      throw new RpcException('Invalid refresh token');
     }
   }
 

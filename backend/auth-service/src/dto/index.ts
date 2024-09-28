@@ -1,2 +1,2 @@
 export { AuthDto } from './auth.dto';
-export { LogOutDto } from './log-out.dto';
+export { AuthIdDto } from './auth-id.dto';

@@ -21,6 +21,11 @@ export class AppService {
     return user;
   }
 
+  public async getUserById(id: string): Promise<User> {
+    const user = await this.userModel.findById(id).exec();
+    return user;
+  }
+
   public async createUser(data: CreateUserDto): Promise<User> {
     const { email, password } = data;
 
@@ -67,7 +72,7 @@ export class AppService {
       .findOne({ _id: id, refreshToken: { $ne: null } })
       .exec();
     if (!user) {
-      throw new RpcException('User not found or refresh token is already null');
+      throw new RpcException('User is not logged in');
     }
 
     try {

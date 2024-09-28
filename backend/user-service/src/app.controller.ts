@@ -16,6 +16,11 @@ export class AppController {
     return this.appService.getUserByEmail(email);
   }
 
+  @MessagePattern({ cmd: 'get-user-by-id' })
+  async getUserById(@Payload() id: string) {
+    return this.appService.getUserById(id);
+  }
+
   @MessagePattern({ cmd: 'create-user' })
   async createUser(@Payload() data: CreateUserDto) {
     return this.appService.createUser(data);
