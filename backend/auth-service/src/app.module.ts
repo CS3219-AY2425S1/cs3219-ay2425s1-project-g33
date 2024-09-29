@@ -14,7 +14,7 @@ import {
 
 @Module({
   imports: [
-    PassportModule,
+    PassportModule.register({ defaultStrategy: 'jwt' }),
     HttpModule,
     JwtModule.register({}),
     ClientsModule.register([

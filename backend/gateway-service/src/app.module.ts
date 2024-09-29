@@ -6,6 +6,8 @@ import { UserService } from './modules/user/user.service';
 import { QuestionService } from './modules/question/question.service';
 import { QuestionController } from './modules/question/question.controller';
 import { AuthService } from './modules/auth/auth.service';
+import { APP_GUARD } from '@nestjs/core';
+import { AtAuthGuard, RtAuthGuard } from './common/guards';
 
 @Module({
   imports: [
@@ -37,6 +39,15 @@ import { AuthService } from './modules/auth/auth.service';
     ]),
   ],
   controllers: [UserController, QuestionController, AuthController],
-  providers: [UserService, QuestionService, AuthService],
+  providers: [
+    UserService,
+    QuestionService,
+    AuthService,
+    RtAuthGuard,
+    {
+      provide: APP_GUARD,
+      useClass: AtAuthGuard,
+    },
+  ],
 })
 export class AppModule {}
