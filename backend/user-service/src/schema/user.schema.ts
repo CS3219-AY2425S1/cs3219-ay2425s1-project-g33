@@ -1,17 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
-
-export enum Proficiency {
-  BEGINNER = 'Beginner',
-  INTERMEDIATE = 'Intermediate',
-  ADVANCED = 'Advanced',
-}
-
-export enum Languages {
-  PYTHON = 'Python',
-  JAVA = 'Java',
-  CPLUSPLUS = 'C++',
-}
+import { AccountProvider } from 'src/constants/account-provider.enum';
+import { Languages } from 'src/constants/coding-languages.enum';
+import { Proficiency } from 'src/constants/proficiency-level.enum';
 
 @Schema()
 export class User extends Document {
@@ -24,8 +15,14 @@ export class User extends Document {
   @Prop({ required: true })
   email: string;
 
-  @Prop({ required: true })
-  password: string;
+  @Prop({ required: false, default: null })
+  password: string | null;
+
+  @Prop({ required: true, enum: AccountProvider })
+  provider: AccountProvider;
+
+  @Prop({ required: false, default: null })
+  socialId: string | null;
 
   @Prop({ required: false, default: '' })
   refreshToken: string;

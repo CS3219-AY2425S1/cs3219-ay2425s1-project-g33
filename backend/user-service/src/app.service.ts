@@ -6,9 +6,11 @@ import { RpcException } from '@nestjs/microservices';
 import { User } from './schema/user.schema';
 import {
   CreateUserDto,
+  CreateUserSocialsDto,
   DeleteRefreshTokenDto,
   UpdateRefreshTokenDto,
 } from './dto';
+import { AccountProvider } from './constants/account-provider.enum';
 
 const SALT_ROUNDS = 10;
 
@@ -37,6 +39,22 @@ export class AppService {
     const newUser = new this.userModel({
       email,
       password: password,
+      provider: AccountProvider.LOCAL
+    });
+
+    const savedUser = await newUser.save();
+
+    return savedUser;
+  }
+
+  public async createUserSocials(data: CreateUserSocialsDto): Promise<User> {
+    const { email, socialId, provider } = data;
+
+    const newUser = new this.userModel({
+      email,
+      provider,
+      password: null,
+      socialId,
     });
 
     const savedUser = await newUser.save();
