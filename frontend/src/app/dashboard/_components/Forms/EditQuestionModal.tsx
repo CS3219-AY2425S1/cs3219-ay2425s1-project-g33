@@ -8,18 +8,13 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-import React, {
-  PropsWithChildren,
-  useCallback,
-  useEffect,
-  useState,
-} from "react";
+import React, { PropsWithChildren, useCallback, useContext } from "react";
 
 import MultiBadgeSelectInput from "@/components/form/MultiBadgeSelect";
 import { RadioGroupInput } from "@/components/form/RadioGroupInput";
 import { TextAreaInput } from "@/components/form/TextAreaInput";
 import { TextInput } from "@/components/form/TextInput";
-import { editQuestion, getQuestions } from "@/services/questionService";
+import { editQuestion } from "@/services/questionService";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { useForm } from "react-hook-form";
@@ -29,6 +24,7 @@ import { Button } from "@/components/ui/button";
 import { Question } from "@/types/Question";
 import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
+import { QuestionTableContext } from "@/contexts/QuestionTableContext";
 
 interface CreateQuestionModalProps {
   isOpen: boolean;
@@ -51,7 +47,7 @@ export function EditQuestionModal({
   question,
 }: PropsWithChildren<CreateQuestionModalProps>) {
   const { toast } = useToast();
-  const [categories, setCategories] = useState<string[]>([]);
+  const { categories } = useContext(QuestionTableContext);
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -64,16 +60,6 @@ export function EditQuestionModal({
       slug: question.slug,
     },
   });
-
-  // Get all categories
-  useEffect(() => {
-    getQuestions().then((questions) => {
-      if (!questions.data) {
-        return;
-      }
-      setCategories(questions.data.totalCategories);
-    });
-  }, []);
 
   const onSubmit = useCallback(
     async (data: z.infer<typeof FormSchema>) => {

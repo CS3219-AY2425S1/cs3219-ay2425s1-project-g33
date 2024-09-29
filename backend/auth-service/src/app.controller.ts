@@ -1,33 +1,33 @@
 import { Controller, Get } from '@nestjs/common';
 import { AppService } from './app.service';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { GenerateJwtDto, ValidateUserCredDto } from './dto';
+import { AuthDto } from './dto';
 
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  @Get()
-  getHello(): string {
-    return this.appService.getHello();
+  @MessagePattern({ cmd: 'local-sign-up' })
+  signUpLocal(@Payload() dto: AuthDto) {
+    return this.appService.signUpLocal(dto);
   }
 
-  @MessagePattern({ cmd: 'generate-jwt' })
-  generateJwt(@Payload() data: GenerateJwtDto) {
-    return this.appService.generateJwt(data);
-  }
-
-  @MessagePattern({ cmd: 'validate-user-cred' })
-  validateUser(@Payload() data: ValidateUserCredDto) {
-    return this.appService.validateUserCred(data);
+  @MessagePattern({ cmd: 'local-log-in' })
+  logInLocal(@Payload() dto: AuthDto) {
+    return this.appService.logInLocal(dto);
   }
 
   @MessagePattern({ cmd: 'google-auth-redirect' })
   async googleAuthRedirect(data: { code: string }) {
     const { code } = data;
-    const tokens = await this.appService.exchangeGoogleCodeForTokens(code);
+    const response = await this.appService.validateGoogleUser(code);
+    return { token: response.token, user: response.user };
+  }
 
-    const jwtToken = this.appService.generateJwt(tokens.user);
-    return { token: jwtToken };
+  @MessagePattern({ cmd: 'github-auth-redirect' })
+  async githubAuthRedirect(data: { code: string }) {
+    const { code } = data;
+    const response = await this.appService.validateGithubUser(code);
+    return { token: response.token, user: response.user };
   }
 }

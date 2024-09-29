@@ -1,36 +1,67 @@
-import { Body, Controller, Get, Post, Query, Res } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Post,
+  Query,
+  Res,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Response } from 'express';
 import { ApiTags } from '@nestjs/swagger';
-import { SignUpDto, LogInDto } from './dto';
+import { AuthDto } from './dto';
+import { Token } from './interfaces';
 
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Post('signup')
-  signUp(@Body() data: SignUpDto) {
-    return this.authService.signUp(data);
+  @Post('local/signup')
+  @HttpCode(HttpStatus.CREATED)
+  signUp(@Body() data: AuthDto): Promise<Token> {
+    return this.authService.signUpLocal(data);
   }
 
-  @Post('login')
-  logIn(@Body() data: LogInDto) {
-    return this.authService.logIn(data);
+  @Post('local/login')
+  @HttpCode(HttpStatus.OK)
+  logIn(@Body() data: AuthDto): Promise<Token> {
+    return this.authService.logInLocal(data);
   }
 
   @Get('google')
   async googleAuth(@Res() res: Response) {
-    const redirectUrl = await this.authService.getGoogleOAuthUrl();
+    const redirectUrl = this.authService.getGoogleOAuthUrl();
     res.redirect(redirectUrl);
+
+    // In actuality, return url back to client
+    // return {url: redirectUrl}
   }
 
   @Get('google/callback')
-  async googleAuthRedirect(@Query('code') code: string, @Res() res: Response) {
+  async googleAuthCallback(@Query('code') code: string) {
     const response = await this.authService.getGoogleAuthRedirect(code);
 
-    const jwtToken = response.token;
-    // Redirect the user with the JWT token (or you can set a cookie here)
-    return { token: jwtToken };
+    return { token: response.token, user: response.user };
+  }
+
+  @Get('github')
+  async githubLogin(@Res() res: Response) {
+    const redirectUrl = this.authService.getGithubOAuthUrl();
+    res.redirect(redirectUrl);
+    // In actuality, return url back to client
+    // return {url: redirectUrl}
+  }
+
+  @Get('github/callback')
+  async githubAuthCallback(@Query('code') code: string) {
+    const response = await this.authService.getGithubAuthRedirect(code);
+
+    return {
+      token: response.token,
+      user: response.user,
+    };
   }
 }

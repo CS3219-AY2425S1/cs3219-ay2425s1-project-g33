@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const createResponseSchema = <T extends z.ZodType<any>>(
+export const createResponseSchema = <T extends z.ZodType<object>>(
   dataSchema: T
 ) => {
   return z.object({

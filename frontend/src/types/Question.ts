@@ -1,13 +1,14 @@
 import { z } from "zod";
 import { createResponseSchema } from "./Response";
+import { CategoriesSchema } from "./Category";
 
 const QuestionSchema = z.object({
   _id: z.string(),
   title: z.string(),
   slug: z.string(),
-  description: z.string().optional(),
+  description: z.string(),
   difficulty: z.enum(["Easy", "Medium", "Hard"]),
-  categories: z.array(z.string()),
+  categories: CategoriesSchema,
 });
 
 const NewQuestionSchema = QuestionSchema.omit({ _id: true, slug: true });
@@ -16,7 +17,6 @@ const QuestionsSchema = z.array(QuestionSchema);
 
 const QuestionsDataSchema = z.object({
   questions: QuestionsSchema,
-  totalCategories: z.array(z.string()),
 });
 
 const QuestionResponseSchema = createResponseSchema(QuestionSchema);
@@ -31,8 +31,8 @@ type QuestionsResponse = z.infer<typeof QuestionsResponseSchema>;
 export {
   QuestionSchema,
   NewQuestionSchema,
-  QuestionsSchema as QuestionsArraySchema,
-  QuestionsDataSchema as QuestionDataSchema,
+  QuestionsSchema,
+  QuestionsDataSchema,
   QuestionResponseSchema,
   QuestionsResponseSchema,
   type Question,

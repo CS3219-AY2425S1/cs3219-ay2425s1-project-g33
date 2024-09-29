@@ -29,7 +29,7 @@ const DifficultyColumn: ColumnDef<Question> = {
       </span>
     );
   },
-  sortingFn: (rowA, rowB, columnId) => {
+  sortingFn: (rowA, rowB) => {
     const difficultyMap = {
       Easy: 0,
       Medium: 1,

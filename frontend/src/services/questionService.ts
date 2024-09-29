@@ -1,5 +1,6 @@
 "use server";
 
+import { CategoriesResponse, CategoriesResponseSchema } from "@/types/Category";
 import {
   Question,
   NewQuestion,
@@ -12,6 +13,7 @@ import {
 import { revalidatePath } from "next/cache";
 
 import qs from "querystring";
+import { cache } from "react";
 
 export async function getQuestion(slug: string): Promise<QuestionResponse> {
   try {
@@ -63,6 +65,32 @@ export async function getQuestions(): Promise<QuestionsResponse> {
     };
   }
 }
+
+export const getQuestionCategories = cache(
+  async function (): Promise<CategoriesResponse> {
+    try {
+      const res: Response = await fetch(
+        process.env.PUBLIC_API_URL + `/api/questions/categories`,
+        {
+          cache: "no-cache",
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const resObj = await res.json();
+
+      return CategoriesResponseSchema.parse(resObj);
+    } catch (error) {
+      return {
+        statusCode: 500,
+        message: String(error),
+      };
+    }
+  }
+);
 
 export async function createQuestion(
   question: NewQuestion
