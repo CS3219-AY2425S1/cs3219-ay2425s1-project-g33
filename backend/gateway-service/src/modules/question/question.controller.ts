@@ -3,53 +3,65 @@ import {
   Controller,
   Delete,
   Get,
+  Inject,
   Param,
   Patch,
   Post,
   Query,
 } from '@nestjs/common';
-import { QuestionService } from './question.service';
-import { CreateQuestionDto, GetQuestionsDto } from './dto';
+import {
+  CreateQuestionDto,
+  FindQuestionBySlugDto,
+  GetQuestionsDto,
+  UpdateQuestionDto,
+} from './dto';
 import { ApiTags } from '@nestjs/swagger';
+import { ClientProxy } from '@nestjs/microservices';
+import { Public } from 'src/common/decorators';
 
 @ApiTags('questions')
+@Public()
 @Controller('questions')
 export class QuestionController {
-  constructor(private readonly questionService: QuestionService) {}
+  constructor(
+    @Inject('QUESTION_SERVICE') private readonly questionClient: ClientProxy,
+  ) {}
 
   // Get questions
   @Get()
   getQuestions(@Query() dto: GetQuestionsDto) {
-    return this.questionService.getQuestions(dto);
+    return this.questionClient.send({ cmd: 'get-questions' }, dto);
   }
 
   // Get question categories
   @Get('categories')
   getQuestionCategories() {
-    return this.questionService.getCategories();
+    return this.questionClient.send({ cmd: 'get-categories' }, {});
   }
 
   // Get question details by slug
   @Get(':slug')
   getQuestionDetailsBySlug(@Param('slug') slug: string) {
-    return this.questionService.getQuestionDetailsBySlug(slug);
+    const payload: FindQuestionBySlugDto = { slug };
+    return this.questionClient.send({ cmd: 'get-question-details' }, payload);
   }
 
   // Create question
   @Post('create')
   createQuestion(@Body() dto: CreateQuestionDto) {
-    return this.questionService.createQuestion(dto);
+    return this.questionClient.send({ cmd: 'create-question' }, dto);
   }
 
   // Delete question
   @Delete(':id')
   deleteQuestion(@Param('id') id: string) {
-    return this.questionService.deleteQuestion(id);
+    return this.questionClient.send({ cmd: 'delete-question' }, id);
   }
 
   // Update question
   @Patch(':id')
   updateQuestion(@Param('id') id: string, @Body() dto: CreateQuestionDto) {
-    return this.questionService.updateQuestion(id, dto);
+    const payload: UpdateQuestionDto = { id, updatedQuestionInfo: dto };
+    return this.questionClient.send({ cmd: 'update-question' }, payload);
   }
 }
