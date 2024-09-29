@@ -20,6 +20,7 @@ export async function getQuestion(slug: string): Promise<QuestionResponse> {
     const res = await fetch(
       process.env.PUBLIC_API_URL + `/api/questions/${slug}`,
       {
+        signal: AbortSignal.timeout(5000),
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -48,6 +49,7 @@ export async function getQuestions(): Promise<QuestionsResponse> {
       process.env.PUBLIC_API_URL + `/api/questions?${query}`,
       {
         cache: "no-cache",
+        signal: AbortSignal.timeout(5000),
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -61,7 +63,9 @@ export async function getQuestions(): Promise<QuestionsResponse> {
   } catch (error) {
     return {
       statusCode: 500,
-      message: String(error),
+      message: String(
+        "An error occurred with the backend. Perhaps it is down."
+      ),
     };
   }
 }
@@ -73,6 +77,7 @@ export const getQuestionCategories = cache(
         process.env.PUBLIC_API_URL + `/api/questions/categories`,
         {
           cache: "no-cache",
+          signal: AbortSignal.timeout(5000),
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -100,6 +105,7 @@ export async function createQuestion(
       process.env.PUBLIC_API_URL + "/api/questions/create",
       {
         method: "POST",
+        signal: AbortSignal.timeout(5000),
         headers: {
           "Content-Type": "application/json",
         },
@@ -124,6 +130,7 @@ export async function deleteQuestion(questionId: string): Promise<void> {
   try {
     await fetch(process.env.PUBLIC_API_URL + `/api/questions/${questionId}`, {
       method: "DELETE",
+      signal: AbortSignal.timeout(5000),
       headers: {
         "Content-Type": "application/json",
       },
@@ -142,6 +149,7 @@ export async function editQuestion(
       process.env.PUBLIC_API_URL + `/api/questions/${question._id}`,
       {
         method: "PATCH",
+        signal: AbortSignal.timeout(5000),
         headers: {
           "Content-Type": "application/json",
         },
