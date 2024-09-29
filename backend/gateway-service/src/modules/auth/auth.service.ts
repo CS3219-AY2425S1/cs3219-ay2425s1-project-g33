@@ -1,12 +1,26 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
+import { AuthDto } from './dto';
+import { Token } from './interfaces';
 
 @Injectable()
 export class AuthService {
   constructor(
     @Inject('AUTH_SERVICE') private readonly authClient: ClientProxy,
   ) {}
+
+  async signUpLocal(data: AuthDto): Promise<Token> {
+    return await firstValueFrom(
+      this.authClient.send({ cmd: 'local-sign-up' }, data),
+    );
+  }
+
+  async logInLocal(data: AuthDto): Promise<Token> {
+    return await firstValueFrom(
+      this.authClient.send({ cmd: 'local-log-in' }, data),
+    );
+  }
 
   getGoogleOAuthUrl(): string {
     const clientId = process.env.GOOGLE_CLIENT_ID;
