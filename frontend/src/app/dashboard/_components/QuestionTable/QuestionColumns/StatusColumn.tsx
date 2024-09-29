@@ -1,4 +1,4 @@
-import { Question, QuestionSchema } from "@/types/Question";
+import { Question } from "@/types/Question";
 import { ColumnDef } from "@tanstack/react-table";
 import { LucideCircleCheckBig } from "lucide-react";
 
