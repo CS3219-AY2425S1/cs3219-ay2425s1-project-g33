@@ -33,7 +33,6 @@ const FormSchema = z.object({
 
 export function CreateQuestionModal({ children }: PropsWithChildren) {
   const { toast } = useToast();
-
   const { categories } = useContext(QuestionTableContext);
 
   const form = useForm<z.infer<typeof FormSchema>>({
