@@ -1,11 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useForm, SubmitHandler, FormProvider } from "react-hook-form";
 import { Card } from "@/components/ui/card";
 import { Github } from "lucide-react";
 import Link from "next/link";
-import { Input } from "@/components/ui/input";
-
+import { User, Lock, Mail } from "lucide-react";
+import {
+  Form,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+  FormField,
+} from "@/components/ui/form";
 
 interface FormData {
   username: string;
@@ -15,159 +22,196 @@ interface FormData {
 }
 
 export default function SignUpPage() {
-  const [formData, setFormData] = useState<FormData>({
-    username:'',
-    email: '',
-    password: '',
-    confirmPassword: '',
+  const methods = useForm<FormData>({
+    defaultValues: {
+      username: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+    },
   });
 
-  const [errors, setErrors] = useState<{ [key: string]: string}>({});
+  const { handleSubmit, control, formState: { errors } } = methods;
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({...formData, [e.target.name]: e.target.value});
-  };
+  const onSubmit: SubmitHandler<FormData> = async (data) => {
+    if (data.password !== data.confirmPassword) {
+      methods.setError("confirmPassword", {
+        type: "manual",
+        message: "Passwords do not match.",
+      });
+      return;
+    }
 
-  const validateForm = () => {
-    let formErrors: { [key:string]: string } = {};
-
-    if (!formData.username) formErrors.username = "Please choose a username.";
-    if (!formData.email) formErrors.email = "Please enter a valid email address.";
-    if (!formData.password) formErrors.password = "Password is required.";
-    if (formData.password !== formData.confirmPassword) formErrors.confirmPassword = "Passwords do not match.";
-
-    setErrors(formErrors);
-    return Object.keys(formErrors).length === 0;
-  };
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-  
-    if (!validateForm()) return;
-  
     try {
-      const response = await fetch('/api/auth/local/signup', {
+      const response = await fetch('/api/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(data),
       });
-  
+
       if (response.ok) {
-        const data = await response.json(); 
         alert('Sign up successful!');
       } else {
-        const errorData = await response.json();
-        alert(`Sign up failed: ${errorData.message}`);
+        alert('Sign up failed.');
       }
     } catch (error) {
       console.error('Error:', error);
     }
   };
-  
 
-  return (<div className="min-h-screen max-w-sm container grid gap-4 mx-auto items-center">
-    <section className="col-span-9 flex flex-col gap-4 ">
+  return (
+    <div className="min-h-screen max-w-sm container grid gap-4 mx-auto items-center">
+      <section className="col-span-9 flex flex-col gap-4 ">
         <Card className="bg-background-200 p-2">
-          <div className="flex flex-col p-8">
-            <h1 className="font-bold text-2xl mb-2"> Sign up</h1>
-            <h2 className="mb-6">Join PeerPrep today and start your journey toward acing tech interviews!</h2>
+          <div className="flex flex-col p-6">
+            <h1 className="font-bold text-2xl mb-2">Sign up</h1>
+            <h2 className="mb-6 text-sm">
+              Join PeerPrep today and start your journey toward acing tech
+              interviews!
+            </h2>
 
-            {/* To input log in details */}
-            <form onSubmit={handleSubmit}>
-              <div className="flex flex-col gap-y-4"> 
-                <div>
-                  <input
-                    type="text"
+            <FormProvider {...methods}>
+              <form onSubmit={handleSubmit(onSubmit)}>
+                <div className="flex flex-col gap-y-2">
+
+                  {/* Username Field */}
+                  <FormField
+                    control={control}
                     name="username"
-                    placeholder="Username"
-                    value={formData.username}
-                    onChange={handleChange}
-                    className="rounded-md w-full py-2 pl-10 bg-input-foreground"
-                    />
-                    {errors.username && <p className="text-difficulty-hard">{errors.username}</p>}
-                </div>
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Username</FormLabel>
+                        <FormControl>
+                          <div className="relative">
+                            <User className="absolute left-2 top-1/2 transform -translate-y-1/2 text-foreground-100" />
+                            <input
+                              {...field}
+                              placeholder="Username"
+                              className="rounded-md w-full py-2 pl-10 bg-input-foreground text-input"
+                            />
+                          </div>
+                        </FormControl>
+                        {errors.username && <FormMessage>{errors.username.message}</FormMessage>}
+                      </FormItem>
+                    )}
+                  />
 
-
-                <div>
-                  <input
-                    type="text"
+                  {/* Email Field */}
+                  <FormField
+                    control={control}
                     name="email"
-                    placeholder="Email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    className="rounded-md w-full py-2 pl-10 bg-input-foreground"
-                    />
-                    {errors.email && <p className="text-difficulty-hard">{errors.email}</p>}
-                </div>
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Email</FormLabel>
+                        <FormControl>
+                          <div className="relative">
+                            <Mail className="absolute left-2 top-1/2 transform -translate-y-1/2 text-foreground-100" />
+                            <input
+                              {...field}
+                              type="email"
+                              placeholder="Email"
+                              className="rounded-md w-full py-2 pl-10 bg-input-foreground text-input"
+                            />
+                          </div>
+                        </FormControl>
+                        {errors.email && <FormMessage>{errors.email.message}</FormMessage>}
+                      </FormItem>
+                    )}
+                  />
 
-                <div>
-                  <input
-                    type="password"
+                  {/* Password Field */}
+                  <FormField
+                    control={control}
                     name="password"
-                    placeholder="Password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    className="rounded-md w-full py-2 pl-10 bg-input-foreground"
-                    />
-                    {errors.password && <p className="text-difficulty-hard">{errors.password}</p>}
-                </div>
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Password</FormLabel>
+                        <FormControl>
+                          <div className="relative">
+                            <Lock className="absolute left-2 top-1/2 transform -translate-y-1/2 text-foreground-100" />
+                            <input
+                              {...field}
+                              type="password"
+                              placeholder="Password"
+                              className="rounded-md w-full py-2 pl-10 bg-input-foreground text-input"
+                            />
+                          </div>
+                        </FormControl>
+                        {errors.password && <FormMessage>{errors.password.message}</FormMessage>}
+                      </FormItem>
+                    )}
+                  />
 
-                <div>
-                  <input
-                    type="password"
+                  {/* Confirm Password Field */}
+                  <FormField
+                    control={control}
                     name="confirmPassword"
-                    placeholder="Confirm Password"
-                    value={formData.confirmPassword}
-                    onChange={handleChange}
-                    className="rounded-md w-full py-2 pl-10 bg-input-foreground"
-                    />
-                    {errors.confirmPassword && <p className="text-difficulty-hard">{errors.confirmPassword}</p>}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Confirm Password</FormLabel>
+                        <FormControl>
+                          <div className="relative">
+                            <Lock className="absolute left-2 top-1/2 transform -translate-y-1/2 text-foreground-100" />
+                            <input
+                              {...field}
+                              type="password"
+                              placeholder="Confirm Password"
+                              className="rounded-md w-full py-2 pl-10 bg-input-foreground text-input"
+                            />
+                          </div>
+                        </FormControl>
+                        {errors.confirmPassword && <FormMessage>{errors.confirmPassword.message}</FormMessage>}
+                      </FormItem>
+                    )}
+                  />
                 </div>
-              </div>
-              
-              {/* Forgot password link */}
-              <div className="text-right pt-2 pb-2"> 
-                <a href="#" className="hover: underline text-sm"> Forgot password? </a>
-              </div>
-              
-              {/* Sign in Button */}
-              <button 
-                type="submit"
-                className="w-full bg-primary font-bold rounded-md py-2"
-              > 
-              Sign Up
-              </button>
-              
-            </form>
 
-            {/* Or sign in with */}
-            <div className="flex items-center my-6"> 
+                {/* Forgot password link */}
+                <div className="text-right pt-2 pb-2">
+                  <Link href="/forgotpassword" className="hover:underline text-sm">
+                    Forgot password?
+                  </Link>
+                </div>
+
+                {/* Sign Up Button */}
+                <button
+                  type="submit"
+                  className="w-full bg-primary font-bold rounded-md py-2"
+                >
+                  Sign Up
+                </button>
+              </form>
+            </FormProvider>
+
+            {/* Or sign up with */}
+            <div className="flex items-center my-6">
               <hr className="flex-grow muted-foreground border-t" />
               <span className="mx-2 text-sm">Or sign up with</span>
-              <hr className="flex-grow border-t"/>
-              
+              <hr className="flex-grow border-t" />
             </div>
-            
+
             {/* Socials */}
             <div className="flex flex-row gap-x-4 justify-center">
               <button className="rounded-md">
                 <Github />
-                {/*<FaGithub size={24}/> */}
               </button>
-
               <button className="rounded-md">
-               {/* <FaGoogle size={24}/>*/}
+                {/* Add google button here */}
               </button>
             </div>
 
             {/* Sign up here */}
-            <div className="text-center justify-center text-sm mt-6"> 
-              <p> Already have an account? Click here to <Link href="/signin" className="hover:underline">Sign in</Link> </p>
+            <div className="text-center justify-center text-sm mt-6">
+              <p>
+                Already have an account? Click here to{" "}
+                <Link href="/signin" className="hover:underline text-primary">
+                  Sign in
+                </Link>
+              </p>
             </div>
-
-        </div>
+          </div>
         </Card>
-    </section>
-  </div>
+      </section>
+    </div>
   );
 }
