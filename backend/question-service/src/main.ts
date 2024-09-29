@@ -9,8 +9,8 @@ async function bootstrap() {
     {
       transport: Transport.TCP,
       options: {
-        host: '0.0.0.0',
-        port: 3002,
+        host: 'localhost',
+        port: 4001,
       },
     },
   );
@@ -22,7 +22,8 @@ async function bootstrap() {
       forbidNonWhitelisted: true,
     }),
   );
+
   await app.listen();
-  console.log('Question Service is listening on port 3002');
+  console.log('Question Service is listening on port 4001');
 }
 bootstrap();

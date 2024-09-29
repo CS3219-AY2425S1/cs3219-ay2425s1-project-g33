@@ -17,10 +17,8 @@ import {
 } from './dto';
 import { ApiTags } from '@nestjs/swagger';
 import { ClientProxy } from '@nestjs/microservices';
-import { Public } from 'src/common/decorators';
 
 @ApiTags('questions')
-@Public()
 @Controller('questions')
 export class QuestionController {
   constructor(
