@@ -3,6 +3,7 @@ import { AppService } from './app.service';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import {
   CreateUserDto,
+  CreateUserSocialsDto,
   DeleteRefreshTokenDto,
   UpdateRefreshTokenDto,
 } from './dto';
@@ -24,6 +25,11 @@ export class AppController {
   @MessagePattern({ cmd: 'create-user' })
   async createUser(@Payload() data: CreateUserDto) {
     return this.appService.createUser(data);
+  }
+
+  @MessagePattern({ cmd: "create-user-socials"})
+  async createUserSocials(@Payload() data: CreateUserSocialsDto) {
+    return this.appService.createUserSocials(data);
   }
 
   @MessagePattern({ cmd: 'update-refresh-token' })

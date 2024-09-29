@@ -37,17 +37,25 @@ export class AppController {
     return this.appService.validateRefreshToken(refreshToken);
   }
 
+  @MessagePattern({ cmd: 'get-google-auth-url' })
+  getGoogleOAuthUrl() {
+    return this.appService.getGoogleOAuthUrl();
+  }
+
   @MessagePattern({ cmd: 'google-auth-redirect' })
   async googleAuthRedirect(data: { code: string }) {
     const { code } = data;
-    const response = await this.appService.validateGoogleUser(code);
-    return { token: response.token, user: response.user };
+    return this.appService.validateGoogleUser(code);
+  }
+
+  @MessagePattern({ cmd: 'get-github-auth-url' })
+  getGithubOAuthUrl() {
+    return this.appService.getGithubOAuthUrl();
   }
 
   @MessagePattern({ cmd: 'github-auth-redirect' })
   async githubAuthRedirect(data: { code: string }) {
     const { code } = data;
-    const response = await this.appService.validateGithubUser(code);
-    return { token: response.token, user: response.user };
+    return this.appService.validateGithubUser(code);
   }
 }

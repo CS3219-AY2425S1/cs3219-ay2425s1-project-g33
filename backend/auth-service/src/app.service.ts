@@ -9,6 +9,7 @@ import { RpcException } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import axios, { AxiosResponse } from 'axios';
 import { Token, TokenPayload } from './interfaces';
+import { AccountProvider } from './constants/account-provider.enum';
 
 const SALT_ROUNDS = 10;
 
@@ -56,7 +57,7 @@ export class AppService {
 
       return tokens;
     } catch (error) {
-      throw new RpcException(error.message || 'Error creating user');
+      throw new RpcException(`Error signing up user: ${error.message}`);
     }
   }
 
@@ -92,7 +93,7 @@ export class AppService {
 
       return tokens;
     } catch (error) {
-      throw new RpcException(error.message || 'Error logging in user');
+      throw new RpcException(`Error logging in user: ${error.message}`);
     }
   }
 
@@ -136,7 +137,7 @@ export class AppService {
 
       return tokens;
     } catch (error) {
-      throw new RpcException(error.message || 'Error refreshing token');
+      throw new RpcException(`Error refreshing token: ${error.message}`);
     }
   }
 
@@ -210,18 +211,64 @@ export class AppService {
     };
   }
 
-  async validateGoogleUser(code: string): Promise<any> {
+  getGoogleOAuthUrl(): string {
+    const clientId = process.env.GOOGLE_CLIENT_ID;
+    const redirectUri = process.env.GOOGLE_CALLBACK_URL;
+    const scope = encodeURIComponent('email profile');
+    const responseType = 'code';
+    const state = 'secureRandomState';
+
+    const googleOAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?response_type=${responseType}&client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&state=${state}`;
+
+    return googleOAuthUrl;
+  }
+
+  async validateGoogleUser(code: string): Promise<Token> {
     try {
       const tokens = await this.exchangeGoogleCodeForTokens(code);
 
-      const user = await this.getGoogleUserProfile(tokens);
+      const googleUser = await this.getGoogleUserProfile(tokens);
 
-      const payload = { email: user.email, sub: user.id };
-      const jwtToken = this.jwtService.sign(payload);
-      
-      return { token: jwtToken, user };
+      const existingUser = await firstValueFrom(
+        this.userClient.send(
+          {
+            cmd: 'get-user-by-email',
+          },
+          googleUser.email,
+        ),
+      );
+
+      let user = existingUser;
+
+      // If user not found, initiate automatic sign up
+      if (!existingUser) {
+        user = await firstValueFrom(
+          this.userClient.send(
+            { cmd: 'create-user-socials' },
+            {
+              email: googleUser.email,
+              socialId: googleUser.id,
+              provider: AccountProvider.GOOGLE,
+            },
+          ),
+        );
+      }
+
+      const jwtTokens = await this.generateTokens({
+        id: user._id.toString(),
+        email: user.email,
+      });
+
+      await this.updateRefreshToken({
+        id: user._id.toString(),
+        refreshToken: jwtTokens.refresh_token,
+      });
+
+      return jwtTokens;
     } catch (error) {
-      throw new RpcException('Unable to validate Google user');
+      throw new RpcException(
+        `Unable to validate Google user: ${error.message}`,
+      );
     }
   }
 
@@ -233,7 +280,7 @@ export class AppService {
       return tokens;
     } catch (error) {
       throw new RpcException(
-        'Unable to exchange Google authorization code for tokens',
+        `Unable to exchange Google authorization code for tokens: ${error.message}`,
       );
     }
   }
@@ -261,55 +308,115 @@ export class AppService {
         ...(typeof userInfo.data === 'object' ? userInfo.data : {}),
       };
     } catch (error) {
-      throw new RpcException('Unable to retrieve Google user profile');
+      throw new RpcException(
+        `Unable to retrieve Google user profile: ${error.message}`,
+      );
     }
   }
 
-  async validateGithubUser(code: string) {
-    const accessToken = await this.exchangeGithubCodeForTokens(code);
-    const user = await this.getGithubUserProfile(accessToken);
+  getGithubOAuthUrl(): string {
+    const clientId = process.env.GITHUB_CLIENT_ID;
+    const redirectUri = process.env.GITHUB_CALLBACK_URL;
+    const scope = 'user:email';
 
-    // Generate JWT token for the user
-    const payload = { username: user.login, sub: user.id };
-    const jwtToken = this.jwtService.sign(payload);
-    return { token: jwtToken, user };
+    const githubLoginUrl = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(
+      redirectUri,
+    )}&scope=${scope}`;
+
+    return githubLoginUrl;
+  }
+
+  async validateGithubUser(code: string): Promise<Token> {
+    const accessToken = await this.exchangeGithubCodeForTokens(code);
+    const githubUser = await this.getGithubUserProfile(accessToken);
+
+    const existingUser = await firstValueFrom(
+      this.userClient.send(
+        {
+          cmd: 'get-user-by-email',
+        },
+        githubUser.email,
+      ),
+    );
+
+    let user = existingUser;
+
+    // If user not found, initiate automatic sign up
+    if (!existingUser) {
+      user = await firstValueFrom(
+        this.userClient.send(
+          { cmd: 'create-user-socials' },
+          {
+            email: githubUser.email,
+            socialId: githubUser.id,
+            provider: AccountProvider.GITHUB,
+          },
+        ),
+      );
+    }
+
+    const jwtTokens = await this.generateTokens({
+      id: user._id.toString(),
+      email: user.email,
+    });
+
+    await this.updateRefreshToken({
+      id: user._id.toString(),
+      refreshToken: jwtTokens.refresh_token,
+    });
+
+    return jwtTokens;
   }
 
   private async exchangeGithubCodeForTokens(code: string) {
     try {
+      const params = {
+        client_id: process.env.GITHUB_CLIENT_ID,
+        client_secret: process.env.GITHUB_CLIENT_SECRET,
+        code: code,
+        redirect_uri: process.env.GITHUB_CALLBACK_URL,
+      };
+      const headers = {
+        Accept: 'application/json',
+        'Accept-Encoding': 'application/json',
+      };
       const response: AxiosResponse<any> = await axios.get(
         'https://github.com/login/oauth/access_token',
         {
-          params: {
-            client_id: process.env.GITHUB_CLIENT_ID,
-            client_secret: process.env.GITHUB_CLIENT_SECRET,
-            code: code,
-            redirect_uri: process.env.GITHUB_CALLBACK_URL,
-          },
-          headers: {
-            Accept: 'application/json',
-            'Accept-Encoding': 'application/json',
-          },
+          params,
+          headers,
         },
       );
       return response?.data?.access_token;
     } catch (error) {
       throw new RpcException(
-        'Unable to exchange Github authroization code for tokens',
+        `Unable to exchange Github authorization code for tokens: ${error.message}`,
       );
     }
   }
 
   private async getGithubUserProfile(accessToken: string) {
     try {
+      // Get user profile
       const response: AxiosResponse<any> = await firstValueFrom(
         this.httpService.get('https://api.github.com/user', {
           headers: { Authorization: `Bearer ${accessToken}` },
         }),
       );
-      return response?.data;
+      // Get user email
+      const emailResponse: AxiosResponse<any> = await firstValueFrom(
+        this.httpService.get('https://api.github.com/user/emails', {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        }),
+      );
+      return {
+        ...response.data,
+        email: emailResponse.data.find((email) => email.primary)?.email,
+      }
     } catch (error) {
-      throw new RpcException('Unable to retrieve Github user profile');
+      throw new RpcException(
+        `Unable to retrieve Github user profile: ${error.message}`,
+      );
     }
   }
 }

@@ -10,13 +10,12 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
-import { AuthService } from './auth.service';
 import { Response } from 'express';
 import { ApiTags } from '@nestjs/swagger';
 import { AuthDto } from './dto';
 import { Token } from './interfaces';
 import { ClientProxy } from '@nestjs/microservices';
-import { firstValueFrom } from 'rxjs';
+import { first, firstValueFrom } from 'rxjs';
 import { RtAuthGuard } from '../../common/guards';
 import { GetCurrentUserId } from 'src/common/decorators/get-current-user-id.decorator';
 import { GetCurrentUser, Public } from 'src/common/decorators';
@@ -25,7 +24,6 @@ import { GetCurrentUser, Public } from 'src/common/decorators';
 @Controller('auth')
 export class AuthController {
   constructor(
-    private readonly authService: AuthService,
     @Inject('AUTH_SERVICE') private readonly authClient: ClientProxy,
   ) {}
 
@@ -74,7 +72,9 @@ export class AuthController {
   @Public()
   @Get('google')
   async googleAuth(@Res() res: Response) {
-    const redirectUrl = this.authService.getGoogleOAuthUrl();
+    const redirectUrl = await firstValueFrom(
+      this.authClient.send({ cmd: 'get-google-auth-url' }, {}),
+    );
     res.redirect(redirectUrl);
 
     // In actuality, return url back to client
@@ -84,15 +84,17 @@ export class AuthController {
   @Public()
   @Get('google/callback')
   async googleAuthCallback(@Query('code') code: string) {
-    const response = await this.authService.getGoogleAuthRedirect(code);
-
-    return { token: response.token, user: response.user };
+    return await firstValueFrom(
+      this.authClient.send({ cmd: 'google-auth-redirect' }, { code }),
+    );
   }
 
   @Public()
   @Get('github')
   async githubLogin(@Res() res: Response) {
-    const redirectUrl = this.authService.getGithubOAuthUrl();
+    const redirectUrl = await firstValueFrom(
+      this.authClient.send({ cmd: 'get-github-auth-url' }, {}),
+    );
     res.redirect(redirectUrl);
     // In actuality, return url back to client
     // return {url: redirectUrl}
@@ -101,11 +103,8 @@ export class AuthController {
   @Public()
   @Get('github/callback')
   async githubAuthCallback(@Query('code') code: string) {
-    const response = await this.authService.getGithubAuthRedirect(code);
-
-    return {
-      token: response.token,
-      user: response.user,
-    };
+    return await firstValueFrom(
+      this.authClient.send({ cmd: 'github-auth-redirect' }, { code }),
+    );
   }
 }
