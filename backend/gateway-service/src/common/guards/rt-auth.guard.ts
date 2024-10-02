@@ -1,6 +1,8 @@
 import {
   CanActivate,
   ExecutionContext,
+  HttpException,
+  HttpStatus,
   Inject,
   Injectable,
 } from '@nestjs/common';
@@ -17,7 +19,10 @@ export class RtAuthGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeader(request);
     if (!token) {
-      return false;
+      throw new HttpException(
+        'Unauthorized. No token provided.',
+        HttpStatus.FORBIDDEN,
+      );
     }
 
     try {
@@ -25,13 +30,19 @@ export class RtAuthGuard implements CanActivate {
         this.authClient.send({ cmd: 'validate-refresh-token' }, token),
       );
       if (!user) {
-        return false;
+        throw new HttpException(
+          'Unauthorized. Invalid token.',
+          HttpStatus.FORBIDDEN,
+        );
       }
 
       request.user = { ...user, refreshToken: token };
       return true;
     } catch (error) {
-      return false;
+      throw new HttpException(
+        'Unauthorized. Invalid token.',
+        HttpStatus.FORBIDDEN,
+      );
     }
   }
 
