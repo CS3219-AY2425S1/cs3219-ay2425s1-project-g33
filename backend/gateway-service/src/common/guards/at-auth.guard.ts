@@ -30,8 +30,8 @@ export class AtAuthGuard implements CanActivate {
     const token = this.extractTokenFromHeader(request);
     if (!token) {
       throw new HttpException(
-        'Unauthorized. No token provided.',
-        HttpStatus.FORBIDDEN,
+        'Unauthorized access. No token provided.',
+        HttpStatus.UNAUTHORIZED,
       );
     }
 
@@ -43,8 +43,8 @@ export class AtAuthGuard implements CanActivate {
       return true;
     } catch (error) {
       throw new HttpException(
-        'Unauthorized. Invalid token.',
-        HttpStatus.FORBIDDEN,
+        'Unauthorized access. Invalid token.',
+        HttpStatus.UNAUTHORIZED,
       );
     }
   }

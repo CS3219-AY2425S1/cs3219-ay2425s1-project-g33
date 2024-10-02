@@ -13,8 +13,7 @@ import {
 } from './dto';
 import { AccountProvider } from './constants/account-provider.enum';
 import { UpdateUserPayload } from './payload/update-user.payload';
-
-const SALT_ROUNDS = 10;
+import { Role } from './constants';
 
 @Injectable()
 export class AppService {
@@ -42,6 +41,7 @@ export class AppService {
       email,
       password: password,
       provider: AccountProvider.LOCAL,
+      roles: [Role.USER],
     });
 
     const savedUser = await newUser.save();
@@ -164,6 +164,27 @@ export class AppService {
       return true;
     } catch (error) {
       throw new RpcException('Error deleting refresh token');
+    }
+  }
+
+  public async assignAdminRole(id: string): Promise<User> {
+    const user = await this.userModel.findById(id);
+
+    if (!user) {
+      throw new RpcException('User not found');
+    }
+
+    if (user.roles.includes(Role.ADMIN)) {
+      throw new RpcException('User already has admin role');
+    }
+
+    user.roles.push(Role.ADMIN);
+
+    try {
+      const updatedUser = await user.save();
+      return updatedUser;
+    } catch (error) {
+      throw new RpcException(`Error assigning admin role: ${error.message}`);
     }
   }
 }

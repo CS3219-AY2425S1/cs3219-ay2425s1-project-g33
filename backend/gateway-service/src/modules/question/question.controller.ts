@@ -8,6 +8,7 @@ import {
   Patch,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import {
   CreateQuestionDto,
@@ -23,6 +24,9 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { ClientProxy } from '@nestjs/microservices';
+import { RolesGuard } from 'src/common/guards';
+import { Role } from 'src/constants';
+import { Roles } from 'src/common/decorators';
 
 @ApiTags('questions')
 @ApiBearerAuth('access-token')
@@ -58,6 +62,8 @@ export class QuestionController {
 
   // Create question
   @Post('create')
+  @UseGuards(RolesGuard)
+  @Roles(Role.ADMIN)
   @ApiCreatedResponse({ description: 'Create question successfully' })
   @ApiBadRequestResponse({ description: 'Invalid question data provided' })
   createQuestion(@Body() dto: CreateQuestionDto) {
@@ -66,6 +72,8 @@ export class QuestionController {
 
   // Delete question
   @Delete(':id')
+  @UseGuards(RolesGuard)
+  @Roles(Role.ADMIN)
   @ApiOkResponse({ description: 'Delete question successfully' })
   @ApiBadRequestResponse({ description: 'Invalid question id' })
   deleteQuestion(@Param('id') id: string) {
@@ -74,6 +82,8 @@ export class QuestionController {
 
   // Update question
   @Patch(':id')
+  @UseGuards(RolesGuard)
+  @Roles(Role.ADMIN)
   @ApiOkResponse({ description: 'Update question successfully' })
   @ApiBadRequestResponse({ description: 'Invalid question data' })
   updateQuestion(@Param('id') id: string, @Body() dto: CreateQuestionDto) {

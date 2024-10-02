@@ -53,4 +53,9 @@ export class AppController {
   async updateUserPassword(@Payload() data: UpdateUserPasswordDto) {
     return this.appService.updateUserPassword(data);
   }
+
+  @MessagePattern({ cmd: 'assign-admin-role' })
+  async assignAdminRole(@Payload() id: string) {
+    return this.appService.assignAdminRole(id);
+  }
 }

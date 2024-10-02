@@ -56,6 +56,7 @@ export class AppService {
       const tokens = await this.generateTokens({
         id: userId,
         email: newUser.email,
+        roles: newUser.roles,
       });
       await this.updateRefreshToken({
         id: userId,
@@ -92,6 +93,7 @@ export class AppService {
       const tokens = await this.generateTokens({
         id: userId,
         email: user.email,
+        roles: user.roles,
       });
       await this.updateRefreshToken({
         id: userId,
@@ -139,6 +141,7 @@ export class AppService {
       const tokens = await this.generateTokens({
         id: id,
         email: user.email,
+        roles: user.roles,
       });
       await this.updateRefreshToken({ id, refreshToken: tokens.refresh_token });
 
@@ -283,13 +286,14 @@ export class AppService {
 
   // Could include other fields like roles in the future
   private async generateTokens(payload: TokenPayload): Promise<Token> {
-    const { id, email } = payload;
+    const { id, email, roles } = payload;
 
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(
         {
           sub: id,
           email,
+          roles,
         },
         {
           secret: process.env.JWT_SECRET,
@@ -300,6 +304,7 @@ export class AppService {
         {
           sub: id,
           email,
+          roles,
         },
         {
           secret: process.env.JWT_REFRESH_SECRET,
@@ -360,6 +365,7 @@ export class AppService {
       const jwtTokens = await this.generateTokens({
         id: user._id.toString(),
         email: user.email,
+        roles: user.roles,
       });
 
       await this.updateRefreshToken({
@@ -461,6 +467,7 @@ export class AppService {
     const jwtTokens = await this.generateTokens({
       id: user._id.toString(),
       email: user.email,
+      roles: user.roles,
     });
 
     await this.updateRefreshToken({
