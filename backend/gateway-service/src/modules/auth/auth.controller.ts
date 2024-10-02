@@ -12,7 +12,7 @@ import {
 } from '@nestjs/common';
 import { Response } from 'express';
 import { ApiTags } from '@nestjs/swagger';
-import { AuthDto } from './dto';
+import { AuthDto, ResetPasswordDto, ResetPasswordRequestDto } from './dto';
 import { Token } from './interfaces';
 import { ClientProxy } from '@nestjs/microservices';
 import { first, firstValueFrom } from 'rxjs';
@@ -42,6 +42,32 @@ export class AuthController {
   async logIn(@Body() data: AuthDto): Promise<Token> {
     return await firstValueFrom(
       this.authClient.send({ cmd: 'local-log-in' }, data),
+    );
+  }
+
+  @Public()
+  @Post('reset-password')
+  async requestResetPassword(@Body() data: ResetPasswordRequestDto): Promise<boolean> {
+    return await firstValueFrom(
+      this.authClient.send({ cmd: 'request-reset-password' }, data),
+    );
+  }
+
+  @Public()
+  @Post('reset-password/verify')
+  async verifyResetToken(@Body('token') token: string): Promise<boolean> {
+    return await firstValueFrom(
+      this.authClient.send({ cmd: 'validate-password-reset-token' }, token),
+    );
+  }
+
+  @Public()
+  @Post('reset-password/confirm')
+  async resetPassword(
+    @Body() data: ResetPasswordDto,
+  ): Promise<boolean> {
+    return await firstValueFrom(
+      this.authClient.send({ cmd: 'reset-password' }, data),
     );
   }
 

@@ -9,6 +9,7 @@ import {
   CreateUserSocialsDto,
   DeleteRefreshTokenDto,
   UpdateRefreshTokenDto,
+  UpdateUserPasswordDto,
 } from './dto';
 import { AccountProvider } from './constants/account-provider.enum';
 import { UpdateUserPayload } from './payload/update-user.payload';
@@ -48,6 +49,26 @@ export class AppService {
     return savedUser;
   }
 
+  public async updateUserPassword(
+    data: UpdateUserPasswordDto,
+  ): Promise<boolean> {
+    const { id, password } = data;
+
+    const user = await this.userModel.findById(id).exec();
+
+    if (!user) {
+      throw new RpcException('User not found');
+    }
+
+    try {
+      user.password = password;
+      await user.save();
+      return true;
+    } catch (error) {
+      throw new RpcException(`Error updating user password: ${error.message}`);
+    }
+  }
+
   public async updateUserProfile(data: UpdateUserPayload): Promise<User> {
     const { userId, updateUserDto } = data;
 
@@ -56,7 +77,8 @@ export class AppService {
       throw new RpcException('User not found');
     }
 
-    const { username, displayName, languages, proficiency, isOnboarded } = updateUserDto;
+    const { username, displayName, languages, proficiency, isOnboarded } =
+      updateUserDto;
 
     if (username && username !== user.username) {
       const existingUser = await this.userModel.findOne({ username }).exec();

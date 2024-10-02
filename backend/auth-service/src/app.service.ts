@@ -1,15 +1,22 @@
 import * as bcrypt from 'bcryptjs';
-import { Inject, Injectable } from '@nestjs/common';
+import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Credentials, OAuth2Client } from 'google-auth-library';
 import { ClientProxy } from '@nestjs/microservices';
-import { AuthDto, AuthIdDto, RefreshTokenDto } from './dto';
+import {
+  AuthDto,
+  AuthIdDto,
+  RefreshTokenDto,
+  ResetPasswordDto,
+  ResetPasswordRequestDto,
+} from './dto';
 import { HttpService } from '@nestjs/axios';
 import { RpcException } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import axios, { AxiosResponse } from 'axios';
 import { Token, TokenPayload } from './interfaces';
 import { AccountProvider } from './constants/account-provider.enum';
+import * as nodemailer from 'nodemailer';
 
 const SALT_ROUNDS = 10;
 
@@ -139,6 +146,102 @@ export class AppService {
     } catch (error) {
       throw new RpcException(`Error refreshing token: ${error.message}`);
     }
+  }
+
+  public async generateResetPasswordRequest(dto: ResetPasswordRequestDto): Promise<boolean> {
+    const user = await firstValueFrom(
+      this.userClient.send(
+        {
+          cmd: 'get-user-by-email',
+        },
+        dto.email,
+      ),
+    );
+
+    if (!user) {
+      throw new RpcException('User not found');
+    }
+
+    const resetToken = this.jwtService.sign(
+      { userId: user._id.toString(), email: dto.email, type: 'reset-password' },
+      {
+        secret: process.env.JWT_SECRET,
+        expiresIn: '1hr',
+      },
+    );
+
+    // Send reset password email
+    await this.sendResetEmail(user.email, resetToken);
+
+    return true;
+  }
+
+  public async resetPassword(dto: ResetPasswordDto): Promise<boolean> {
+    const { userId, email } = await this.validatePasswordResetToken(dto.token);
+
+    const hashedPassword = await bcrypt.hash(dto.password, SALT_ROUNDS);
+
+    const response = await firstValueFrom(
+      this.userClient.send(
+        { cmd: 'update-user-password' },
+        { id: userId, password: hashedPassword },
+      ),
+    );
+
+    if (!response) {
+      throw new RpcException('Error resetting password');
+    }
+
+    return true;
+  }
+
+  public async validatePasswordResetToken(token: string): Promise<any> {
+    try {
+      const decoded = this.jwtService.verify(token, {
+        secret: process.env.JWT_SECRET,
+      });
+      const { userId, email, type } = decoded;
+      if (type !== 'reset-password') {
+        throw new RpcException({
+          statusCode: HttpStatus.UNAUTHORIZED,
+          message: 'Unauthorized: Invalid or expired password reset token',
+        });
+      }
+      return { userId, email };
+    } catch (err) {
+      throw new RpcException({
+        statusCode: HttpStatus.UNAUTHORIZED,
+        message: 'Unauthorized: Invalid or expired password reset token',
+      });
+    }
+  }
+
+  private async sendResetEmail(email: string, token: string) {
+    const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${token}`; // To change next time
+
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      host: 'smtp.gmail.com',
+      port: 465,
+      secure: true,
+      auth: {
+        user: process.env.NODEMAILER_GMAIL_USER,
+        pass: process.env.NODEMAILER_GMAIL_PASSWORD,
+      },
+    });
+
+    const mailOptions = {
+      from: 'no-reply@peerprep.com',
+      to: email,
+      subject: 'Password Reset for PeerPrep',
+      text: `Click here to reset your password: ${resetUrl}`,
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        throw new RpcException(`Error sending reset email: ${error.message}`);
+      }
+    });
   }
 
   public async validateAccessToken(accessToken: string): Promise<any> {
@@ -412,7 +515,7 @@ export class AppService {
       return {
         ...response.data,
         email: emailResponse.data.find((email) => email.primary)?.email,
-      }
+      };
     } catch (error) {
       throw new RpcException(
         `Unable to retrieve Github user profile: ${error.message}`,

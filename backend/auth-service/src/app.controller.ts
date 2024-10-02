@@ -1,7 +1,13 @@
 import { Controller } from '@nestjs/common';
 import { AppService } from './app.service';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { AuthDto, AuthIdDto, RefreshTokenDto } from './dto';
+import {
+  AuthDto,
+  AuthIdDto,
+  RefreshTokenDto,
+  ResetPasswordDto,
+  ResetPasswordRequestDto,
+} from './dto';
 
 @Controller()
 export class AppController {
@@ -22,9 +28,24 @@ export class AppController {
     return this.appService.logout(dto);
   }
 
+  @MessagePattern({ cmd: 'request-reset-password' })
+  requestResetPassword(@Payload() dto: ResetPasswordRequestDto) {
+    return this.appService.generateResetPasswordRequest(dto);
+  }
+
+  @MessagePattern({ cmd: 'reset-password' })
+  resetPassword(@Payload() dto: ResetPasswordDto) {
+    return this.appService.resetPassword(dto);
+  }
+
   @MessagePattern({ cmd: 'refresh-token' })
   refreshToken(@Payload() dto: RefreshTokenDto) {
     return this.appService.refreshToken(dto);
+  }
+
+  @MessagePattern({ cmd: 'validate-password-reset-token' })
+  validatePasswordResetToken(token: string) {
+    return this.appService.validatePasswordResetToken(token);
   }
 
   @MessagePattern({ cmd: 'validate-access-token' })
