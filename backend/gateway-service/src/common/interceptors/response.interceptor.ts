@@ -29,18 +29,25 @@ export class ResponseInterceptor<T> implements NestInterceptor {
         data,
       })),
       catchError((error) => {
-        // Handle errors and format the response
         const statusCode =
           error instanceof HttpException
             ? error.getStatus()
             : HttpStatus.INTERNAL_SERVER_ERROR;
 
-        const message = error.message || 'Internal Server Error';
-
+        // Custom handling for BadRequestException
+        let message = 'Internal Server Error';
+        if (statusCode === HttpStatus.BAD_REQUEST) {
+          if (Array.isArray(error.response?.message)) {
+            message = error.response.message.join(', ');
+          } else {
+            message = error.response.message || 'Validation Error';
+          }
+        } else {
+          message = error.message || 'Internal Server Error';
+        }
         const response = {
           statusCode,
           message,
-          error: error.response || error.stack || null,
         };
 
         return throwError(() => response);
@@ -48,3 +55,4 @@ export class ResponseInterceptor<T> implements NestInterceptor {
     );
   }
 }
+

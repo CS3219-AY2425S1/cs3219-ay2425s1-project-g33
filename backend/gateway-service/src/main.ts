@@ -1,6 +1,6 @@
-import { NestFactory } from '@nestjs/core';
+import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
+import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
 import { setupSwagger } from './common/configs/swagger.config';
 
@@ -23,7 +23,7 @@ async function bootstrap() {
     allowedHeaders: 'Content-Type, Accept',
   });
   app.useGlobalInterceptors(new ResponseInterceptor());
-
+  app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
   setupSwagger(app);
 
   await app.listen(4000);

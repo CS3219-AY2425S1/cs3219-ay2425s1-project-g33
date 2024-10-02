@@ -7,6 +7,7 @@ import {
   DeleteRefreshTokenDto,
   UpdateRefreshTokenDto,
 } from './dto';
+import { UpdateUserPayload } from './payload/update-user.payload';
 
 @Controller()
 export class AppController {
@@ -30,6 +31,11 @@ export class AppController {
   @MessagePattern({ cmd: "create-user-socials"})
   async createUserSocials(@Payload() data: CreateUserSocialsDto) {
     return this.appService.createUserSocials(data);
+  }
+
+  @MessagePattern({ cmd: "update-user-profile"})
+  async updateUserProfile(@Payload() data: UpdateUserPayload) {
+    return this.appService.updateUserProfile(data);
   }
 
   @MessagePattern({ cmd: 'update-refresh-token' })

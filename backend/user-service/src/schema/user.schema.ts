@@ -4,7 +4,7 @@ import { AccountProvider } from 'src/constants/account-provider.enum';
 import { Languages } from 'src/constants/coding-languages.enum';
 import { Proficiency } from 'src/constants/proficiency-level.enum';
 
-@Schema()
+@Schema({ versionKey: false })
 export class User extends Document {
   @Prop({ required: false, default: '' })
   username: string;
@@ -35,6 +35,9 @@ export class User extends Document {
 
   @Prop({ required: false, type: [String], enum: Languages })
   languages: Languages[];
+
+  @Prop({ required: false, default: false })
+  isOnboarded: boolean;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

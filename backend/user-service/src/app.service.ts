@@ -11,6 +11,7 @@ import {
   UpdateRefreshTokenDto,
 } from './dto';
 import { AccountProvider } from './constants/account-provider.enum';
+import { UpdateUserPayload } from './payload/update-user.payload';
 
 const SALT_ROUNDS = 10;
 
@@ -39,12 +40,54 @@ export class AppService {
     const newUser = new this.userModel({
       email,
       password: password,
-      provider: AccountProvider.LOCAL
+      provider: AccountProvider.LOCAL,
     });
 
     const savedUser = await newUser.save();
 
     return savedUser;
+  }
+
+  public async updateUserProfile(data: UpdateUserPayload): Promise<User> {
+    const { userId, updateUserDto } = data;
+
+    const user = await this.userModel.findById(userId).exec();
+    if (!user) {
+      throw new RpcException('User not found');
+    }
+
+    const { username, displayName, languages, proficiency, isOnboarded } = updateUserDto;
+
+    if (username && username !== user.username) {
+      const existingUser = await this.userModel.findOne({ username }).exec();
+      if (existingUser) {
+        throw new RpcException('Username is already taken');
+      }
+      user.username = username;
+    }
+
+    if (displayName) {
+      user.displayName = displayName;
+    }
+
+    if (languages) {
+      user.languages = languages;
+    }
+
+    if (proficiency) {
+      user.proficiency = proficiency;
+    }
+
+    if (!user.isOnboarded && isOnboarded) {
+      user.isOnboarded = isOnboarded;
+    }
+
+    try {
+      const savedUser = await user.save();
+      return savedUser;
+    } catch (error) {
+      throw new RpcException(`Error updating user profile: ${error.message}`);
+    }
   }
 
   public async createUserSocials(data: CreateUserSocialsDto): Promise<User> {
