@@ -72,4 +72,18 @@ export class UserController {
     );
     return plainToInstance(UsersResponseDto, updatedUser);
   }
+
+  @Patch(':id/remove-admin')
+  @UseGuards(RolesGuard)
+  @Roles(Role.ADMIN)
+  @ApiOkResponse({ description: 'Remove admin role successfully' })
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized access. Only admin can access this resource.',
+  })
+  async removeAssignRole(@Param('id') id: string) {
+    const updatedUser = await firstValueFrom(
+      this.userClient.send({ cmd: 'remove-admin-role' }, id),
+    );
+    return plainToInstance(UsersResponseDto, updatedUser);
+  }
 }

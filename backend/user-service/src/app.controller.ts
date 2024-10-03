@@ -58,4 +58,9 @@ export class AppController {
   async assignAdminRole(@Payload() id: string) {
     return this.appService.assignAdminRole(id);
   }
+
+  @MessagePattern({ cmd: 'remove-admin-role' })
+  async removeAdminRole(@Payload() id: string) {
+    return this.appService.removeAdminRole(id);
+  }
 }

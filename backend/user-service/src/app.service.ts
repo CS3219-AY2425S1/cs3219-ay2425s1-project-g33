@@ -187,4 +187,25 @@ export class AppService {
       throw new RpcException(`Error assigning admin role: ${error.message}`);
     }
   }
+
+  public async removeAdminRole(id: string): Promise<User> {
+    const user = await this.userModel.findById(id);
+
+    if (!user) {
+      throw new RpcException('User not found');
+    }
+
+    if (!user.roles.includes(Role.ADMIN)) {
+      throw new RpcException('User does not have admin role');
+    }
+
+    user.roles = user.roles.filter((role) => role !== Role.ADMIN);
+
+    try {
+      const updatedUser = await user.save();
+      return updatedUser;
+    } catch (error) {
+      throw new RpcException(`Error assigning admin role: ${error.message}`);
+    }
+  }
 }
