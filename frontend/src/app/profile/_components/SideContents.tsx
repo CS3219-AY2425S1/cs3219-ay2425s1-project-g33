@@ -2,7 +2,6 @@ import { ProfileMiniDetailsCard } from "@/components/ProfileMiniDetailsCard";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { BookOpen, CodeXml, Glasses, Mail } from "lucide-react";
 
-// SideContents Component
 export default function SideContents() {
     return (
         <Card className="p-4 w-full max-w-xs rounded-lg">
@@ -40,30 +39,5 @@ export default function SideContents() {
                 </div>
             </div>
         </Card>
-    );
-}
-
-// AvatarWrapper Component (same as you have)
-function AvatarWrapper({ src, name, className }: { src: string | null; name: string; className?: string }) {
-    function getInitialsFromName(name: string) {
-        const chunks = name.split(" ");
-        const initials = chunks.map((chunk) => chunk[0]).join("");
-        return initials.toUpperCase();
-    }
-
-    return (
-        <div className={`w-20 h-20 rounded-full bg-gray-500 flex items-center justify-center text-xl font-bold text-white ${className}`}>
-            {src ? <img src={src} alt={name} className="rounded-full" /> : getInitialsFromName(name)}
-        </div>
-    );
-}
-
-// ProfileItem Component
-function ProfileItem({ label, value }: { label: string; value: string }) {
-    return (
-        <div className="flex justify-between items-center mb-3">
-            <p className="text-secondary font-semibold">{label}:</p>
-            <p className="text-primary">{value}</p>
-        </div>
     );
 }

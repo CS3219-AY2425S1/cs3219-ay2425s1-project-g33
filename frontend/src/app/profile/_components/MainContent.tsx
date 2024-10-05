@@ -1,7 +1,7 @@
 import GitGraph from "./GitGraph";
 import { QuestionsStatsCard } from "@/app/dashboard/_components/QuestionsStatsCard";
 import { SkillsCard } from "./SkillsCard";
-import QuestionHistory from "./QuestionHistory";
+import QuestionHistory from "./QuestionHistory/QuestionHistory";
 
 export default function MainContent() {
     return (
