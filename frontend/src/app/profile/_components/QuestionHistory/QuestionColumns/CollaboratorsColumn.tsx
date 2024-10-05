@@ -12,7 +12,7 @@ const StatusColumn: ColumnDef<Question> = {
   header: () => <div className="px-4">Collaborators</div>,
   cell: () => {
     return (
-      <div className="flex items-center">
+      <div className="flex items-center space-x-0">
         {mockCollaborators.map((collaborator) => (
           <UserAvatar
             key={collaborator.id}

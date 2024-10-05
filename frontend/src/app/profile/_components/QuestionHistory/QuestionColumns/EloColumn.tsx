@@ -1,6 +1,6 @@
 import { Question } from "@/types/Question";
 import { ColumnDef } from "@tanstack/react-table";
-import { LucideCircleCheckBig } from "lucide-react";
+import { Zap } from "lucide-react";
 
 const StatusColumn: ColumnDef<Question> = {
   accessorKey: "_id",
@@ -8,8 +8,10 @@ const StatusColumn: ColumnDef<Question> = {
   cell: () => {
     return (
       <div className="px-4">
-        <LucideCircleCheckBig className="w-4 h-4 text-difficulty-easy" />
-      </div>
+            <span className="text-primary">
+              100 <Zap className="inline" size={14} />
+            </span>
+        </div>
     );
   },
 };
