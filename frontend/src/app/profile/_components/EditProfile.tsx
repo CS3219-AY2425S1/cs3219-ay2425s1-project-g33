@@ -18,6 +18,8 @@ import { Button } from "@/components/ui/button";
 import { TextInput } from "@/components/form/TextInput";
 import { RadioGroupInput } from "@/components/form/RadioGroupInput";
 import { useToast } from "@/hooks/use-toast";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { CodeXml } from "lucide-react";
 
 interface EditProfileModalProps {
   isOpen: boolean;
@@ -70,63 +72,69 @@ export function EditProfile({
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle className="text-primary">Edit Profile</DialogTitle>
-          <DialogDescription>
-            Update your profile details below.
-          </DialogDescription>
           <Form {...form}>
             <form
               onSubmit={form.handleSubmit(onSubmit)}
               className="flex flex-col space-y-4"
             >
-              {/* Profile Image Upload */}
-              <FormLabel className="pt-8">Profile Image</FormLabel>
-              <div className="flex flex-col justify-center items-center">
+            {/* Profile Image Upload */}
+            <FormLabel className="pt-8">Profile Image</FormLabel>
+            <div className="flex flex-row justify-center items-center p-2">
                 <input
-                  type="file"
-                  className="hidden"
-                  id="profile-upload"
-                  accept="image/*"
+                    type="file"
+                    className="hidden"
+                    id="profile-upload"
+                    accept="image/*"
                 />
-                <label
-                  htmlFor="profile-upload"
-                  className="bg-background-200 rounded-lg font-bold p-2 cursor-pointer"
-                >
-                  Upload Image
-                </label>
-                <DialogDescription>.png, .jpeg files up to 2MB. Recommended size is 256x256px.</DialogDescription>
-              </div>
+                
+                <Avatar>
+                    <AvatarImage/>
+                    <AvatarFallback className="text-base font-normal text-foreground">
+                        <CodeXml/>
+                    </AvatarFallback>
+                </Avatar>
 
-              {/* Display Name */}
-              <TextInput label="Display Name" name="displayName" placeholder="Display Name" />
+                <div className="pl-6">
+                    <label
+                        htmlFor="profile-upload"
+                        className="bg-background-200 text-sm rounded-lg font-bold p-2 cursor-pointer"
+                    >
+                        Upload Image
+                    </label>
+                    <DialogDescription className="pt-2">.png, .jpeg files up to 2MB. Recommended size is 256x256px.</DialogDescription>
+                </div>
+            </div>
 
-              {/* Username */}
-              <TextInput label="Username" name="username" placeholder="Username" />
-              {/* Display error if username is already taken */}
-              {form.formState.errors.username && (
-                <p className="text-destructive text-sm">
-                  {form.formState.errors.username.message || "Username already taken"}
-                </p>
-              )}
+            {/* Display Name */}
+            <TextInput label="Display Name" name="displayName" placeholder="Display Name" />
 
-              {/* Email */}
-              <TextInput label="Email" name="email" placeholder="Email" />
+            {/* Username */}
+            <TextInput label="Username" name="username" placeholder="Username" />
+            {form.formState.errors.username && (
+            <p className="text-destructive text-sm">
+                {form.formState.errors.username.message || "Username already taken"}
+            </p>
+            )}
 
-              {/* Proficiency Radio Buttons */}
-              <RadioGroupInput
-                label="Proficiency"
-                name="proficiency"
-                options={[
-                  { value: "Beginner", optionLabel: "Beginner" },
-                  { value: "Intermediate", optionLabel: "Intermediate" },
-                  { value: "Expert", optionLabel: "Expert" },
-                ]}
-              />
+            {/* Email */}
+            <TextInput label="Email" name="email" placeholder="Email" />
 
-              <Button className="self-center" type="submit">
-                {form.formState.isSubmitting
-                  ? "Updating Profile"
-                  : "Save"}
-              </Button>
+            {/* Proficiency Radio Buttons */}
+            <RadioGroupInput
+            label="Proficiency"
+            name="proficiency"
+            options={[
+                { value: "Beginner", optionLabel: "Beginner" },
+                { value: "Intermediate", optionLabel: "Intermediate" },
+                { value: "Expert", optionLabel: "Expert" },
+            ]}
+            />
+
+            <Button className="p-5" type="submit">
+            {form.formState.isSubmitting
+                ? "Updating Profile"
+                : "Save"}
+            </Button>
             </form>
           </Form>
         </DialogHeader>
