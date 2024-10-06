@@ -17,7 +17,7 @@ const DurationColumn: ColumnDef<Question> = {
     const question = QuestionSchema.parse(row.original);
 
     // Placeholder duration data
-    const tempDuration = Math.floor(Math.random() * 60) + 1; // Choose random duration value
+    const tempDuration = 20; // Choose random duration value
 
     return (
       <span>

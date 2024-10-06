@@ -3,7 +3,6 @@
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -20,6 +19,8 @@ import { RadioGroupInput } from "@/components/form/RadioGroupInput";
 import { useToast } from "@/hooks/use-toast";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { CodeXml } from "lucide-react";
+import { updateProfile } from "@/services/profileService";
+import { useRouter } from "next/navigation";
 
 interface EditProfileModalProps {
   isOpen: boolean;
@@ -36,7 +37,7 @@ const FormSchema = z.object({
   displayName: z.string().min(1, "Display Name is required"),
   username: z.string().min(1, "Username is required"),
   email: z.string().email("Invalid email format"),
-  proficiency: z.enum(["Beginner", "Intermediate", "Expert"]),
+  proficiency: z.enum(["Beginner", "Intermediate", "Advanced"]),
 });
 
 export function EditProfile({
@@ -45,6 +46,7 @@ export function EditProfile({
   userProfile,
 }: EditProfileModalProps) {
   const { toast } = useToast();
+  const router = useRouter();
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -57,14 +59,26 @@ export function EditProfile({
 
   const onSubmit = useCallback(
     async (data: z.infer<typeof FormSchema>) => {
-      console.log("Form data:", data);
-      toast({
-        title: "Profile updated!",
-        description: "Your profile has been updated successfully.",
-      });
-      setIsOpen(false);
+      const response = await updateProfile(data);
+
+      if (response.statusCode !== 200) {
+          toast({
+            variant: "destructive",
+            title: "Error updating profile",
+            description: response.message,
+          });
+          return;
+        } else {
+        toast({
+          title: "Profile updated!",
+          description: "Your profile has been updated successfully.",
+        });
+        setIsOpen(false);
+        router.refresh();
+        }
     },
-    [toast, setIsOpen]
+
+    [toast, setIsOpen, router]
   );
 
   return (
@@ -78,8 +92,8 @@ export function EditProfile({
               className="flex flex-col space-y-4"
             >
             {/* Profile Image Upload */}
-            <FormLabel className="pt-8">Profile Image</FormLabel>
-            <div className="flex flex-row justify-center items-center p-2">
+            {/*<FormLabel className="pt-8">Profile Image</FormLabel>
+             <div className="flex flex-row justify-center items-center p-2">
                 <input
                     type="file"
                     className="hidden"
@@ -103,7 +117,7 @@ export function EditProfile({
                     </label>
                     <DialogDescription className="pt-2">.png, .jpeg files up to 2MB. Recommended size is 256x256px.</DialogDescription>
                 </div>
-            </div>
+            </div> */}
 
             {/* Display Name */}
             <TextInput label="Display Name" name="displayName" placeholder="Display Name" />
@@ -117,7 +131,7 @@ export function EditProfile({
             )}
 
             {/* Email */}
-            <TextInput label="Email" name="email" placeholder="Email" />
+            {/* <TextInput label="Email" name="email" placeholder="Email" /> */}
 
             {/* Proficiency Radio Buttons */}
             <RadioGroupInput
@@ -126,7 +140,7 @@ export function EditProfile({
             options={[
                 { value: "Beginner", optionLabel: "Beginner" },
                 { value: "Intermediate", optionLabel: "Intermediate" },
-                { value: "Expert", optionLabel: "Expert" },
+                { value: "Advanced", optionLabel: "Advanced" },
             ]}
             />
 

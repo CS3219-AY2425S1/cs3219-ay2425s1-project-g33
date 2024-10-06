@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/hover-card";
 import { Card } from "@/components/ui/card";
 import { Zap } from "lucide-react";
+import ViewProfileButton from "./ViewProfileButton";
 
 interface ProfileMiniDetailsProps {
   isViewProfileEnabled?: boolean;
@@ -40,9 +41,7 @@ function ProfileMiniDetails({
         </div>
       </div>
       {isViewProfileEnabled && (
-        <Button variant="soft" className="w-full">
-          View Profile
-        </Button>
+        <ViewProfileButton />
       )}
     </div>
   );
