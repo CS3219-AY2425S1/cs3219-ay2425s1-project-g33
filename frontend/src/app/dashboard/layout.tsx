@@ -1,13 +1,18 @@
+"use client";
+
 import Navbar from "@/components/Navbar";
 import { Toaster } from "@/components/ui/toaster";
-import { ReactNode } from "react";
+import { UserProvider } from "@/contexts/UserContext";
+import { PropsWithChildren } from "react";
 
-export default function DashboardLayout({ children }: { children: ReactNode }) {
+export default function DashboardLayout({ children }: PropsWithChildren) {
   return (
     <>
-      <Navbar />
-      <main>{children}</main>
-      <Toaster />
+      <UserProvider>
+        <Navbar />
+        <main>{children}</main>
+        <Toaster />
+      </UserProvider>
     </>
   );
 }

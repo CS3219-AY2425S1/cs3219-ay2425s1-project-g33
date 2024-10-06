@@ -1,6 +1,8 @@
 import {
   CanActivate,
   ExecutionContext,
+  HttpException,
+  HttpStatus,
   Inject,
   Injectable,
 } from '@nestjs/common';
@@ -27,7 +29,10 @@ export class AtAuthGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeader(request);
     if (!token) {
-      return false;
+      throw new HttpException(
+        'Unauthorized access. No token provided.',
+        HttpStatus.UNAUTHORIZED,
+      );
     }
 
     try {
@@ -37,7 +42,10 @@ export class AtAuthGuard implements CanActivate {
       request.user = user;
       return true;
     } catch (error) {
-      return false;
+      throw new HttpException(
+        'Unauthorized access. Invalid token.',
+        HttpStatus.UNAUTHORIZED,
+      );
     }
   }
 

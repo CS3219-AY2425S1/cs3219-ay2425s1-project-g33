@@ -1,7 +1,7 @@
 import { z } from "zod";
 
-export const createResponseSchema = <T extends z.ZodType<object>>(
-  dataSchema: T
+export const createResponseSchema = <T extends z.ZodType<z.AnyZodObject>>(
+  dataSchema: T | z.ZodTypeAny
 ) => {
   return z.object({
     statusCode: z.any(),

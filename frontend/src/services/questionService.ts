@@ -1,5 +1,6 @@
 "use server";
 
+import { getAccessToken } from "@/lib/auth";
 import { CategoriesResponse, CategoriesResponseSchema } from "@/types/Category";
 import {
   Question,
@@ -17,12 +18,15 @@ import { cache } from "react";
 
 export async function getQuestion(slug: string): Promise<QuestionResponse> {
   try {
+    const access_token = await getAccessToken();
+
     const res = await fetch(
       process.env.PUBLIC_API_URL + `/api/questions/${slug}`,
       {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${access_token}`,
         },
       }
     );
@@ -44,6 +48,8 @@ export async function getQuestions(): Promise<QuestionsResponse> {
   });
 
   try {
+    const access_token = await getAccessToken();
+
     const res: Response = await fetch(
       process.env.PUBLIC_API_URL + `/api/questions?${query}`,
       {
@@ -51,6 +57,7 @@ export async function getQuestions(): Promise<QuestionsResponse> {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${access_token}`,
         },
       }
     );
@@ -69,6 +76,8 @@ export async function getQuestions(): Promise<QuestionsResponse> {
 export const getQuestionCategories = cache(
   async function (): Promise<CategoriesResponse> {
     try {
+      const access_token = await getAccessToken();
+
       const res: Response = await fetch(
         process.env.PUBLIC_API_URL + `/api/questions/categories`,
         {
@@ -76,6 +85,7 @@ export const getQuestionCategories = cache(
           method: "GET",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${access_token}`,
           },
         }
       );
@@ -96,12 +106,15 @@ export async function createQuestion(
   question: NewQuestion
 ): Promise<QuestionResponse> {
   try {
+    const access_token = await getAccessToken();
+
     const res = await fetch(
       process.env.PUBLIC_API_URL + "/api/questions/create",
       {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${access_token}`,
         },
         body: JSON.stringify(question),
       }
@@ -122,10 +135,13 @@ export async function createQuestion(
 
 export async function deleteQuestion(questionId: string): Promise<void> {
   try {
+    const access_token = await getAccessToken();
+
     await fetch(process.env.PUBLIC_API_URL + `/api/questions/${questionId}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${access_token}`,
       },
     });
 
@@ -137,6 +153,8 @@ export async function editQuestion(
   question: Question
 ): Promise<QuestionResponse> {
   try {
+    const access_token = await getAccessToken();
+
     const updatedQuestion = NewQuestionSchema.parse(question);
     const res = await fetch(
       process.env.PUBLIC_API_URL + `/api/questions/${question._id}`,
@@ -144,6 +162,7 @@ export async function editQuestion(
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${access_token}`,
         },
         body: JSON.stringify(updatedQuestion),
       }

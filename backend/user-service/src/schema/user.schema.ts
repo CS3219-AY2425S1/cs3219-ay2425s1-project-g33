@@ -1,8 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
-import { AccountProvider } from 'src/constants/account-provider.enum';
-import { Languages } from 'src/constants/coding-languages.enum';
-import { Proficiency } from 'src/constants/proficiency-level.enum';
+import { Role, AccountProvider, Languages, Proficiency } from 'src/constants';
 
 @Schema({ versionKey: false })
 export class User extends Document {
@@ -38,6 +36,9 @@ export class User extends Document {
 
   @Prop({ required: false, default: false })
   isOnboarded: boolean;
+
+  @Prop({ type: [String], enum: Role, default: [Role.USER] })
+  roles: Role[];
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

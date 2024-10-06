@@ -1,3 +1,9 @@
+"use client";
+
+import { useUser } from "@/contexts/UserContext";
+
 export default function WelcomeMessage() {
-  return <h1 className="text-xl font-bold">Welcome Back, {"[user name]"}!</h1>;
+  const user = useUser();
+
+  return <h1 className="text-xl font-bold">Welcome Back, {user?.email}!</h1>;
 }

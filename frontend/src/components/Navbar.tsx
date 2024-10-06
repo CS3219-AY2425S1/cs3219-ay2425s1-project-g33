@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
-import { Flame, LogOut } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Flame } from "lucide-react";
 import UserAvatar from "@/components/UserAvatar";
+import LogoutButton from "./LogoutButton";
 
 export default function Navbar() {
   const links: NavLinkProps[] = [{ label: "Dashboard", href: "/dashboard" }];
@@ -73,9 +73,7 @@ function NavUserDetails() {
       />
       <small className="whitespace-nowrap">10 days</small>
       <UserAvatar src={"https://nonexistent-link"} name="Jm San Diego" />
-      <Button variant="ghost" className="p-2">
-        <LogOut size={20} />
-      </Button>
+      <LogoutButton />
     </div>
   );
 }

@@ -6,6 +6,7 @@ import {
   CreateUserSocialsDto,
   DeleteRefreshTokenDto,
   UpdateRefreshTokenDto,
+  UpdateUserPasswordDto,
 } from './dto';
 import { UpdateUserPayload } from './payload/update-user.payload';
 
@@ -46,5 +47,20 @@ export class AppController {
   @MessagePattern({ cmd: 'delete-refresh-token' })
   async deleteRefreshToken(@Payload() data: DeleteRefreshTokenDto) {
     return this.appService.deleteRefreshToken(data);
+  }
+
+  @MessagePattern({ cmd: 'update-user-password' })
+  async updateUserPassword(@Payload() data: UpdateUserPasswordDto) {
+    return this.appService.updateUserPassword(data);
+  }
+
+  @MessagePattern({ cmd: 'assign-admin-role' })
+  async assignAdminRole(@Payload() id: string) {
+    return this.appService.assignAdminRole(id);
+  }
+
+  @MessagePattern({ cmd: 'remove-admin-role' })
+  async removeAdminRole(@Payload() id: string) {
+    return this.appService.removeAdminRole(id);
   }
 }

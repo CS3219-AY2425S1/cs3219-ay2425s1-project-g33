@@ -1,16 +1,42 @@
 import { INestApplication } from '@nestjs/common';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import {
+  DocumentBuilder,
+  SwaggerDocumentOptions,
+  SwaggerModule,
+} from '@nestjs/swagger';
 
 export function setupSwagger(app: INestApplication): void {
-  const swaggerConfig = new DocumentBuilder()
+  const config = new DocumentBuilder()
     .setTitle('PeerPrep API Docs')
     .setDescription('API Documentation for PeerPrep')
     .setVersion('1.0')
     .addTag('auth')
     .addTag('users')
     .addTag('questions')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        in: 'header',
+        bearerFormat: 'JWT',
+      },
+      'access-token',
+    )
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        in: 'header',
+        bearerFormat: 'JWT',
+      },
+      'refresh-token',
+    )
     .build();
 
-  const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig);
-  SwaggerModule.setup('api/docs', app, swaggerDocument);
+  const options: SwaggerDocumentOptions = {
+    operationIdFactory: (controllerKey: string, methodKey: string) => methodKey,
+  };
+
+  const document = SwaggerModule.createDocument(app, config, options);
+  SwaggerModule.setup('api/docs', app, document);
 }

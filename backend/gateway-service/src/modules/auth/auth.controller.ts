@@ -2,8 +2,6 @@ import {
   Body,
   Controller,
   Get,
-  HttpCode,
-  HttpStatus,
   Inject,
   Post,
   Query,
@@ -11,11 +9,17 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { Response } from 'express';
-import { ApiTags } from '@nestjs/swagger';
-import { AuthDto } from './dto';
+import {
+  ApiBadRequestResponse,
+  ApiBearerAuth,
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiTags,
+} from '@nestjs/swagger';
+import { AuthDto, ResetPasswordDto, ResetPasswordRequestDto } from './dto';
 import { Token } from './interfaces';
 import { ClientProxy } from '@nestjs/microservices';
-import { first, firstValueFrom } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
 import { RtAuthGuard } from '../../common/guards';
 import { GetCurrentUserId } from 'src/common/decorators/get-current-user-id.decorator';
 import { GetCurrentUser, Public } from 'src/common/decorators';
@@ -29,7 +33,8 @@ export class AuthController {
 
   @Public()
   @Post('local/signup')
-  @HttpCode(HttpStatus.CREATED)
+  @ApiCreatedResponse({ description: 'User signup successfully' })
+  @ApiBadRequestResponse({ description: 'User already exists' })
   async signUp(@Body() data: AuthDto): Promise<Token> {
     return await firstValueFrom(
       this.authClient.send({ cmd: 'local-sign-up' }, data),
@@ -38,15 +43,56 @@ export class AuthController {
 
   @Public()
   @Post('local/login')
-  @HttpCode(HttpStatus.OK)
+  @ApiOkResponse({ description: 'User logged in successfully' })
+  @ApiBadRequestResponse({ description: 'Invalid credentials' })
   async logIn(@Body() data: AuthDto): Promise<Token> {
     return await firstValueFrom(
       this.authClient.send({ cmd: 'local-log-in' }, data),
     );
   }
 
+  @Public()
+  @Post('reset-password')
+  @ApiCreatedResponse({
+    description: 'Password reset request created successfully',
+  })
+  @ApiBadRequestResponse({ description: 'User not found' })
+  async requestResetPassword(
+    @Body() data: ResetPasswordRequestDto,
+  ): Promise<boolean> {
+    return await firstValueFrom(
+      this.authClient.send({ cmd: 'request-reset-password' }, data),
+    );
+  }
+
+  @Public()
+  @Post('reset-password/verify')
+  @ApiCreatedResponse({
+    description: 'Password reset verified',
+  })
+  @ApiBadRequestResponse({ description: 'Invalid reset token' })
+  async verifyResetToken(@Body('token') token: string): Promise<boolean> {
+    return await firstValueFrom(
+      this.authClient.send({ cmd: 'validate-password-reset-token' }, token),
+    );
+  }
+
+  @Public()
+  @Post('reset-password/confirm')
+  @ApiCreatedResponse({
+    description: 'Password reset successfully',
+  })
+  @ApiBadRequestResponse({ description: 'Invalid reset token' })
+  async resetPassword(@Body() data: ResetPasswordDto): Promise<boolean> {
+    return await firstValueFrom(
+      this.authClient.send({ cmd: 'reset-password' }, data),
+    );
+  }
+
   @Post('logout')
-  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth('access-token')
+  @ApiOkResponse({ description: 'User logged out successfully' })
+  @ApiBadRequestResponse({ description: 'User not found' })
   async logOut(@GetCurrentUserId() userId: string): Promise<boolean> {
     return await firstValueFrom(
       this.authClient.send({ cmd: 'logout' }, { id: userId }),
@@ -54,9 +100,11 @@ export class AuthController {
   }
 
   @Public()
-  @UseGuards(RtAuthGuard)
   @Post('refresh')
-  @HttpCode(HttpStatus.OK)
+  @UseGuards(RtAuthGuard)
+  @ApiBearerAuth('refresh-token')
+  @ApiOkResponse({ description: 'Token refreshed successfully' })
+  @ApiBadRequestResponse({ description: 'Invalid refresh token' })
   async refreshToken(
     @GetCurrentUserId() userId: string,
     @GetCurrentUser('refreshToken') refreshToken: string,
@@ -71,6 +119,7 @@ export class AuthController {
 
   @Public()
   @Get('google')
+  @ApiOkResponse({ description: 'Google auth url generated successfully' })
   async googleAuth(@Res() res: Response) {
     const redirectUrl = await firstValueFrom(
       this.authClient.send({ cmd: 'get-google-auth-url' }, {}),
@@ -83,6 +132,7 @@ export class AuthController {
 
   @Public()
   @Get('google/callback')
+  @ApiOkResponse({ description: 'Google auth callback successful' })
   async googleAuthCallback(@Query('code') code: string) {
     return await firstValueFrom(
       this.authClient.send({ cmd: 'google-auth-redirect' }, { code }),
@@ -91,6 +141,7 @@ export class AuthController {
 
   @Public()
   @Get('github')
+  @ApiOkResponse({ description: 'Github auth url generated successfully' })
   async githubLogin(@Res() res: Response) {
     const redirectUrl = await firstValueFrom(
       this.authClient.send({ cmd: 'get-github-auth-url' }, {}),
@@ -102,6 +153,7 @@ export class AuthController {
 
   @Public()
   @Get('github/callback')
+  @ApiOkResponse({ description: 'Github auth callback successful' })
   async githubAuthCallback(@Query('code') code: string) {
     return await firstValueFrom(
       this.authClient.send({ cmd: 'github-auth-redirect' }, { code }),

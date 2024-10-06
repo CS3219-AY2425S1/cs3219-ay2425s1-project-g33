@@ -3,30 +3,52 @@
 import { useForm, FormProvider } from "react-hook-form";
 import { Card } from "@/components/ui/card";
 import Link from "next/link";
-import { User, Lock } from 'lucide-react';
+import { User, Lock } from "lucide-react";
 import {
-  Form,
   FormField,
   FormItem,
   FormLabel,
   FormControl,
-  FormMessage,
 } from "@/components/ui/form";
+import { useCallback } from "react";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { login } from "@/services/authService";
+import { useRouter } from "next/navigation";
 
-interface FormData {
-  username: string;
-  password: string;
-}
+const FormSchema = z.object({
+  email: z.string(),
+  password: z.string(),
+});
 
 export default function DashboardPage() {
-  const methods = useForm<FormData>({
-    defaultValues: {
-      username: '',
-      password: '',
-    },
+  const router = useRouter();
+
+  const methods = useForm<z.infer<typeof FormSchema>>({
+    resolver: zodResolver(FormSchema),
   });
 
-  const { control, formState: { errors } } = methods;
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = methods;
+
+  const onSubmit = useCallback(
+    async (data: z.infer<typeof FormSchema>) => {
+      const accessTokenResponse = await login(data);
+      if (accessTokenResponse.statusCode === 200 && accessTokenResponse.data) {
+        localStorage.setItem(
+          "access_token",
+          accessTokenResponse.data.access_token
+        );
+        router.push("/dashboard");
+      } else {
+        // TODO: Display error message
+      }
+    },
+    [router]
+  );
 
   return (
     <div className="min-h-screen max-w-sm container grid gap-4 mx-auto items-center">
@@ -38,30 +60,31 @@ export default function DashboardPage() {
 
             {/* To input log in details */}
             <FormProvider {...methods}>
-              <form>
+              <form onSubmit={handleSubmit(onSubmit)}>
                 <div className="flex flex-col gap-y-4">
-
-                  {/* Username Field */}
+                  {/* Email Field */}
                   <FormField
                     control={control}
-                    name="username"
+                    name="email"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Username / Email</FormLabel>
+                        <FormLabel>Email</FormLabel>
                         <FormControl>
                           <div className="relative">
                             <User className="absolute left-2 top-1/2 transform -translate-y-1/2 text-foreground-100" />
                             <input
                               {...field}
                               type="text"
-                              placeholder="Username / Email"
+                              placeholder="Email"
                               className="rounded-md w-full py-2 pl-10 bg-input-foreground text-input"
                             />
                           </div>
                         </FormControl>
                         {/* Display error message below input */}
-                        {errors.username && (
-                          <p className="text-difficulty-hard mt-1">{errors.username.message}</p>
+                        {errors.email && (
+                          <p className="text-difficulty-hard mt-1">
+                            {errors.email.message}
+                          </p>
                         )}
                       </FormItem>
                     )}
@@ -75,7 +98,7 @@ export default function DashboardPage() {
                       <FormItem>
                         <FormLabel>Password</FormLabel>
                         <FormControl>
-                          <div className='relative'>
+                          <div className="relative">
                             <Lock className="absolute left-2 top-1/2 transform -translate-y-1/2 text-foreground-100" />
                             <input
                               {...field}
@@ -87,7 +110,9 @@ export default function DashboardPage() {
                         </FormControl>
                         {/* Display error message below input */}
                         {errors.password && (
-                          <p className="text-difficulty-hard mt-1">{errors.password.message}</p>
+                          <p className="text-difficulty-hard mt-1">
+                            {errors.password.message}
+                          </p>
                         )}
                       </FormItem>
                     )}
@@ -96,26 +121,32 @@ export default function DashboardPage() {
 
                 {/* Forgot password link */}
                 <div className="text-right pt-2 pb-2">
-                  <Link href="/forgotpassword" className="hover:underline text-sm"> Forgot password? </Link>
+                  <Link
+                    href="/forgotpassword"
+                    className="hover:underline text-sm"
+                  >
+                    {" "}
+                    Forgot password?{" "}
+                  </Link>
                 </div>
 
                 {/* Sign In Button */}
-                <button 
-                  type="button"
+                <button
+                  type="submit"
                   className="w-full bg-primary font-bold rounded-md py-2"
-                > 
+                >
                   Sign In
                 </button>
               </form>
             </FormProvider>
 
             {/* Or sign in with */}
-            <div className="flex items-center my-6"> 
+            <div className="flex items-center my-6">
               <hr className="flex-grow muted-foreground border-t" />
               <span className="mx-2 text-sm">Or sign in with</span>
-              <hr className="flex-grow border-t"/>
+              <hr className="flex-grow border-t" />
             </div>
-            
+
             {/* Socials */}
             <div className="flex flex-row gap-x-4 justify-center">
               <button className="rounded-md">
@@ -128,8 +159,14 @@ export default function DashboardPage() {
             </div>
 
             {/* Sign up here */}
-            <div className="text-center justify-center text-sm mt-6"> 
-              <p> No account yet? <Link href="/signup" className="hover:underline text-primary">Sign up</Link> </p>
+            <div className="text-center justify-center text-sm mt-6">
+              <p>
+                {" "}
+                No account yet?{" "}
+                <Link href="/signup" className="hover:underline text-primary">
+                  Sign up
+                </Link>{" "}
+              </p>
             </div>
           </div>
         </Card>
