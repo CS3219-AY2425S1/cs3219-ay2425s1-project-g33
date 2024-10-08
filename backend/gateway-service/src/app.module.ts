@@ -7,6 +7,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { AtAuthGuard, RtAuthGuard } from './common/guards';
 import { MatchGateway } from './modules/match/match.controller';
 import { RedisService } from './modules/match/redis.service';
+import { CollaborationGateway } from './modules/collaboration/collaboration.controller';
 
 @Module({
   imports: [
@@ -42,7 +43,15 @@ import { RedisService } from './modules/match/redis.service';
           host: 'matching-service',
           port: 3004,
         },
-      }
+      },
+      {
+        name: 'COLLABORATION_SERVICE',
+        transport: Transport.TCP,
+        options: {
+          host: 'collaboration-service',
+          port: 3005,
+        },
+      },
     ]),
   ],
   controllers: [UserController, QuestionController, AuthController],
@@ -53,6 +62,7 @@ import { RedisService } from './modules/match/redis.service';
       useClass: AtAuthGuard,
     },
     MatchGateway,
+    CollaborationGateway,
     RedisService,
   ],
 })

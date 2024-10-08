@@ -20,6 +20,7 @@ services:
       - user-service
       - auth-service
       - matching-service
+      - collaboration-service
     networks:
       - backend-network
       - shared-network
@@ -87,6 +88,22 @@ services:
       - backend-network
     ports:
       - "3004:4000"
+
+  collaboration-service:
+    build:
+      context: ./collaboration-service
+      target: development
+    container_name: collaboration-service
+    volumes:
+      - ./collaboration-service:/app
+      - /app/node_modules
+    command: npm run start:dev
+    env_file:
+      - ./collaboration-service/.env
+    networks:
+      - backend-network
+    ports:
+      - "3005:4000"
 
   redis:
     image: redis:latest
