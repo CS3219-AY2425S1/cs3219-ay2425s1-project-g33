@@ -22,7 +22,7 @@ import { firstValueFrom } from 'rxjs';
 import { ClientProxy } from '@nestjs/microservices';
 import { UpdateUserDto, UsersResponseDto } from './dto';
 import { plainToInstance } from 'class-transformer';
-import { Role } from 'src/constants';
+import { Role } from 'src/common/constants';
 import { RolesGuard } from 'src/common/guards';
 
 @ApiTags('users')

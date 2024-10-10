@@ -6,7 +6,7 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { Role } from 'src/constants';
+import { Role } from 'src/common/constants';
 import { User } from '../interfaces';
 
 @Injectable()

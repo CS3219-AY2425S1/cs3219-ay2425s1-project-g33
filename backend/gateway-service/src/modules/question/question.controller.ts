@@ -25,7 +25,7 @@ import {
 } from '@nestjs/swagger';
 import { ClientProxy } from '@nestjs/microservices';
 import { RolesGuard } from 'src/common/guards';
-import { Role } from 'src/constants';
+import { Role } from 'src/common/constants';
 import { Roles } from 'src/common/decorators';
 
 @ApiTags('questions')

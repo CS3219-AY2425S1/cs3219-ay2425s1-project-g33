@@ -1,22 +1,26 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
-import { MatchWorkerService } from './match-worker.service';
+import { MatchWorkerService } from './services/match-worker.service';
+import { config } from 'src/configs';
 
 async function bootstrap() {
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(
     AppModule,
     {
-      transport: Transport.TCP,
+      transport: config.matchingService.transport,
       options: {
-        host: '0.0.0.0',
-        port: 3004,
+        host: config.matchingService.host,
+        port: config.matchingService.port,
       },
     },
   );
   const matchWorker = app.get(MatchWorkerService);
-  matchWorker.pollForMatches(); 
+  matchWorker.pollForMatches();
   await app.listen();
-  console.log('Matching Service is listening on port 3004');
+  console.log(
+    'Matching Service is listening on port',
+    config.matchingService.port,
+  );
 }
 bootstrap();

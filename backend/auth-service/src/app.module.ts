@@ -3,8 +3,9 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
-import { ClientsModule, Transport } from '@nestjs/microservices';
+import { ClientsModule } from '@nestjs/microservices';
 import { HttpModule } from '@nestjs/axios';
+import { config } from './configs';
 import {
   AccessTokenStrategy,
   RefreshTokenStrategy,
@@ -14,16 +15,18 @@ import {
 
 @Module({
   imports: [
-    PassportModule.register({ defaultStrategy: 'jwt' }),
+    PassportModule.register({
+      defaultStrategy: config.strategies.accessTokenStrategy
+    }),
     HttpModule,
     JwtModule.register({}),
     ClientsModule.register([
       {
         name: 'USER_SERVICE',
-        transport: Transport.TCP,
+        transport: config.userService.transport,
         options: {
-          host: 'user-service',
-          port: 3001,
+          host: config.userService.host,
+          port: config.userService.port,
         },
       },
     ]),

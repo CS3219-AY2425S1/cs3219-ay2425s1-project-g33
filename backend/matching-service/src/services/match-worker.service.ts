@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { MatchRequestDto } from './dto';
+import { MatchRequestDto } from '../dto';
 import { RedisService } from './redis.service';
-import { PriorityQueue } from './helper/priority-queue';
 
 @Injectable()
 export class MatchWorkerService {

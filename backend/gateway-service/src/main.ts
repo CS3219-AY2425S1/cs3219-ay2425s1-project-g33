@@ -2,7 +2,7 @@ import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
-import { setupSwagger } from './common/configs/swagger.config';
+import { setupSwagger, config } from './common/configs';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -26,7 +26,10 @@ async function bootstrap() {
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
   setupSwagger(app);
 
-  await app.listen(4000);
-  console.log('Gateway Service is listening on port 4000');
+  await app.listen(config.gatewayService.port);
+  console.log(
+    'Gateway Service is listening on port',
+    config.gatewayService.port,
+  );
 }
 bootstrap();
