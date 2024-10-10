@@ -133,10 +133,14 @@ export class AuthController {
   @Public()
   @Get('google/callback')
   @ApiOkResponse({ description: 'Google auth callback successful' })
-  async googleAuthCallback(@Query('code') code: string) {
-    return await firstValueFrom(
-      this.authClient.send({ cmd: 'google-auth-redirect' }, { code }),
-    );
+  async googleAuthCallback(@Query('code') code: string, @Res() res: Response) {
+    const { access_token: accessToken, refresh_token: refreshToken } =
+      await firstValueFrom(
+        this.authClient.send({ cmd: 'google-auth-redirect' }, { code }),
+      );
+
+    const redirectUrl = `${process.env.FRONTEND_URL}/oauth?accessToken=${accessToken}&refreshToken=${refreshToken}`;
+    res.redirect(redirectUrl);
   }
 
   @Public()
@@ -154,9 +158,13 @@ export class AuthController {
   @Public()
   @Get('github/callback')
   @ApiOkResponse({ description: 'Github auth callback successful' })
-  async githubAuthCallback(@Query('code') code: string) {
-    return await firstValueFrom(
-      this.authClient.send({ cmd: 'github-auth-redirect' }, { code }),
-    );
+  async githubAuthCallback(@Query('code') code: string, @Res() res: Response) {
+    const { access_token: accessToken, refresh_token: refreshToken } =
+      await firstValueFrom(
+        this.authClient.send({ cmd: 'github-auth-redirect' }, { code }),
+      );
+
+    const redirectUrl = `${process.env.FRONTEND_URL}/oauth?accessToken=${accessToken}&refreshToken=${refreshToken}`;
+    res.redirect(redirectUrl);
   }
 }

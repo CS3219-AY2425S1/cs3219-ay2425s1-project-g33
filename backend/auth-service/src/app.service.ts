@@ -154,7 +154,9 @@ export class AppService {
     }
   }
 
-  public async generateResetPasswordRequest(dto: ResetPasswordRequestDto): Promise<boolean> {
+  public async generateResetPasswordRequest(
+    dto: ResetPasswordRequestDto,
+  ): Promise<boolean> {
     const user = await firstValueFrom(
       this.userClient.send(
         {
@@ -293,13 +295,13 @@ export class AppService {
 
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(
-      {
-        sub: id,
-        ...rest,
-      },
-      {
-        secret: process.env.JWT_SECRET,
-        expiresIn: '1h', // 1 hour
+        {
+          sub: id,
+          ...rest,
+        },
+        {
+          secret: process.env.JWT_SECRET,
+          expiresIn: '1h', // 1 hour
         },
       ),
       this.jwtService.signAsync(

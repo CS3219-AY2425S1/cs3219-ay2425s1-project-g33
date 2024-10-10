@@ -19,6 +19,7 @@ services:
       - question-service
       - user-service
       - auth-service
+      - matching-service
     networks:
       - backend-network
       - shared-network
@@ -70,6 +71,29 @@ services:
       - backend-network
     ports:
       - "3003:4000"
+
+  matching-service:
+    build:
+      context: ./matching-service
+      target: development
+    container_name: matching-service
+    volumes:
+      - ./matching-service:/app
+      - /app/node_modules
+    command: npm run start:dev
+    env_file:
+      - ./matching-service/.env
+    networks:
+      - backend-network
+    ports:
+      - "3004:4000"
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    networks:
+      - backend-network
 
 networks:
   backend-network:
