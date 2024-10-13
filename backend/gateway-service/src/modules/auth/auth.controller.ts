@@ -7,6 +7,8 @@ import {
   Query,
   Res,
   UseGuards,
+  Headers,
+  BadRequestException
 } from '@nestjs/common';
 import { Response } from 'express';
 import {
@@ -87,6 +89,21 @@ export class AuthController {
     return await firstValueFrom(
       this.authClient.send({ cmd: 'reset-password' }, data),
     );
+  }
+
+  // Strictly for SSR
+  @Public()
+  @Post('validate-token')
+  @ApiOkResponse({ description: 'Token is valid' })
+  @ApiBadRequestResponse({ description: 'Token is invalid' })
+  async validateToken(@Headers('authorization') authHeader: string): Promise<boolean> {
+    const [bearer, token] = authHeader?.split(' ');
+
+    if (!(bearer === 'Bearer') || !token) {
+      throw new BadRequestException('Token not provided');
+    }
+
+    return await firstValueFrom(this.authClient.send({ cmd: 'validate-access-token' }, token));
   }
 
   @Post('logout')
