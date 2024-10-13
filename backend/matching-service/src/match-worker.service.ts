@@ -12,7 +12,7 @@ export class MatchWorkerService {
     setInterval(async () => {
       const users = await this.redisService.getUsersFromPool();
       const currentTime = Date.now();
-      const timeout = 29000; // Slightly less than 30 seconds to account for processing time
+      const timeout = 300000; // 5 minutes to remove any zombie users
       console.log('Polling', users);
       // Filter out users who have timed out
       const activeUsers = users.filter(user => currentTime - user.timestamp < timeout);
@@ -33,7 +33,7 @@ export class MatchWorkerService {
         // Remove the matched users from the Redis pool
         await this.redisService.removeUsersFromPool([bestMatch.user1.userId, bestMatch.user2.userId]);
       }
-    }, 20000);
+    }, 5000);
   }
 
   // Ranking logic for matches

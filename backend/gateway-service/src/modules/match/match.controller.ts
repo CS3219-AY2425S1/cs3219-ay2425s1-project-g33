@@ -12,7 +12,7 @@ import { Inject } from '@nestjs/common';
 import { firstValueFrom } from 'rxjs';
 import { RedisService } from './redis.service';
 import { MatchRequestDto } from './dto';
-import { MATCH_SUCCESS, MATCH_TIMEOUT } from './match.event';
+import { MATCH_FOUND, MATCH_CANCELLED, MATCH_CONFIRMED, MATCH_TIMEOUT, MATCH_REQUESTED } from './match.event';
 
 @WebSocketGateway({ namespace: '/match' })
 export class MatchGateway implements OnGatewayInit {
@@ -48,11 +48,26 @@ export class MatchGateway implements OnGatewayInit {
 
     // Send the match request to the microservice
     try {
-      await firstValueFrom(this.matchingClient.send('match.request', matchPayload));
+      firstValueFrom(this.matchingClient.send('match.request', matchPayload))
+        .then(() => console.log(`Match requested for user ${payload.userId}`))
+        .catch((error) => console.error(`Error requesting match for user ${payload.userId}: ${error.message}`));
+      this.server.to(client.id).emit(MATCH_REQUESTED, {
+        message: `Match request sent to the matching service.`,
+      });
     } catch (error) {
       client.emit('matchError', `Error requesting match: ${error.message}`);
       return;
     }
+  }
+
+  @SubscribeMessage('matchCancel')
+  async handleCancelMatch(@ConnectedSocket() client: Socket, @MessageBody() payload: { userId: string }) {
+    firstValueFrom(this.matchingClient.send('match.cancel', { userId: payload.userId }))
+      .then(() => console.log(`Match canceled for user ${payload.userId}`))
+      .catch((error) => console.error(`Error canceling match for user ${payload.userId}: ${error.message}`));
+    this.server.to(client.id).emit(MATCH_CANCELLED, {
+      message: `You have been cancelled from the match.`,
+    });
   }
 
   // Notify both matched users via WebSocket
@@ -60,15 +75,12 @@ export class MatchGateway implements OnGatewayInit {
     const [user1, user2] = matchedUsers;
     const user1SocketId = this.getUserSocketId(user1);
     const user2SocketId = this.getUserSocketId(user2);
-    if (user1SocketId) {
-      this.server.to(user1SocketId).emit(MATCH_SUCCESS, {
+    if (user1SocketId && user2SocketId) {
+      this.server.to(user1SocketId).emit(MATCH_FOUND, {
         message: `You have been matched with user ${user2}`,
         matchedUserId: user2,
       });
-    }
-
-    if (user2SocketId) {
-      this.server.to(user2SocketId).emit(MATCH_SUCCESS, {
+      this.server.to(user2SocketId).emit(MATCH_FOUND, {
         message: `You have been matched with user ${user1}`,
         matchedUserId: user1,
       });
@@ -95,13 +107,17 @@ export class MatchGateway implements OnGatewayInit {
     }
   }
 
-  handleDisconnect(@ConnectedSocket() client: Socket) {
+  async handleDisconnect(@ConnectedSocket() client: Socket) {
     const userId = [...this.userSockets.entries()].find(
       ([, socketId]) => socketId === client.id,
     )?.[0];
 
     if (userId) {
       this.userSockets.delete(userId);
+      // Remove user from Redis pool
+      firstValueFrom(this.matchingClient.send('match.cancel', { userId }))
+        .then(() => console.log(`Match canceled for user ${userId}`))
+        .catch((error) => console.error(`Error canceling match for user ${userId}: ${error.message}`));
       console.log(`User ${userId} disconnected`);
     }
   }
