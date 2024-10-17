@@ -11,19 +11,22 @@ import {
   GoogleStrategy,
   GithubStrategy,
 } from './strategies';
+import { config } from './configs';
 
 @Module({
   imports: [
-    PassportModule.register({ defaultStrategy: 'jwt' }),
+    PassportModule.register({
+      defaultStrategy: config.strategies.accessTokenStrategy,
+    }),
     HttpModule,
     JwtModule.register({}),
     ClientsModule.register([
       {
         name: 'USER_SERVICE',
-        transport: Transport.TCP,
+        transport: config.userService.transport,
         options: {
-          host: 'user-service',
-          port: 3001,
+          host: config.userService.host,
+          port: config.userService.port,
         },
       },
     ]),

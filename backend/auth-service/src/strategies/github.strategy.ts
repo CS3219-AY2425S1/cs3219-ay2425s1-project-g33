@@ -1,14 +1,18 @@
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy, VerifyCallback } from 'passport-google-oauth20';
 import { Injectable } from '@nestjs/common';
+import { config } from 'src/configs';
 
 @Injectable()
-export class GithubStrategy extends PassportStrategy(Strategy, 'github') {
+export class GithubStrategy extends PassportStrategy(
+  Strategy,
+  config.strategies.githubStrategy,
+) {
   constructor() {
     super({
-      clientID: process.env.GITHUB_CLIENT_ID,
-      clientSecret: process.env.GITHUB_CLIENT_SECRET,
-      callbackURL: process.env.GITHUB_CALLBACK_URL,
+      clientID: config.auth.github.clientId,
+      clientSecret: config.auth.github.clientSecret,
+      callbackURL: config.auth.github.callbackUrl,
       scope: ['user:email'],
     });
   }

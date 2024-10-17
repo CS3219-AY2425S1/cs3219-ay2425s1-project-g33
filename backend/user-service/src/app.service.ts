@@ -1,7 +1,6 @@
-import * as bcrypt from 'bcryptjs';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { RpcException } from '@nestjs/microservices';
 import { User } from './schema/user.schema';
 import {
@@ -25,6 +24,10 @@ export class AppService {
   }
 
   public async getUserById(id: string): Promise<User> {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw new RpcException('Invalid userId format');
+    }
+
     const user = await this.userModel.findById(id).exec();
     return user;
   }

@@ -7,6 +7,8 @@ import {
   Query,
   Res,
   UseGuards,
+  Headers,
+  BadRequestException,
 } from '@nestjs/common';
 import { Response } from 'express';
 import {
@@ -23,6 +25,7 @@ import { firstValueFrom } from 'rxjs';
 import { RtAuthGuard } from '../../common/guards';
 import { GetCurrentUserId } from 'src/common/decorators/get-current-user-id.decorator';
 import { GetCurrentUser, Public } from 'src/common/decorators';
+import { config } from 'src/common/configs';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -89,6 +92,25 @@ export class AuthController {
     );
   }
 
+  // Strictly for SSR
+  @Public()
+  @Post('validate-token')
+  @ApiOkResponse({ description: 'Token is valid' })
+  @ApiBadRequestResponse({ description: 'Token is invalid' })
+  async validateToken(
+    @Headers('authorization') authHeader: string,
+  ): Promise<boolean> {
+    const [bearer, token] = authHeader?.split(' ');
+
+    if (!(bearer === 'Bearer') || !token) {
+      throw new BadRequestException('Token not provided');
+    }
+
+    return await firstValueFrom(
+      this.authClient.send({ cmd: 'validate-access-token' }, token),
+    );
+  }
+
   @Post('logout')
   @ApiBearerAuth('access-token')
   @ApiOkResponse({ description: 'User logged out successfully' })
@@ -133,10 +155,14 @@ export class AuthController {
   @Public()
   @Get('google/callback')
   @ApiOkResponse({ description: 'Google auth callback successful' })
-  async googleAuthCallback(@Query('code') code: string) {
-    return await firstValueFrom(
-      this.authClient.send({ cmd: 'google-auth-redirect' }, { code }),
-    );
+  async googleAuthCallback(@Query('code') code: string, @Res() res: Response) {
+    const { access_token: accessToken, refresh_token: refreshToken } =
+      await firstValueFrom(
+        this.authClient.send({ cmd: 'google-auth-redirect' }, { code }),
+      );
+
+    const redirectUrl = `${config.frontendUrl}/oauth?accessToken=${accessToken}&refreshToken=${refreshToken}`;
+    res.redirect(redirectUrl);
   }
 
   @Public()
@@ -154,9 +180,13 @@ export class AuthController {
   @Public()
   @Get('github/callback')
   @ApiOkResponse({ description: 'Github auth callback successful' })
-  async githubAuthCallback(@Query('code') code: string) {
-    return await firstValueFrom(
-      this.authClient.send({ cmd: 'github-auth-redirect' }, { code }),
-    );
+  async githubAuthCallback(@Query('code') code: string, @Res() res: Response) {
+    const { access_token: accessToken, refresh_token: refreshToken } =
+      await firstValueFrom(
+        this.authClient.send({ cmd: 'github-auth-redirect' }, { code }),
+      );
+
+    const redirectUrl = `${config.frontendUrl}/oauth?accessToken=${accessToken}&refreshToken=${refreshToken}`;
+    res.redirect(redirectUrl);
   }
 }

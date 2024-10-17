@@ -1,16 +1,20 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { MicroserviceOptions, Transport } from '@nestjs/microservices';
+import { MicroserviceOptions } from '@nestjs/microservices';
 import { ValidationPipe } from '@nestjs/common';
+import { config } from 'src/configs';
+import * as dotenv from 'dotenv';
+
+dotenv.config();
 
 async function bootstrap() {
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(
     AppModule,
     {
-      transport: Transport.TCP,
+      transport: config.questionService.transport,
       options: {
-        host: '0.0.0.0',
-        port: 3002,
+        host: config.questionService.host,
+        port: config.questionService.port,
       },
     },
   );
@@ -23,6 +27,9 @@ async function bootstrap() {
     }),
   );
   await app.listen();
-  console.log('Question Service is listening on port 3002');
+  console.log(
+    'Question Service is listening on port',
+    config.questionService.port,
+  );
 }
 bootstrap();
