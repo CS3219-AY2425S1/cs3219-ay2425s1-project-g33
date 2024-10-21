@@ -3,7 +3,7 @@ import Redis from 'ioredis';
 import { config } from 'src/common/configs';
 
 @Injectable()
-export class RedisService {
+export class RedisMatchService {
   private redisSubscriber: Redis;
 
   constructor() {

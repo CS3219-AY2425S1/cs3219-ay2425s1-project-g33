@@ -10,7 +10,7 @@ import { Socket, Server } from 'socket.io';
 import { ClientProxy } from '@nestjs/microservices';
 import { Inject } from '@nestjs/common';
 import { firstValueFrom } from 'rxjs';
-import { RedisService } from './redis.service';
+import { RedisMatchService } from './redis.service';
 import { v4 as uuidv4 } from 'uuid';
 import { MatchAcceptDto, MatchDeclineDto, MatchRequestDto } from './dto';
 import {
@@ -50,7 +50,7 @@ export class MatchGateway implements OnGatewayInit {
   constructor(
     @Inject('MATCHING_SERVICE') private matchingClient: ClientProxy,
     @Inject('USER_SERVICE') private userClient: ClientProxy,
-    private redisService: RedisService,
+    private redisService: RedisMatchService,
   ) {}
 
   afterInit() {
