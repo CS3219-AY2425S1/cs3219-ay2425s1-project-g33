@@ -2,9 +2,9 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { MicroserviceOptions } from '@nestjs/microservices';
 import { config } from 'src/configs';
-import { connect as connectToEventStore } from './event-store';
+import { connect as connectToEventStore } from './services/event-store.service';
 import * as dotenv from 'dotenv';
-import { RoomWorkerService } from './room-worker.service';
+import { RoomWorkerService } from './services/room-worker.service';
 
 dotenv.config();
 

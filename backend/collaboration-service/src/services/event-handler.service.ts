@@ -1,14 +1,16 @@
 // event-handlers.ts
-import { client } from './event-store';
+import { client } from './event-store.service';
 import { jsonEvent, START } from '@eventstore/db-client';
-import { CodeChangeEvent } from './interfaces';
+import { CodeChangeEvent } from '../interfaces';
 
 // Append a code change event to a stream
-export async function appendCodeChangeEvent(event: CodeChangeEvent): Promise<void> {
+export async function appendCodeChangeEvent(
+  event: CodeChangeEvent,
+): Promise<void> {
   try {
     // Create a JSON event to store in EventStoreDB
     const eventData = jsonEvent({
-      type: 'codeChange',
+      type: 'changeCode',
       data: JSON.stringify(event),
     });
 
@@ -18,7 +20,7 @@ export async function appendCodeChangeEvent(event: CodeChangeEvent): Promise<voi
     console.log(`Appended code change event for room ${event.roomId}`);
   } catch (error) {
     console.error('Failed to append code change event to stream:', error);
-    throw error;  // Re-throw the error so it can be handled elsewhere if needed
+    throw error; // Re-throw the error so it can be handled elsewhere if needed
   }
 }
 
@@ -44,9 +46,9 @@ export async function checkRoomExists(roomId: string): Promise<boolean> {
     // Attempt to read the stream for the room
     const events = client.readStream(`room-${roomId}`, {
       fromRevision: START,
-      maxCount: 1,  // We only need to read the first event to check if the stream exists
+      maxCount: 1, // We only need to read the first event to check if the stream exists
     });
-    
+
     // If the stream exists, the for-await loop will run once (this ensures that the stream is consumed)
     for await (const event of events) {
       return true;
@@ -55,7 +57,7 @@ export async function checkRoomExists(roomId: string): Promise<boolean> {
     return true;
   } catch (error) {
     if (error.type === 'stream-not-found') {
-      return false;  // Stream does not exist
+      return false; // Stream does not exist
     }
 
     console.error('Failed to check if room exists:', error);
@@ -63,11 +65,10 @@ export async function checkRoomExists(roomId: string): Promise<boolean> {
   }
 }
 
-
-
-
 // Read events from a stream and return a list of CodeChangeEvents
-export async function readEventsForRoom(roomId: string): Promise<CodeChangeEvent[]> {
+export async function readEventsForRoom(
+  roomId: string,
+): Promise<CodeChangeEvent[]> {
   const codeChangeEvents: CodeChangeEvent[] = [];
   try {
     // Read the event stream from the start
@@ -81,8 +82,8 @@ export async function readEventsForRoom(roomId: string): Promise<CodeChangeEvent
 
       const { type, data } = resolvedEvent.event;
 
-      // Process only 'codeChange' events
-      if (type === 'codeChange') {
+      // Process only 'changeCode' events
+      if (type === 'changeCode') {
         try {
           let parsedData: CodeChangeEvent;
 
@@ -109,10 +110,12 @@ export async function readEventsForRoom(roomId: string): Promise<CodeChangeEvent
       }
     }
 
-    console.log(`Read ${codeChangeEvents.length} code change events for room ${roomId}`);
+    console.log(
+      `Read ${codeChangeEvents.length} code change events for room ${roomId}`,
+    );
   } catch (error) {
     console.error(`Failed to read events for room ${roomId}:`, error);
-    throw error;  // Re-throw the error for higher-level handling
+    throw error; // Re-throw the error for higher-level handling
   }
 
   return codeChangeEvents;

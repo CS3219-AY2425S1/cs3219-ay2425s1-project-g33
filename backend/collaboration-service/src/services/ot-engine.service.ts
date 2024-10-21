@@ -1,4 +1,4 @@
-import { CodeChangeEvent } from "./interfaces";
+import { CodeChangeEvent } from "../interfaces";
 
 export class OTEngineService {
   transform(currentState: string, operation: CodeChangeEvent): CodeChangeEvent {

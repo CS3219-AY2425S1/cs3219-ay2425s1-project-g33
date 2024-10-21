@@ -129,8 +129,8 @@ services:
       - EVENTSTORE_DISABLE_INTERNAL_TCP_TLS=true
       - EVENTSTORE_DISABLE_EXTERNAL_TCP_TLS=true
     ports:
-      - '1113:1113'
-      - '2113:2113'
+      - "1113:1113"
+      - "2113:2113"
     volumes:
       - type: volume
         source: eventstore-volume-data
@@ -140,8 +140,6 @@ services:
         target: /c/data/eventstore/logs
     networks:
       - backend-network
-    
-    
 
 networks:
   backend-network:

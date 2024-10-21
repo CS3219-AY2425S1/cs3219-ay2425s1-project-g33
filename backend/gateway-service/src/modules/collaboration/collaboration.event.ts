@@ -3,3 +3,4 @@ export const EXCEPTION = 'exception';
 export const JOINED_ROOM = 'joinedRoom';
 export const LEFT_ROOM = 'leftRoom';
 export const CODE_CHANGED = 'codeChanged';
+export const CODE_CHANGES_FOR_ROOM = 'codeChangesForRoom';

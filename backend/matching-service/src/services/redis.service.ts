@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import Redis from 'ioredis';
-import { MatchRequestDto } from './dto/match-request.dto';
-import { MatchJob } from './interfaces/match-job.interface';
+import { MatchRequestDto } from '../dto/match-request.dto';
+import { MatchJob } from '../interfaces/match-job.interface';
 import { config } from 'src/configs';
-import { MatchResponse } from './interfaces';
+import { MatchResponse } from '../interfaces';
 
 @Injectable()
 export class RedisService {

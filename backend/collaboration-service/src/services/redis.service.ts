@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import Redis from 'ioredis';
-import { config } from './configs';
+import { config } from '../configs';
 
 const REDIS_CHANNEL = 'collaborationChannel';
 const REDIS_ROOM_POOL_PREFIX = 'room-';

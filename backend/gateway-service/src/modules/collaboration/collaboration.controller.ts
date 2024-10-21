@@ -17,8 +17,14 @@ import {
   JOINED_ROOM,
   LEFT_ROOM,
   CODE_CHANGED,
+  CODE_CHANGES_FOR_ROOM,
 } from './collaboration.event';
-import { JOIN_ROOM, LEAVE_ROOM, CODE_CHANGE } from './collaboration.message';
+import {
+  JOIN_ROOM,
+  LEAVE_ROOM,
+  CHANGE_CODE,
+  GET_CODE_CHANGES,
+} from './collaboration.message';
 import { CodeChangeEvent } from './interfaces';
 import { CodeChangeDto } from './dto';
 
@@ -54,11 +60,11 @@ export class CollaborationGateway implements OnGatewayInit {
     const userId = client.handshake.query.userId as string;
     const roomId = client.handshake.query.roomId as string;
     client.leave(roomId);
-    this.collaborationClient.emit('removeUserFromRoom', { roomId, userId });
+    this.collaborationClient.emit('remove-user-from-room', { roomId, userId });
     client.emit(LEFT_ROOM);
   }
 
-  @SubscribeMessage(CODE_CHANGE)
+  @SubscribeMessage(CHANGE_CODE)
   handleCodeChange(
     @ConnectedSocket() client: Socket,
     @MessageBody() data: CodeChangeDto,
@@ -66,8 +72,8 @@ export class CollaborationGateway implements OnGatewayInit {
     const userId = client.handshake.query.userId as string;
     const roomId = client.handshake.query.roomId as string;
     const { operationType, position, text } = data;
-    if (!operationType || !position || !text) {
-      client.emit(EXCEPTION, 'Invalid match request payload.');
+    if (!operationType || position < 0 || !text) {
+      client.emit(EXCEPTION, 'Invalid change code payload.');
       return;
     }
     const payload = {
@@ -77,19 +83,19 @@ export class CollaborationGateway implements OnGatewayInit {
       position,
       text,
     };
-    this.collaborationClient.emit('codeChange', payload);
-    client.emit(CODE_CHANGED);
+    this.collaborationClient.emit('change-code', payload);
+    client.emit(CODE_CHANGED, payload);
   }
 
-  @SubscribeMessage('getCodeChangesForRoom')
+  @SubscribeMessage(GET_CODE_CHANGES)
   async handleGetCodeChangesForRoom(
     @ConnectedSocket() client: Socket,
   ): Promise<CodeChangeEvent[]> {
     const roomId = client.handshake.query.roomId as string;
     const codeChanges = await firstValueFrom(
-      this.collaborationClient.send('getCodeChangesForRoom', { roomId }),
+      this.collaborationClient.send('get-code-changes-for-room', { roomId }),
     );
-    client.emit('codeChangesForRoom', codeChanges);
+    client.emit(CODE_CHANGES_FOR_ROOM, codeChanges);
     return codeChanges;
   }
 
@@ -127,10 +133,12 @@ export class CollaborationGateway implements OnGatewayInit {
       }
 
       this.userSockets.set(userId, client.id);
+      client.emit(CONNECTED, {
+        message: `User ${userId} connected with socket ID ${client.id}`,
+      });
 
       client.join(roomId);
-      this.collaborationClient.emit('addUserToRoom', { roomId, userId });
-
+      this.collaborationClient.emit('add-user-to-room', { roomId, userId });
       client.emit(JOINED_ROOM, {
         message: `User ${userId} connected with socket ID ${client.id} and joined room ${roomId}`,
       });
@@ -161,7 +169,10 @@ export class CollaborationGateway implements OnGatewayInit {
 
       if (roomId) {
         // Remove user from Redis room pool (or your real-time tracking system)
-        this.collaborationClient.emit('removeUserFromRoom', { roomId, userId });
+        this.collaborationClient.emit('remove-user-from-room', {
+          roomId,
+          userId,
+        });
 
         // Optionally notify other users in the room that the user has disconnected
         this.server.to(roomId).emit('userLeft', { roomId, userId });

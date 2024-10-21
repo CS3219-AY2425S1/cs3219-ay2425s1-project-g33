@@ -1,11 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
-import { AppService } from './app.service';
+import { AppService } from '../app.service';
 import { RedisService } from './redis.service';
 
 @Injectable()
 export class SnapshotSchedulerService {
-  constructor(private readonly redisService: RedisService, private readonly appService: AppService) {}
+  constructor(
+    private readonly redisService: RedisService,
+    private readonly appService: AppService,
+  ) {}
 
   // Cron job that runs every 10 seconds
   @Cron('*/10 * * * * *')

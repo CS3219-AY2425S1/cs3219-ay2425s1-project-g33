@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { MatchRequestDto } from './dto/match-request.dto';
-import { RedisService } from './redis.service';
+import { RedisService } from './services/redis.service';
 import { MatchResponse } from './interfaces';
 
 @Injectable()

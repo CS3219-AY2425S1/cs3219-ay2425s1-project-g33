@@ -3,8 +3,8 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { BullModule } from '@nestjs/bull';
 import { ClientsModule } from '@nestjs/microservices';
-import { MatchWorkerService } from './match-worker.service';
-import { RedisService } from './redis.service';
+import { MatchWorkerService } from './services/match-worker.service';
+import { RedisService } from './services/redis.service';
 import { config } from 'src/configs';
 
 @Module({
