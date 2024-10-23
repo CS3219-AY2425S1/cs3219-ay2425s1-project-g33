@@ -98,10 +98,14 @@ export class RedisService {
     }
   }
 
-  async publishMatchedUsers(matchedUserIds: string[]): Promise<void> {
+  async publishMatchedUsers(matchId: string, matchedUserIds: string[]): Promise<void> {
+    const message = {
+      matchId: matchId,
+      matchedUserIds: matchedUserIds,
+    };
     await this.redisPublisher.publish(
       'matchChannel',
-      JSON.stringify(matchedUserIds),
+      JSON.stringify(message),
     );
   }
 

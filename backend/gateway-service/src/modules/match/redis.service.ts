@@ -26,10 +26,16 @@ export class RedisMatchService {
     // Listen for published messages on the channel
     this.redisSubscriber.on('message', (channel, message) => {
       if (channel === 'matchChannel') {
-        const matchedUsers = JSON.parse(message);
-        callback(matchedUsers);
-      }
-    });
+        const parsedMessage = JSON.parse(message);
+        if (
+          parsedMessage.matchId &&
+          Array.isArray(parsedMessage.matchedUserIds)
+        ) {
+          callback({
+            matchId: parsedMessage.matchId,
+            matchedUserIds: parsedMessage.matchedUserIds,
+          });
+    }}});
   }
 
   subscribeToTimeoutEvents(callback: (matchedUsers: any) => void): void {

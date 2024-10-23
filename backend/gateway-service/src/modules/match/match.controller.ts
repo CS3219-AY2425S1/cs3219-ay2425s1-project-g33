@@ -55,8 +55,8 @@ export class MatchGateway implements OnGatewayInit {
 
   afterInit() {
     // Subscribe to Redis Pub/Sub for match notifications
-    this.redisService.subscribeToMatchEvents((matchedUsers) => {
-      this.notifyUsersWithMatch(matchedUsers);
+    this.redisService.subscribeToMatchEvents(({ matchId, matchedUserIds }) => {
+      this.notifyUsersWithMatch(matchId, matchedUserIds );
     });
 
     this.redisService.subscribeToTimeoutEvents((timedOutUsers) => {
@@ -172,7 +172,12 @@ export class MatchGateway implements OnGatewayInit {
 
     // Check if both participants have confirmed the match
     if (confirmations.size === 2) {
-      this.notifyUsersMatchConfirmed(matchId, [...confirmations]);
+      const sessionId = this.generateSessionId();
+      this.notifyUsersMatchConfirmed(sessionId, [...confirmations]);
+      this.matchingClient.emit('match-confirmed', { matchId, sessionId });
+      // Clean up match participants and confirmations
+      this.matchConfirmations.delete(matchId);
+      this.matchParticipants.delete(matchId);
     } else {
       client.emit(MATCH_ACCEPTED, {
         message: 'Waiting for the other user to accept the match.',
@@ -213,10 +218,11 @@ export class MatchGateway implements OnGatewayInit {
       message: 'You have declined the match.',
       isDecliningUser: true,
     });
+    this.matchingClient.emit('match-declined', { matchId });
   }
 
   // Notify both users when they are matched
-  async notifyUsersWithMatch(matchedUsers: string[]) {
+  async notifyUsersWithMatch(matchId: string, matchedUsers: string[]) {
     const [user1, user2] = matchedUsers;
     const user1SocketId = this.getUserSocketId(user1);
     const user2SocketId = this.getUserSocketId(user2);
@@ -230,7 +236,6 @@ export class MatchGateway implements OnGatewayInit {
     );
 
     if (user1SocketId && user2SocketId) {
-      const matchId = this.generateMatchId();
       this.server.to(user1SocketId).emit(MATCH_FOUND, {
         message: `You have found a match`,
         matchId,
@@ -250,8 +255,7 @@ export class MatchGateway implements OnGatewayInit {
   }
 
   // Notify both users when they both accept the match
-  private notifyUsersMatchConfirmed(matchId: string, users: string[]) {
-    const sessionId = this.generateSessionId();
+  private notifyUsersMatchConfirmed(sessionId: string, users: string[]) {
     users.forEach((user) => {
       const socketId = this.getUserSocketId(user);
       if (socketId) {
@@ -260,11 +264,7 @@ export class MatchGateway implements OnGatewayInit {
           sessionId,
         });
       }
-    });
-
-    // Clean up match participants and confirmations
-    this.matchConfirmations.delete(matchId);
-    this.matchParticipants.delete(matchId);
+    })
   }
 
   private notifyOtherUserMatchDeclined(

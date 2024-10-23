@@ -6,9 +6,18 @@ import { ClientsModule } from '@nestjs/microservices';
 import { MatchWorkerService } from './services/match-worker.service';
 import { RedisService } from './services/redis.service';
 import { config } from 'src/configs';
+import { MongooseModule } from '@nestjs/mongoose';
+import { MatchHistorySchema } from './schema/match-history.schema';
 
 @Module({
   imports: [
+    MongooseModule.forRoot(config.mongo.connectionString),
+    MongooseModule.forFeature([
+      {
+        name: 'MatchHistory',
+        schema: MatchHistorySchema,
+      },
+    ]),
     BullModule.forRoot({
       redis: {
         host: config.redis.host,
