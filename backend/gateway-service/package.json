@@ -35,7 +35,10 @@
     "passport-jwt": "^4.0.1",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1",
-    "uuid": "^10.0.0"
+    "uuid": "^10.0.0",
+    "ws": "^8.18.0",
+    "y-websocket": "^2.0.4",
+    "yjs": "^13.6.20"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",

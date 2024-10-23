@@ -20,7 +20,6 @@ import {
   CODE_CHANGES_FOR_ROOM,
 } from './collaboration.event';
 import {
-  JOIN_ROOM,
   LEAVE_ROOM,
   CHANGE_CODE,
   GET_CODE_CHANGES,

@@ -8,6 +8,7 @@ import { AtAuthGuard, RtAuthGuard } from './common/guards';
 import { MatchGateway } from './modules/match/match.controller';
 import { RedisMatchService } from './modules/match/redis.service';
 import { CollaborationGateway } from './modules/collaboration/collaboration.controller';
+import { YjsCollaborationGateway } from './modules/collaboration/yjs-collaboration.controller';
 import { RedisCollaborationService } from './modules/collaboration/redis.service';
 import { config } from './common/configs';
 
@@ -66,6 +67,7 @@ import { config } from './common/configs';
     MatchGateway,
     RedisMatchService,
     CollaborationGateway,
+    YjsCollaborationGateway,
     RedisCollaborationService,
   ],
 })
