@@ -1,0 +1,10 @@
+export const CONNECTED = 'connected';
+export const MATCH_FOUND = 'matchFound';
+export const MATCH_REQUESTED = 'matchRequested';
+export const MATCH_CANCELLED = 'matchCancelled';
+export const MATCH_ACCEPTED = 'matchAccepted';
+export const MATCH_DECLINED = 'matchDeclined';
+export const MATCH_CONFIRMED = 'matchConfirmed';
+export const MATCH_TIMEOUT = 'matchTimeout'; // Emitted after 5 minutes of inactivity
+export const MATCH_ERROR = 'matchError';
+export const EXCEPTION = 'exception';
