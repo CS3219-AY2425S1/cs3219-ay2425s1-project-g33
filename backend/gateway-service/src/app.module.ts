@@ -6,7 +6,9 @@ import { QuestionController } from './modules/question/question.controller';
 import { APP_GUARD } from '@nestjs/core';
 import { AtAuthGuard, RtAuthGuard } from './common/guards';
 import { MatchGateway } from './modules/match/match.controller';
-import { RedisService } from './modules/match/redis.service';
+import { RedisMatchService } from './modules/match/redis.service';
+import { CollaborationGateway } from './modules/collaboration/collaboration.controller';
+import { RedisCollaborationService } from './modules/collaboration/redis.service';
 import { config } from './common/configs';
 
 @Module({
@@ -44,6 +46,14 @@ import { config } from './common/configs';
           port: config.matchingService.port,
         },
       },
+      {
+        name: 'COLLABORATION_SERVICE',
+        transport: config.collaborationService.transport,
+        options: {
+          host: config.collaborationService.host,
+          port: config.collaborationService.port,
+        },
+      },
     ]),
   ],
   controllers: [UserController, QuestionController, AuthController],
@@ -54,7 +64,9 @@ import { config } from './common/configs';
       useClass: AtAuthGuard,
     },
     MatchGateway,
-    RedisService,
+    RedisMatchService,
+    CollaborationGateway,
+    RedisCollaborationService,
   ],
 })
 export class AppModule {}

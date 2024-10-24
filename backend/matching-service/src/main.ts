@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { MicroserviceOptions } from '@nestjs/microservices';
-import { MatchWorkerService } from './match-worker.service';
+import { MatchWorkerService } from './services/match-worker.service';
 import { config } from 'src/configs';
 import * as dotenv from 'dotenv';
 

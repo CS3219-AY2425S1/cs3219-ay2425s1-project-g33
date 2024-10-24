@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller } from '@nestjs/common';
 import { AppService } from './app.service';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { MatchRequestDto } from './dto';
@@ -15,5 +15,10 @@ export class AppController {
   @MessagePattern('match-cancel')
   async handleMatchCancel(@Payload() data: { userId: string }) {
     return this.appService.cancelMatch(data.userId);
+  }
+
+  @MessagePattern('match-details')
+  async handleMatchDetails(@Payload() data: { matchId: string }) {
+    return this.appService.getMatchDetails(data.matchId);
   }
 }

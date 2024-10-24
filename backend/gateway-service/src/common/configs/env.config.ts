@@ -38,6 +38,12 @@ export const config = {
     transport:
       Transport[getEnvVar('MATCHING_SERVICE_TRANSPORT')] || Transport.TCP,
   },
+  collaborationService: {
+    port: parseInt(getEnvVar('COLLABORATION_SERVICE_PORT')),
+    host: getEnvVar('COLLABORATION_SERVICE_HOST'),
+    transport:
+      Transport[getEnvVar('COLLABORATION_SERVICE_TRANSPORT')] || Transport.TCP,
+  },
   redis: {
     host: getEnvVar('REDIS_HOST'),
     port: parseInt(getEnvVar('REDIS_PORT')),
