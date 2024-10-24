@@ -66,9 +66,7 @@ export class MatchWorkerService {
   }
 
   // Ranking logic for matches
-  private rankUsers(
-    users: MatchRequestDto[],
-  ): {
+  private rankUsers(users: MatchRequestDto[]): {
     user1: MatchRequestDto;
     user2: MatchRequestDto;
     score: number;
