@@ -114,6 +114,20 @@ services:
     ports:
       - "3005:4000"
 
+  y-websocket-service:
+    build:
+      context: ./y-websocket-service
+      target: development
+    container_name: y-websocket-service
+    volumes:
+      - ./y-websocket-service:/app
+      - /app/node_modules
+    command: npm run start:dev
+    ports:
+      - "1234:1234"
+    networks:
+      - backend-network
+
   eventstore.db:
     image: eventstore/eventstore:22.10.3-alpha-arm64v8 # For Apple M Chips
     # image: eventstore/eventstore:21.6.0-buster-slim # For ARM Chips
