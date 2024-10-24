@@ -10,7 +10,6 @@ import { RedisMatchService } from './modules/match/redis.service';
 import { CollaborationGateway } from './modules/collaboration/collaboration.controller';
 import { RedisCollaborationService } from './modules/collaboration/redis.service';
 import { config } from './common/configs';
-import { YjsGateway } from './modules/collaboration/yjs.gateway';
 
 @Module({
   imports: [
@@ -67,7 +66,6 @@ import { YjsGateway } from './modules/collaboration/yjs.gateway';
     MatchGateway,
     RedisMatchService,
     CollaborationGateway,
-    YjsGateway,
     RedisCollaborationService,
   ],
 })
