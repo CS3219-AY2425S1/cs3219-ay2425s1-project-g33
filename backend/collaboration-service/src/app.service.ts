@@ -11,9 +11,10 @@ import { v4 as uuidv4 } from 'uuid';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
 import { CollabSession } from './schema/collab-session.schema';
-import { CodeChangeDto } from './dto';
+import { CodeChangeDto, CreateSessionDto } from './dto';
 import { OTEngineService } from './services/ot-engine.service';
 import { CollabEventSnapshot } from './schema/collab-event.schema';
+import { RpcException } from '@nestjs/microservices';
 
 @Injectable()
 export class AppService {
@@ -109,5 +110,34 @@ export class AppService {
       documentState = this.otEngine.applyOperation(documentState, event);
     }
     return documentState;
+  }
+
+  async getSessionDetails(sessionId: string): Promise<CollabSession> {
+    try {
+      const session = await this.sessionModel
+        .findOne({ _id: sessionId })
+        .exec();
+      if (!session) {
+        throw new RpcException('Session not found');
+      }
+      return session;
+    } catch (error) {
+      throw new RpcException(`Failed to get session details: ${error.message}`);
+    }
+  }
+
+  async createSession(data: CreateSessionDto): Promise<CollabSession> {
+    try {
+      const newSession = new this.sessionModel({
+        userIds: data.userIds,
+        difficultyPreference: data.difficulty,
+        topicPreference: data.topics,
+        questionId: data.question,
+      });
+      await newSession.save();
+      return newSession;
+    } catch (error) {
+      throw new RpcException(`Failed to create session: ${error.message}`);
+    }
   }
 }
