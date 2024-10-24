@@ -152,29 +152,4 @@ export class AppService {
   async getCategories():Promise<{ categories: string[] }>{
     return {categories: QUESTION_CATEGORIES}
   }
-
-  async getQuestionsByPreferences(
-    topics: string[],
-    difficulty: string,
-  ): Promise<Question[]> {
-    try {
-      // First, try to find questions matching both topics and difficulty
-      let questions: Question[] = [];
-      questions = await this.questionModel
-        .find({ categories: { $in: topics }, difficulty }) // Check if at least one of the topics matches any category
-        .exec();
-
-      if (questions.length === 0) {
-        // If no questions match both topics and difficulty, find questions by difficulty only
-        questions = await this.questionModel
-        .find({ difficulty })
-        .exec();
-      }
-      return questions;
-    } catch (error) {
-      throw new RpcException(error.message);
-    }
-  }
-
-
 }

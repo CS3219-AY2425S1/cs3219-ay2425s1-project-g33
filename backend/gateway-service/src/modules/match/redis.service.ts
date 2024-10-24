@@ -3,7 +3,7 @@ import Redis from 'ioredis';
 import { config } from 'src/common/configs';
 
 @Injectable()
-export class RedisMatchService {
+export class RedisService {
   private redisSubscriber: Redis;
 
   constructor() {
@@ -26,16 +26,10 @@ export class RedisMatchService {
     // Listen for published messages on the channel
     this.redisSubscriber.on('message', (channel, message) => {
       if (channel === 'matchChannel') {
-        const parsedMessage = JSON.parse(message);
-        if (
-          parsedMessage.matchId &&
-          Array.isArray(parsedMessage.matchedUserIds)
-        ) {
-          callback({
-            matchId: parsedMessage.matchId,
-            matchedUserIds: parsedMessage.matchedUserIds,
-          });
-    }}});
+        const matchedUsers = JSON.parse(message);
+        callback(matchedUsers);
+      }
+    });
   }
 
   subscribeToTimeoutEvents(callback: (matchedUsers: any) => void): void {

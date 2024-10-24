@@ -28,16 +28,6 @@ import { config } from 'src/configs';
         },
       },
     ]),
-    ClientsModule.register([
-      {
-        name: 'QUESTION_SERVICE',
-        transport: config.questionService.transport,
-        options: {
-          host: config.questionService.host,
-          port: config.questionService.port,
-        },
-      },
-    ]),
   ],
   controllers: [AppController],
   providers: [AppService, MatchWorkerService, RedisService],

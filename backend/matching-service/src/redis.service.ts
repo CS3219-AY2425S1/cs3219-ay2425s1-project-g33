@@ -3,7 +3,7 @@ import Redis from 'ioredis';
 import { MatchRequestDto } from './dto/match-request.dto';
 import { MatchJob } from './interfaces/match-job.interface';
 import { config } from 'src/configs';
-import { MatchDetails, MatchResponse } from './interfaces';
+import { MatchResponse } from './interfaces';
 
 @Injectable()
 export class RedisService {
@@ -98,14 +98,10 @@ export class RedisService {
     }
   }
 
-  async publishMatchedUsers(matchId: string, matchedUserIds: string[]): Promise<void> {
-    const message = {
-      matchId: matchId,
-      matchedUserIds: matchedUserIds,
-    };
+  async publishMatchedUsers(matchedUserIds: string[]): Promise<void> {
     await this.redisPublisher.publish(
       'matchChannel',
-      JSON.stringify(message),
+      JSON.stringify(matchedUserIds),
     );
   }
 
@@ -124,17 +120,5 @@ export class RedisService {
   async getAllUsersFromPool(): Promise<MatchJob[]> {
     const users = await this.redisPublisher.smembers('userPool');
     return users.map((user) => JSON.parse(user));
-  }
-
-   async storeMatch(matchId: string, matchData: MatchDetails, ttl: number = 1000): Promise<void> {
-    await this.redisPublisher.set(matchId, JSON.stringify(matchData), 'EX', ttl);
-  }
-
-  async getMatch(matchId: string): Promise<MatchDetails | null> {
-    const matchData = await this.redisPublisher.get(matchId);
-    if (matchData) {
-      return JSON.parse(matchData) as MatchDetails;
-    }
-    return null;
   }
 }

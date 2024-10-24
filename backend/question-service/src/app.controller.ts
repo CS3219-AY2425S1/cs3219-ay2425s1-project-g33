@@ -4,7 +4,6 @@ import { MessagePattern, Payload } from '@nestjs/microservices';
 import {
   CreateQuestionDto,
   FindQuestionBySlugDto,
-  GetQuestionsByPreferencesDto,
   GetQuestionsDto,
   UpdateQuestionDto,
 } from './dto';
@@ -50,14 +49,5 @@ export class AppController {
   @MessagePattern({cmd: 'get-categories'})
   async getCategories() {
     return this.appService.getCategories()
-  }
-
-  @MessagePattern({cmd: 'get-question-by-preferences'})
-  async getQuestionsByPreferences(@Payload() data: GetQuestionsByPreferencesDto) {
-    const { topics, difficulty } = data;
-    return this.appService.getQuestionsByPreferences(
-      topics,
-      difficulty,
-    );
   }
 }

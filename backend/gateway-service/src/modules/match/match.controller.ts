@@ -10,7 +10,7 @@ import { Socket, Server } from 'socket.io';
 import { ClientProxy } from '@nestjs/microservices';
 import { Inject } from '@nestjs/common';
 import { firstValueFrom } from 'rxjs';
-import { RedisMatchService } from './redis.service';
+import { RedisService } from './redis.service';
 import { v4 as uuidv4 } from 'uuid';
 import { MatchAcceptDto, MatchDeclineDto, MatchRequestDto } from './dto';
 import {
@@ -49,15 +49,14 @@ export class MatchGateway implements OnGatewayInit {
 
   constructor(
     @Inject('MATCHING_SERVICE') private matchingClient: ClientProxy,
-    @Inject('COLLABORATION_SERVICE') private collaborationClient: ClientProxy,
     @Inject('USER_SERVICE') private userClient: ClientProxy,
-    private redisService: RedisMatchService,
+    private redisService: RedisService,
   ) {}
 
   afterInit() {
     // Subscribe to Redis Pub/Sub for match notifications
-    this.redisService.subscribeToMatchEvents(({ matchId, matchedUserIds }) => {
-      this.notifyUsersWithMatch(matchId, matchedUserIds);
+    this.redisService.subscribeToMatchEvents((matchedUsers) => {
+      this.notifyUsersWithMatch(matchedUsers);
     });
 
     this.redisService.subscribeToTimeoutEvents((timedOutUsers) => {
@@ -173,23 +172,7 @@ export class MatchGateway implements OnGatewayInit {
 
     // Check if both participants have confirmed the match
     if (confirmations.size === 2) {
-      const matchDetails = await firstValueFrom(
-        this.matchingClient.send('match-details', { matchId }),
-      );
-      const sessionPayload = {
-        userIds: Array.from(participants),
-        difficulty: matchDetails.generatedDifficulty,
-        topics: matchDetails.generatedTopics,
-        question: matchDetails.selectedQuestionId,
-      }
-      const newSession = await firstValueFrom(
-        this.collaborationClient.send('createSession', sessionPayload),
-      );
-      const sessionId = newSession._id;
-      this.notifyUsersMatchConfirmed(sessionId, [...confirmations]);
-      // Clean up match participants and confirmations
-      this.matchConfirmations.delete(matchId);
-      this.matchParticipants.delete(matchId);
+      this.notifyUsersMatchConfirmed(matchId, [...confirmations]);
     } else {
       client.emit(MATCH_ACCEPTED, {
         message: 'Waiting for the other user to accept the match.',
@@ -233,7 +216,7 @@ export class MatchGateway implements OnGatewayInit {
   }
 
   // Notify both users when they are matched
-  async notifyUsersWithMatch(matchId: string, matchedUsers: string[]) {
+  async notifyUsersWithMatch(matchedUsers: string[]) {
     const [user1, user2] = matchedUsers;
     const user1SocketId = this.getUserSocketId(user1);
     const user2SocketId = this.getUserSocketId(user2);
@@ -247,6 +230,7 @@ export class MatchGateway implements OnGatewayInit {
     );
 
     if (user1SocketId && user2SocketId) {
+      const matchId = this.generateMatchId();
       this.server.to(user1SocketId).emit(MATCH_FOUND, {
         message: `You have found a match`,
         matchId,
@@ -266,7 +250,8 @@ export class MatchGateway implements OnGatewayInit {
   }
 
   // Notify both users when they both accept the match
-  private notifyUsersMatchConfirmed(sessionId: string, users: string[]) {
+  private notifyUsersMatchConfirmed(matchId: string, users: string[]) {
+    const sessionId = this.generateSessionId();
     users.forEach((user) => {
       const socketId = this.getUserSocketId(user);
       if (socketId) {
@@ -276,6 +261,10 @@ export class MatchGateway implements OnGatewayInit {
         });
       }
     });
+
+    // Clean up match participants and confirmations
+    this.matchConfirmations.delete(matchId);
+    this.matchParticipants.delete(matchId);
   }
 
   private notifyOtherUserMatchDeclined(
