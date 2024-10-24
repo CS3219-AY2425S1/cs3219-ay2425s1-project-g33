@@ -1,7 +1,7 @@
 import { Controller, Get } from '@nestjs/common';
 import { AppService } from './app.service';
 import { EventPattern, Payload, MessagePattern } from '@nestjs/microservices';
-import { CodeChangeDto } from './dto';
+import { CodeChangeDto, CreateSessionDto } from './dto';
 
 @Controller()
 export class AppController {
@@ -35,5 +35,17 @@ export class AppController {
     // Process the get code changes for room using the AppService
     const codeChanges = await this.appService.getCodeChangesForRoom(data.roomId);
     return codeChanges;
+  }
+
+  @MessagePattern('getSessionDetails')
+  async handleGetSessionDetails(@Payload() data: { sessionId: string }) {
+    // Process the get session details using the AppService
+    const sessionDetails = await this.appService.getSessionDetails(data.sessionId);
+    return sessionDetails;
+  }
+
+  @MessagePattern('createSession')
+  async handleCreateSession(@Payload() data: CreateSessionDto) {
+    return this.appService.createSession(data);
   }
 }

@@ -6,18 +6,9 @@ import { ClientsModule } from '@nestjs/microservices';
 import { MatchWorkerService } from './match-worker.service';
 import { RedisService } from './redis.service';
 import { config } from 'src/configs';
-import { MongooseModule } from '@nestjs/mongoose';
-import { MatchHistorySchema } from './schema/match-history.schema';
 
 @Module({
   imports: [
-    MongooseModule.forRoot(config.mongo.connectionString),
-    MongooseModule.forFeature([
-      {
-        name: 'MatchHistory',
-        schema: MatchHistorySchema,
-      },
-    ]),
     BullModule.forRoot({
       redis: {
         host: config.redis.host,
@@ -34,6 +25,16 @@ import { MatchHistorySchema } from './schema/match-history.schema';
         options: {
           host: config.userService.host,
           port: config.userService.port,
+        },
+      },
+    ]),
+    ClientsModule.register([
+      {
+        name: 'QUESTION_SERVICE',
+        transport: config.questionService.transport,
+        options: {
+          host: config.questionService.host,
+          port: config.questionService.port,
         },
       },
     ]),

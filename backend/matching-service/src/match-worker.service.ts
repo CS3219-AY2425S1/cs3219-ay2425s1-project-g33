@@ -1,11 +1,15 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { MatchRequestDto } from './dto';
 import { RedisService } from './redis.service';
 import { AppService } from './app.service';
+import { v4 as uuidv4 } from 'uuid';
+import { MatchDetails } from './interfaces';
+import { ClientProxy } from '@nestjs/microservices';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable()
 export class MatchWorkerService {
-  constructor(private readonly redisService: RedisService, private readonly appService: AppService) {}
+  constructor(private readonly redisService: RedisService, private readonly appService: AppService, @Inject('QUESTION_SERVICE') private readonly questionClient: ClientProxy,) {}
 
   private INTERNAL_TIMEOUT = 300000; // 5 minutes
   private CHECK_INTERVAL = 5000; // 5 seconds
@@ -35,17 +39,14 @@ export class MatchWorkerService {
       }
 
       if (activeUsers.length >= 2) {
-        const matches = this.rankUsers(activeUsers);
+        const matches = await this.rankUsers(activeUsers);
         const bestMatch = matches[0];
+        const matchId = uuidv4()
 
-        const newMatchDocument = await this.appService.createMatchHistoryDocument({
-          userIds: [bestMatch.user1.userId, bestMatch.user2.userId],
-          topicPreference: bestMatch.generatedTopic,
-          difficultyPreference: bestMatch.generatedDifficulty,
-        });
+        await this.redisService.storeMatch(matchId, bestMatch);
 
         // Notify the gateway via Redis Pub/Sub
-        await this.notifyGateway({matchId: newMatchDocument._id.toString(), matchedUserIds: [bestMatch.user1.userId, bestMatch.user2.userId]});
+        await this.notifyGateway({matchId: matchId, matchedUserIds: [bestMatch.user1.userId, bestMatch.user2.userId]});
 
         // Remove the matched users from the Redis pool
         await this.redisService.removeUsersFromPool([
@@ -59,15 +60,24 @@ export class MatchWorkerService {
   }
 
   // Ranking logic for matches
-  private rankUsers(
+  private async rankUsers(
     users: MatchRequestDto[],
-  ): { user1: MatchRequestDto; user2: MatchRequestDto; score: number, generatedTopic: string[]; generatedDifficulty: string }[] {
-    const matches = [];
+  ): Promise<MatchDetails[]> {
+    const matches: MatchDetails[] = [];
     for (let i = 0; i < users.length; i++) {
       for (let j = i + 1; j < users.length; j++) {
         const { topics, difficulty } = this.generateMatchAttributes(users[i], users[j]);
         const score = this.calculateScore(users[i], users[j]);
-        matches.push({ user1: users[i], user2: users[j], score, generatedTopic: topics, generatedDifficulty: difficulty });
+        const selectedQuestion = await this.generateQuestion(topics, difficulty);
+        const match: MatchDetails = {
+          user1: users[i],
+          user2: users[j],
+          score,
+          generatedTopics: topics,
+          generatedDifficulty: difficulty,
+          selectedQuestionId: selectedQuestion._id
+        };
+        matches.push(match);
       }
     }
     return matches.sort((a, b) => b.score - a.score);
@@ -86,6 +96,14 @@ export class MatchWorkerService {
       score += 1;
     }
     return score;
+  }
+
+  private async generateQuestion(
+    topics: string[],
+    difficulty: string,
+  ) {
+    const questions = await firstValueFrom(this.questionClient.send({cmd: 'get-question-by-preferences'}, {difficulty, topics}));
+    return questions[0];
   }
 
   private generateMatchAttributes(

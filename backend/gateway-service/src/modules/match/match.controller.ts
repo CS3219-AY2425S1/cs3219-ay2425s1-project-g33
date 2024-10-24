@@ -49,6 +49,7 @@ export class MatchGateway implements OnGatewayInit {
 
   constructor(
     @Inject('MATCHING_SERVICE') private matchingClient: ClientProxy,
+    @Inject('COLLABORATION_SERVICE') private collaborationClient: ClientProxy,
     @Inject('USER_SERVICE') private userClient: ClientProxy,
     private redisService: RedisMatchService,
   ) {}
@@ -56,7 +57,7 @@ export class MatchGateway implements OnGatewayInit {
   afterInit() {
     // Subscribe to Redis Pub/Sub for match notifications
     this.redisService.subscribeToMatchEvents(({ matchId, matchedUserIds }) => {
-      this.notifyUsersWithMatch(matchId, matchedUserIds );
+      this.notifyUsersWithMatch(matchId, matchedUserIds);
     });
 
     this.redisService.subscribeToTimeoutEvents((timedOutUsers) => {
@@ -172,9 +173,20 @@ export class MatchGateway implements OnGatewayInit {
 
     // Check if both participants have confirmed the match
     if (confirmations.size === 2) {
-      const sessionId = this.generateSessionId();
+      const matchDetails = await firstValueFrom(
+        this.matchingClient.send('match-details', { matchId }),
+      );
+      const sessionPayload = {
+        userIds: Array.from(participants),
+        difficulty: matchDetails.generatedDifficulty,
+        topics: matchDetails.generatedTopics,
+        question: matchDetails.selectedQuestionId,
+      }
+      const newSession = await firstValueFrom(
+        this.collaborationClient.send('createSession', sessionPayload),
+      );
+      const sessionId = newSession._id;
       this.notifyUsersMatchConfirmed(sessionId, [...confirmations]);
-      this.matchingClient.emit('match-confirmed', { matchId, sessionId });
       // Clean up match participants and confirmations
       this.matchConfirmations.delete(matchId);
       this.matchParticipants.delete(matchId);
@@ -218,7 +230,6 @@ export class MatchGateway implements OnGatewayInit {
       message: 'You have declined the match.',
       isDecliningUser: true,
     });
-    this.matchingClient.emit('match-declined', { matchId });
   }
 
   // Notify both users when they are matched
@@ -264,7 +275,7 @@ export class MatchGateway implements OnGatewayInit {
           sessionId,
         });
       }
-    })
+    });
   }
 
   private notifyOtherUserMatchDeclined(

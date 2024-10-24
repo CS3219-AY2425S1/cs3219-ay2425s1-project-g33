@@ -1,14 +1,20 @@
 import { Injectable } from '@nestjs/common';
 import { RedisService } from './redis.service';
 import { CodeChangeEvent } from './interfaces';
-import { appendCodeChangeEvent, checkRoomExists, initialiseRoom, readEventsForRoom } from './event-handler';
+import {
+  appendCodeChangeEvent,
+  checkRoomExists,
+  initialiseRoom,
+  readEventsForRoom,
+} from './event-handler';
 import { v4 as uuidv4 } from 'uuid';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
 import { CollabSession } from './schema/collab-session.schema';
-import { CodeChangeDto } from './dto';
+import { CodeChangeDto, CreateSessionDto } from './dto';
 import { OTEngineService } from './ot-engine.service';
 import { CollabEventSnapshot } from './schema/collab-event.schema';
+import { RpcException } from '@nestjs/microservices';
 
 @Injectable()
 export class AppService {
@@ -53,11 +59,11 @@ export class AppService {
       // If user already exists in the session, do nothing (likely rejoined)
       const userExists = session.userIds.some((id) => id === userId);
       if (!userExists) {
-      await this.sessionModel.updateOne(
-        { roomId },
-        { $addToSet: { userIds: userId } },
-      );
-    }
+        await this.sessionModel.updateOne(
+          { roomId },
+          { $addToSet: { userIds: userId } },
+        );
+      }
     }
 
     // Event store
@@ -88,9 +94,7 @@ export class AppService {
     };
     // If a snapshot already exists, update it
     if (latestSnapshot) {
-      await this.collabEventSnapshotModel.updateOne(
-        payload
-      );
+      await this.collabEventSnapshotModel.updateOne(payload);
     } else {
       // If no snapshot exists, create a new one
       const snapshot = new this.collabEventSnapshotModel(payload);
@@ -106,5 +110,32 @@ export class AppService {
       documentState = this.otEngine.applyOperation(documentState, event);
     }
     return documentState;
+  }
+
+  async getSessionDetails(sessionId: string): Promise<CollabSession> {
+    try {
+      const session = await this.sessionModel.findOne({ _id: sessionId }).exec();
+      if (!session) {
+        throw new RpcException('Session not found');
+      }
+      return session;
+    } catch (error) {
+      throw new RpcException(`Failed to get session details: ${error.message}`);
+    }
+  }
+
+  async createSession(data: CreateSessionDto): Promise<CollabSession> {
+    try {
+      const newSession = new this.sessionModel({
+        userIds: data.userIds,
+        difficultyPreference: data.difficulty,
+        topicPreference: data.topics,
+        questionId: data.question
+      });
+      await newSession.save();
+      return newSession;
+    } catch (error) {
+      throw new RpcException(`Failed to create session: ${error.message}`);
+    }
   }
 }
