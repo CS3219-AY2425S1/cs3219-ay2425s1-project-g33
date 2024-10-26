@@ -87,7 +87,7 @@ export class MatchGateway implements OnGatewayInit {
 
     try {
       const result = await firstValueFrom(
-        this.matchingClient.send('match-request', payload),
+        this.matchingClient.send({ cmd: 'match-request' }, payload),
       );
 
       if (result.success) {
@@ -120,7 +120,7 @@ export class MatchGateway implements OnGatewayInit {
 
     try {
       const result = await firstValueFrom(
-        this.matchingClient.send('match-cancel', { userId: userId }),
+        this.matchingClient.send({ cmd: 'match-cancel' }, { userId: userId }),
       );
 
       if (result.success) {
@@ -174,7 +174,7 @@ export class MatchGateway implements OnGatewayInit {
     // Check if both participants have confirmed the match
     if (confirmations.size === 2) {
       const matchDetails = await firstValueFrom(
-        this.matchingClient.send('match-details', { matchId }),
+        this.matchingClient.send({ cmd: 'match-details' }, { matchId }),
       );
       const sessionPayload = {
         userIds: Array.from(participants),
@@ -187,6 +187,7 @@ export class MatchGateway implements OnGatewayInit {
       );
       const sessionId = newSession._id;
       this.notifyUsersMatchConfirmed(sessionId, [...confirmations]);
+
       // Clean up match participants and confirmations
       this.matchConfirmations.delete(matchId);
       this.matchParticipants.delete(matchId);
@@ -365,7 +366,7 @@ export class MatchGateway implements OnGatewayInit {
     try {
       // Remove user from Redis pool
       const result = await firstValueFrom(
-        this.matchingClient.send('match-cancel', { userId }),
+        this.matchingClient.send({ cmd: 'match-cancel' }, { userId }),
       );
 
       if (result.success) {
@@ -402,15 +403,6 @@ export class MatchGateway implements OnGatewayInit {
 
   private getUserSocketId(userId: string): string | undefined {
     return this.userSockets.get(userId);
-  }
-
-  private generateMatchId(): string {
-    return uuidv4();
-  }
-
-  // TODO - to be replaced with colab method in the future
-  private generateSessionId(): string {
-    return uuidv4();
   }
 
   private emitExceptionAndDisconnect(client: Socket, message: string) {

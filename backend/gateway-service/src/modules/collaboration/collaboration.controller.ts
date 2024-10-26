@@ -1,5 +1,6 @@
 import {
   Controller,
+  ForbiddenException,
   Get,
   Inject,
   Param,
@@ -13,7 +14,6 @@ import {
 } from '@nestjs/swagger';
 import { ClientProxy } from '@nestjs/microservices';
 import { GetCollabSessionDto } from './dto';
-import { plainToInstance } from 'class-transformer';
 import { firstValueFrom } from 'rxjs';
 import { GetCurrentUserId } from 'src/common/decorators';
 
@@ -45,6 +45,10 @@ export class CollaborationController {
       ),
     );
 
+    if (sessionDetails.status !== 'active') {
+      throw new ForbiddenException('Session is not currently active');
+    }
+
     // Check if the current user is in the session's userIds array
     if (!sessionDetails.userIds.includes(currentUserId)) {
       throw new UnauthorizedException(
@@ -54,9 +58,9 @@ export class CollaborationController {
 
     const { _id, ...sessionDetail } = sessionDetails;
 
-    return plainToInstance(GetCollabSessionDto, {
+    return {
       id: _id,
       ...sessionDetail,
-    });
+    };
   }
 }

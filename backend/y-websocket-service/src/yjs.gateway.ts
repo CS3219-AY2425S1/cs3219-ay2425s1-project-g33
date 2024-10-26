@@ -47,15 +47,13 @@ export class YjsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
       console.log('Session ID:', sessionId, 'User ID:', userId);
 
-      const sessionDetails = await this.verifySessionAndUser(sessionId, userId);
-      if (!sessionDetails) {
-        console.error(
-          'Invalid session or the user is not a participant of the session',
-        );
-        client.close(
-          1008,
-          'Invalid session or the user is not a participant of the session',
-        );
+      const sessionDetails = await this.validateSessionDetails(
+        sessionId,
+        userId,
+      );
+      if (!sessionDetails.isValid) {
+        console.error(sessionDetails.message);
+        client.close(1008, sessionDetails.message);
         return;
       }
 
@@ -79,7 +77,7 @@ export class YjsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     console.log('Client disconnected');
   }
 
-  private async verifySessionAndUser(sessionId: string, userId: string) {
+  private async validateSessionDetails(sessionId: string, userId: string) {
     try {
       const payload = { id: sessionId };
       const sessionDetails = await firstValueFrom(
@@ -90,12 +88,29 @@ export class YjsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       );
 
       if (!sessionDetails || !sessionDetails.userIds.includes(userId)) {
-        return null;
+        return {
+          isValid: false,
+          message:
+            'Invalid session or the user is not a participant of the session',
+        };
       }
 
-      return sessionDetails;
+      if (sessionDetails.status !== 'active') {
+        return {
+          isValid: false,
+          message: 'Session is not currently active',
+        };
+      }
+
+      return {
+        isValid: true,
+        message: 'Session details are validated',
+      };
     } catch (error) {
-      return null;
+      return {
+        isValid: false,
+        message: 'Error validating session details',
+      };
     }
   }
 }

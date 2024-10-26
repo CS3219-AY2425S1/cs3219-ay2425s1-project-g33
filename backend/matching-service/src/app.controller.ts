@@ -7,17 +7,17 @@ import { MatchRequestDto } from './dto';
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  @MessagePattern('match-request')
+  @MessagePattern({ cmd: 'match-request' })
   async handleMatchRequest(@Payload() data: MatchRequestDto) {
     return this.appService.requestMatch(data);
   }
 
-  @MessagePattern('match-cancel')
+  @MessagePattern({ cmd: 'match-cancel' })
   async handleMatchCancel(@Payload() data: { userId: string }) {
     return this.appService.cancelMatch(data.userId);
   }
 
-  @MessagePattern('match-details')
+  @MessagePattern({ cmd: 'match-details' })
   async handleMatchDetails(@Payload() data: { matchId: string }) {
     return this.appService.getMatchDetails(data.matchId);
   }
