@@ -1,10 +1,9 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { MicroserviceOptions } from '@nestjs/microservices';
-import { config } from 'src/configs';
-import { connect as connectToEventStore } from './services/event-store.service';
 import * as dotenv from 'dotenv';
-import { RoomWorkerService } from './services/room-worker.service';
+import { config } from './configs';
+import { ValidationPipe } from '@nestjs/common';
 
 dotenv.config();
 
@@ -19,9 +18,16 @@ async function bootstrap() {
       },
     },
   );
-  await connectToEventStore();
-  const roomWorker = app.get(RoomWorkerService);
-  roomWorker.pollForRooms();
+
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+      transformOptions: { enableImplicitConversion: true },
+      whitelist: true,
+      forbidNonWhitelisted: true,
+    }),
+  );
+
   await app.listen();
   console.log(
     'Collaboration Service is listening on port',

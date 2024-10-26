@@ -1,194 +1,62 @@
 import {
-  WebSocketGateway,
-  WebSocketServer,
-  SubscribeMessage,
-  ConnectedSocket,
-  MessageBody,
-  OnGatewayInit,
-} from '@nestjs/websockets';
-import { Socket, Server } from 'socket.io';
+  Controller,
+  Get,
+  Inject,
+  Param,
+  UnauthorizedException,
+} from '@nestjs/common';
+import {
+  ApiBadRequestResponse,
+  ApiBearerAuth,
+  ApiOkResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { ClientProxy } from '@nestjs/microservices';
-import { Inject } from '@nestjs/common';
+import { GetCollabSessionDto } from './dto';
+import { plainToInstance } from 'class-transformer';
 import { firstValueFrom } from 'rxjs';
-import { RedisCollaborationService } from './redis.service';
-import {
-  EXCEPTION,
-  CONNECTED,
-  JOINED_ROOM,
-  LEFT_ROOM,
-  CODE_CHANGED,
-  CODE_CHANGES_FOR_ROOM,
-} from './collaboration.event';
-import {
-  LEAVE_ROOM,
-  CHANGE_CODE,
-  GET_CODE_CHANGES,
-} from './collaboration.message';
-import { CodeChangeEvent } from './interfaces';
-import { CodeChangeDto } from './dto';
+import { GetCurrentUserId } from 'src/common/decorators';
 
-@WebSocketGateway({
-  namespace: '/collaboration',
-  cors: {
-    origin: '*',
-    methods: ['GET', 'POST'],
-    allowedHeaders: ['Content-Type', 'Accept'],
-    credentials: true,
-  },
-})
-export class CollaborationGateway implements OnGatewayInit {
-  @WebSocketServer() server: Server;
-  private userSockets: Map<string, string> = new Map();
-
+@ApiTags('collaboration')
+@ApiBearerAuth('access-token')
+@Controller('collaboration')
+export class CollaborationController {
   constructor(
-    @Inject('COLLABORATION_SERVICE') private collaborationClient: ClientProxy,
-    @Inject('USER_SERVICE') private userClient: ClientProxy,
-    private redisService: RedisCollaborationService,
+    @Inject('COLLABORATION_SERVICE')
+    private readonly collaborationClient: ClientProxy,
   ) {}
 
-  afterInit() {
-    // Subscribe to Redis Pub/Sub for collaboration notifications
-    this.redisService.subscribeToCollaborationEvents((matchedUsers) => {
-      {
-      }
-    });
-  }
-
-  @SubscribeMessage(LEAVE_ROOM)
-  async handleLeaveRoom(@ConnectedSocket() client: Socket) {
-    const userId = client.handshake.query.userId as string;
-    const roomId = client.handshake.query.roomId as string;
-    client.leave(roomId);
-    this.collaborationClient.emit('remove-user-from-room', { roomId, userId });
-    client.emit(LEFT_ROOM);
-  }
-
-  @SubscribeMessage(CHANGE_CODE)
-  handleCodeChange(
-    @ConnectedSocket() client: Socket,
-    @MessageBody() data: CodeChangeDto,
-  ): void {
-    const userId = client.handshake.query.userId as string;
-    const roomId = client.handshake.query.roomId as string;
-    const { operationType, position, text } = data;
-    if (!operationType || position < 0 || !text) {
-      client.emit(EXCEPTION, 'Invalid change code payload.');
-      return;
-    }
-    const payload = {
-      roomId,
-      userId,
-      operationType,
-      position,
-      text,
-    };
-    this.collaborationClient.emit('change-code', payload);
-    client.emit(CODE_CHANGED, payload);
-  }
-
-  @SubscribeMessage(GET_CODE_CHANGES)
-  async handleGetCodeChangesForRoom(
-    @ConnectedSocket() client: Socket,
-  ): Promise<CodeChangeEvent[]> {
-    const roomId = client.handshake.query.roomId as string;
-    const codeChanges = await firstValueFrom(
-      this.collaborationClient.send('get-code-changes-for-room', { roomId }),
+  // Get session details by id
+  @Get(':id')
+  @ApiOkResponse({
+    description: 'Get session details by session ID successfully',
+  })
+  @ApiBadRequestResponse({ description: 'Invalid session ID' })
+  async getSessionDetailsById(
+    @GetCurrentUserId() currentUserId,
+    @Param('id') id: string,
+  ) {
+    console.log('[gateway] Attempt to get session details by ID', id);
+    const payload: GetCollabSessionDto = { id };
+    const sessionDetails = await firstValueFrom(
+      this.collaborationClient.send(
+        { cmd: 'get-session-details-by-id' },
+        payload,
+      ),
     );
-    client.emit(CODE_CHANGES_FOR_ROOM, codeChanges);
-    return codeChanges;
-  }
 
-  async handleConnection(@ConnectedSocket() client: Socket) {
-    const userId = client.handshake.query.userId as string;
-    const roomId = client.handshake.query.roomId as string;
-
-    if (!userId) {
-      this.emitExceptionAndDisconnect(client, 'Invalid userId.');
-      return;
-    }
-
-    if (!roomId) {
-      this.emitExceptionAndDisconnect(client, 'Invalid roomId.');
-      return;
-    }
-
-    try {
-      const existingSocketId = this.userSockets.get(userId);
-      if (existingSocketId && existingSocketId !== client.id) {
-        this.emitExceptionAndDisconnect(
-          client,
-          `User ${userId} is already connected with socket ID ${existingSocketId}`,
-        );
-        return;
-      }
-
-      const existingUser = await firstValueFrom(
-        this.userClient.send({ cmd: 'get-user-by-id' }, userId),
-      );
-
-      if (!existingUser) {
-        this.emitExceptionAndDisconnect(client, `User ${userId} not found.`);
-        return;
-      }
-
-      this.userSockets.set(userId, client.id);
-      client.emit(CONNECTED, {
-        message: `User ${userId} connected with socket ID ${client.id}`,
-      });
-
-      client.join(roomId);
-      this.collaborationClient.emit('add-user-to-room', { roomId, userId });
-      client.emit(JOINED_ROOM, {
-        message: `User ${userId} connected with socket ID ${client.id} and joined room ${roomId}`,
-      });
-
-      console.log(
-        `User ${userId} connected and joined room ${roomId} with socket ID ${client.id}`,
-      );
-    } catch (error) {
-      this.emitExceptionAndDisconnect(client, error.message);
-      return;
-    }
-  }
-
-  async handleDisconnect(@ConnectedSocket() client: Socket) {
-    const userId = [...this.userSockets.entries()].find(
-      ([, socketId]) => socketId === client.id,
-    )?.[0];
-
-    if (!userId) {
-      this.emitExceptionAndDisconnect(
-        client,
-        'User not found in userSockets at disconnect.',
-      );
-      return;
-    }
-    try {
-      const roomId = client.handshake.query.roomId as string;
-
-      if (roomId) {
-        // Remove user from Redis room pool (or your real-time tracking system)
-        this.collaborationClient.emit('remove-user-from-room', {
-          roomId,
-          userId,
-        });
-
-        // Optionally notify other users in the room that the user has disconnected
-        this.server.to(roomId).emit('userLeft', { roomId, userId });
-      }
-      // Remove user from userSockets
-      this.userSockets.delete(userId);
-      console.log(`User ${userId} disconnected and removed from userSockets.`);
-    } catch (error) {
-      client.emit(
-        EXCEPTION,
-        `Error disconnecting user ${userId}: ${error.message}`,
+    // Check if the current user is in the session's userIds array
+    if (!sessionDetails.userIds.includes(currentUserId)) {
+      throw new UnauthorizedException(
+        'You are not a participant to the given session',
       );
     }
-  }
 
-  private emitExceptionAndDisconnect(client: Socket, message: string) {
-    client.emit(EXCEPTION, `Error: ${message}`);
-    client.disconnect();
+    const { _id, ...sessionDetail } = sessionDetails;
+
+    return plainToInstance(GetCollabSessionDto, {
+      id: _id,
+      ...sessionDetail,
+    });
   }
 }

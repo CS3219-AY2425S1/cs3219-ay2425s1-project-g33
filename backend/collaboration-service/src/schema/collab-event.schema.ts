@@ -4,7 +4,7 @@ import { Document } from 'mongoose';
 @Schema({ collection: 'collab-events', versionKey: false, timestamps: true })
 export class CollabEventSnapshot extends Document {
   @Prop({ required: true })
-  roomId: string;
+  sessionId: string;
 
   @Prop({ required: true })
   documentState: string;

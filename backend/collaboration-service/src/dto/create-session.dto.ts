@@ -7,8 +7,8 @@ export class CreateSessionDto {
 
   @IsArray()
   @IsNotEmpty()
-  topics: string[]
-  
+  topics: string[];
+
   @IsString()
   @IsNotEmpty()
   difficulty: string;

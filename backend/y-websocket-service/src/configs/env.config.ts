@@ -12,18 +12,13 @@ function getEnvVar(name: string): string {
 }
 
 export const config = {
+  ywebsocket: {
+    port: parseInt(getEnvVar('Y_WEBSOCKET_PORT')),
+  },
   collaborationService: {
     port: parseInt(getEnvVar('COLLABORATION_SERVICE_PORT')),
     host: getEnvVar('COLLABORATION_SERVICE_HOST'),
     transport:
       Transport[getEnvVar('COLLABORATION_SERVICE_TRANSPORT')] || Transport.TCP,
-  },
-  userService: {
-    port: parseInt(getEnvVar('USER_SERVICE_PORT')),
-    host: getEnvVar('USER_SERVICE_HOST'),
-    transport: Transport[getEnvVar('USER_SERVICE_TRANSPORT')] || Transport.TCP,
-  },
-  mongo: {
-    connectionString: getEnvVar('MONGO_CONNECTION_STRING'),
   },
 };

@@ -181,9 +181,9 @@ export class MatchGateway implements OnGatewayInit {
         difficulty: matchDetails.generatedDifficulty,
         topics: matchDetails.generatedTopics,
         question: matchDetails.selectedQuestionId,
-      }
+      };
       const newSession = await firstValueFrom(
-        this.collaborationClient.send('createSession', sessionPayload),
+        this.collaborationClient.send('create-session', sessionPayload),
       );
       const sessionId = newSession._id;
       this.notifyUsersMatchConfirmed(sessionId, [...confirmations]);

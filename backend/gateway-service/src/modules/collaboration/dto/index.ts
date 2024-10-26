@@ -1,1 +1,1 @@
-export { CodeChangeDto } from './code-change.dto';
+export { GetCollabSessionDto } from './get-collab-session.dto';
