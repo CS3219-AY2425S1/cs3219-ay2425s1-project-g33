@@ -29,6 +29,7 @@
     "reflect-metadata": "^0.2.0",
     "rxjs": "^7.8.1",
     "ws": "^8.18.0",
+    "y-mongodb-provider": "^0.2.0",
     "y-websocket": "^1.5.4",
     "yjs": "^13.6.20"
   },

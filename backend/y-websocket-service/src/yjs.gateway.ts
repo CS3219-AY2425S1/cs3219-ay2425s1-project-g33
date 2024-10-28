@@ -6,10 +6,12 @@ import {
 } from '@nestjs/websockets';
 import { Server } from 'ws';
 import * as Y from 'yjs';
-import { setupWSConnection } from 'y-websocket/bin/utils';
+import { yUtils } from 'y-websocket/bin/utils';
 import { Inject } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
+import { config } from './configs';
+import { MongodbPersistence } from 'y-mongodb-provider';
 
 @WebSocketGateway({
   path: '/yjs',
@@ -57,14 +59,9 @@ export class YjsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         return;
       }
 
-      let doc = this.documents.get(sessionId);
-      if (!doc) {
-        console.log(`Creating a new document for session ID: ${sessionId}`);
-        doc = new Y.Doc();
-        this.documents.set(sessionId, doc);
-      }
+      this.setupPersistence(sessionId);
 
-      setupWSConnection(client, request, { doc });
+      yUtils.setupWSConnection(client, request, { docName: sessionId });
 
       client.send(`Connected to y-websocket via session: ${sessionId}`);
     } catch (error) {
@@ -74,7 +71,7 @@ export class YjsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   handleDisconnect(client: any) {
-    console.log('Client disconnected');
+    client.close('Connection closed');
   }
 
   private async validateSessionDetails(sessionId: string, userId: string) {
@@ -112,5 +109,43 @@ export class YjsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         message: 'Error validating session details',
       };
     }
+  }
+
+  private setupPersistence(docName: string) {
+    const mongoPersistence = new MongodbPersistence(
+      config.mongo.connectionString,
+      {
+        collectionName: 'yjs-documents',
+        flushSize: 100,
+        multipleCollections: false,
+      },
+    );
+
+    yUtils.setPersistence({
+      bindState: async (docName, ydoc) => {
+        const persistedYdoc = await mongoPersistence.getYDoc(docName);
+        const persistedStateVector = Y.encodeStateVector(persistedYdoc);
+
+        const diff = Y.encodeStateAsUpdate(ydoc, persistedStateVector);
+        if (
+          diff.reduce(
+            (previousValue, currentValue) => previousValue + currentValue,
+            0,
+          ) > 0
+        ) {
+          mongoPersistence.storeUpdate(docName, diff);
+        }
+
+        Y.applyUpdate(ydoc, Y.encodeStateAsUpdate(persistedYdoc));
+        ydoc.on('update', async (update) => {
+          mongoPersistence.storeUpdate(docName, update);
+        });
+
+        persistedYdoc.destroy();
+      },
+      writeState: async (docName, ydoc) => {
+        await mongoPersistence.flushDocument(docName);
+      },
+    });
   }
 }

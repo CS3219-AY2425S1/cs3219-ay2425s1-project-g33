@@ -12,6 +12,9 @@ function getEnvVar(name: string): string {
 }
 
 export const config = {
+  mongo: {
+    connectionString: getEnvVar('MONGO_CONNECTION_STRING'),
+  },
   ywebsocket: {
     port: parseInt(getEnvVar('Y_WEBSOCKET_PORT')),
   },
