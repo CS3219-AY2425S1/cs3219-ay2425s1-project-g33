@@ -4,6 +4,8 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: frontend-service
+    env_file:
+      - .env
     volumes:
       - .:/app
       - /app/node_modules
