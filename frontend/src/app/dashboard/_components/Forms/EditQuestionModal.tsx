@@ -12,8 +12,8 @@ import React, { PropsWithChildren, useCallback, useContext } from "react";
 
 import MultiBadgeSelectInput from "@/components/form/MultiBadgeSelect";
 import { RadioGroupInput } from "@/components/form/RadioGroupInput";
-import { TextAreaInput } from "@/components/form/TextAreaInput";
 import { TextInput } from "@/components/form/TextInput";
+import QuillEditor from "@/components/form/QuillEditor";
 import { editQuestion } from "@/services/questionService";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -128,10 +128,9 @@ export function EditQuestionModal({
                   label: category,
                 }))}
               />
-              <TextAreaInput
-                label="Problem Description"
-                name="description"
-                placeholder="Type your description here"
+              <QuillEditor
+                value={form.watch('description')}
+                onChange={(value) => form.setValue('description', value)}
               />
               <Button className="self-center" type="submit">
                 {form.formState.isSubmitting

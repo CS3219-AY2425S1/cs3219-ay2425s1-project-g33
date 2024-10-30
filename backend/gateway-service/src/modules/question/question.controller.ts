@@ -53,13 +53,14 @@ export class QuestionController {
   }
 
   // Get question details by slug
-  @Get(':slug')
-  @ApiOkResponse({ description: 'Get question details by slug successfully' })
-  @ApiBadRequestResponse({ description: 'Invalid slug' })
-  getQuestionDetailsBySlug(@Param('slug') slug: string) {
-    const payload: FindQuestionBySlugDto = { slug };
-    return this.questionClient.send({ cmd: 'get-question-by-slug' }, payload);
-  }
+  // @Get(':slug')
+  // @ApiOkResponse({ description: 'Get question details by slug successfully' })
+  // @ApiBadRequestResponse({ description: 'Invalid slug' })
+  // getQuestionDetailsBySlug(@Param('slug') slug: string) {
+  //   const payload: FindQuestionBySlugDto = { slug };
+  //   console.log(payload)
+  //   return this.questionClient.send({ cmd: 'get-question-by-slug' }, payload);
+  // }
 
   // Get question by id
   @Get(':id')

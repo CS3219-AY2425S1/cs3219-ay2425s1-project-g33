@@ -77,9 +77,8 @@ export class AppService {
 
   async getQuestionById(id: string): Promise<Question> {
     const question = await this.questionModel
-      .findOne({ _id: new Types.ObjectId(id) })
+      .findById(id)
       .exec();
-
     if (!question) {
       throw new RpcException('Question not found');
     }
