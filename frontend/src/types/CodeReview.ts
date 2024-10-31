@@ -2,8 +2,8 @@ import { z } from "zod";
 import { createResponseSchema } from "./Response";
 
 export const CodeReviewSchema = z.object({
-  header: z.string(),
   body: z.string(),
+  codeSuggestion: z.string(),
 });
 
 export const CodeReviewResponseSchema =

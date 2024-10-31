@@ -1,4 +1,4 @@
 export interface CodeReviewResult {
-  header: string,
   body: string,
+  codeSuggestion: string
 }

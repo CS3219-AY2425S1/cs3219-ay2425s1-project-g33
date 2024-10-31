@@ -3,6 +3,7 @@
 import { createContext, useContext, useState, useMemo, useCallback } from "react";
 import { UserProfile } from "@/types/User";
 import { createCodeReview } from "@/services/collaborationService";
+import { CodeReview } from "@/types/CodeReview";
 
 interface SessionContextType {
   sessionId: string;
@@ -12,11 +13,9 @@ interface SessionContextType {
   codeReview: {
     isGeneratingCodeReview: boolean;
     currentClientCode: string;
+    hasCodeReviewResults: boolean;
     setCurrentClientCode: (code: string) => void;
-    codeReviewResult: {
-      header: string;
-      body: string;
-    };
+    codeReviewResult: CodeReview;
     generateCodeReview: () => void;
   };
 }
@@ -29,9 +28,10 @@ export const CodeProvider: React.FC<{ children: React.ReactNode; initialUserProf
   const [codeReview, setCodeReview] = useState({
     isGeneratingCodeReview: false,
     currentClientCode: "",
+    hasCodeReviewResults: false,
     codeReviewResult: {
-      header: "No code review available",
       body: "",
+      codeSuggestion: "",
     },
   });
 
@@ -49,18 +49,11 @@ export const CodeProvider: React.FC<{ children: React.ReactNode; initialUserProf
       if (response.statusCode !== 200) {
         throw new Error(response.message);
       }
-      setCodeReview((prev) => ({ ...prev, codeReviewResult: response.data }));
+      setCodeReview((prev) => ({ ...prev, codeReviewResult: response.data, hasCodeReviewResults: true }));
     } catch (error) {
       console.error("Code review generation failed:", error);
-      setCodeReview((prev) => ({
-        ...prev,
-        codeReviewResult: {
-          header: "Code review generation failed",
-          body: "",
-        },
-      }));
     } finally {
-      setCodeReview((prev) => ({ ...prev, isGeneratingCodeReview: false}));
+      setCodeReview((prev) => ({ ...prev, isGeneratingCodeReview: false }));
     }
   }, [codeReview.currentClientCode, sessionId]);
 

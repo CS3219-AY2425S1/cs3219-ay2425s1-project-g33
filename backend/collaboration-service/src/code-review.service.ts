@@ -37,16 +37,30 @@ export class CodeReviewService {
     if (!question) {
       throw new RpcException('Unable to retrieve code review');
     }
-    
+    // Alternatively for structured output, can consider using langchain
+    // In general, LLMs are very sensitive to spacing in inputs as they are formatted as \n and will literally take the input as is. Thus, it is important to ensure that the input is formatted correctly.
     const params: OpenAI.Chat.ChatCompletionCreateParams = {
       messages: [
         {
           role: 'system',
-          content: `You are an expert AI code reviewer. Your task is to analyze and provide specific, actionable feedback on the following code. Identify any potential issues, explain errors clearly, suggest improvements, and highlight best practices. Focus on readability, performance, maintainability, and adherence to coding standards. The results must be provided in markdown format`,
+          content: `
+You are an expert AI code reviewer. Carefully analyze the provided code and respond in the following structured format. Follow the format and content guidelines for each section strictly.
+
+### Body
+Provide a comprehensive overview of the code's strengths and weaknesses, followed by specific, actionable recommendations. Focus on readability, performance, maintainability, and adherence to best practices. This section should contain **only explanations** with **no code snippets** or inline code examples. This section should be formatted properly in Markdown for readability.
+
+### Code Suggestions
+Provide a single, complete code block that incorporates all recommended changes from the Body section. Do not include any additional text, explanations, or comments—**only the revised code**. Be sure to use the same programming language as in the specified code. Use the following Markdown format:
+\`\`\`
+// Complete, revised code here
+\`\`\`
+
+Respond with these exact headings and structure. The Body section should contain only explanations, while the Code Suggestions section should contain one cohesive code block that includes all recommendations.
+  `
         },
         {
           role: 'system',
-          content: `The question or task description is: "${question.text}". Take this into account while reviewing the code.`,
+          content: `The question title is: "${question.title}". The question description in markdown format is as such "${question.description}". Take this into account while reviewing the code.`,
         },
         {
           role: 'user',
@@ -55,15 +69,20 @@ export class CodeReviewService {
       ],
       model: 'gpt-3.5-turbo',
       temperature: 0.5,
-      max_tokens: 300,
+      max_tokens: 500,
     };
     const response = await this.openaiClient.chat.completions.create(params);
 
-    console.log(response);
+    const content = response.choices[0].message.content;
+
+    const bodyMatch = content.match(/### Body\s+([\s\S]*?)(?=###|$)/);
+    const codeSuggestionMatch = content.match(
+      /### Code Suggestions\s+([\s\S]*?)(?=###|$)/,
+    );
 
     return {
-      header: response.choices[0].message.content,
-      body: 'test'
-    }
+      body: bodyMatch ? bodyMatch[1].trim() : '',
+      codeSuggestion: codeSuggestionMatch ? codeSuggestionMatch[1].trim() : '',
+    };
   }
 }
