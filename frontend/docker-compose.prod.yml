@@ -1,9 +1,13 @@
+#################
+## PRODUCTION ##
+#################
 services:
   app:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: frontend-service
+    image: 235494786522.dkr.ecr.ap-southeast-1.amazonaws.com/peerprep/frontend-app
+    container_name: frontend-app
     env_file:
       - .env
     volumes:

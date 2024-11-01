@@ -1,48 +1,142 @@
-################
+#################
 ## PRODUCTION ##
-################
-version: "3"
+#################
 services:
   gateway-service:
     build:
       context: ./gateway-service
       target: production
+    image: 235494786522.dkr.ecr.ap-southeast-1.amazonaws.com/peerprep/gateway-service
     container_name: gateway-service
-    command: npm run start:prod
+    command: npm run start:dev
+    env_file:
+      - ./gateway-service/.env
     ports:
       - "4000:4000"
-    restart: always
+    volumes:
+      - ./gateway-service:/app
+      - /app/node_modules
     depends_on:
       - question-service
       - user-service
       - auth-service
+      - matching-service
+      - collaboration-service
+      # - eventstore.db
+      - redis
     networks:
       - backend-network
+      - shared-network
 
   question-service:
     build:
       context: ./question-service
       target: production
+    image: 235494786522.dkr.ecr.ap-southeast-1.amazonaws.com/peerprep/question-service
     container_name: question-service
-    command: npm run start:prod
-    restart: always
+    volumes:
+      - ./question-service:/app
+      - /app/node_modules
+    command: npm run start:dev
     env_file:
       - ./question-service/.env
     networks:
       - backend-network
+    ports:
+      - "3002:4000"
 
   user-service:
     build:
       context: ./user-service
       target: production
+    image: 235494786522.dkr.ecr.ap-southeast-1.amazonaws.com/peerprep/user-service
     container_name: user-service
-    command: npm run start:prod
-    restart: always
+    command: npm run start:dev
+    volumes:
+      - ./user-service:/app
+      - /app/node_modules
     env_file:
       - ./user-service/.env
+    networks:
+      - backend-network
+    ports:
+      - "3001:4000"
+
+  auth-service:
+    build:
+      context: ./auth-service
+      target: production
+    image: 235494786522.dkr.ecr.ap-southeast-1.amazonaws.com/peerprep/auth-service
+    container_name: auth-service
+    volumes:
+      - ./auth-service:/app
+      - /app/node_modules
+    command: npm run start:dev
+    env_file:
+      - ./auth-service/.env
+    networks:
+      - backend-network
+    ports:
+      - "3003:4000"
+
+  matching-service:
+    build:
+      context: ./matching-service
+      target: production
+    image: 235494786522.dkr.ecr.ap-southeast-1.amazonaws.com/peerprep/matching-service
+    container_name: matching-service
+    volumes:
+      - ./matching-service:/app
+      - /app/node_modules
+    command: npm run start:dev
+    env_file:
+      - ./matching-service/.env
+    networks:
+      - backend-network
+    ports:
+      - "3004:4000"
+
+  collaboration-service:
+    build:
+      context: ./collaboration-service
+      target: production
+    image: 235494786522.dkr.ecr.ap-southeast-1.amazonaws.com/peerprep/collaboration-service
+    container_name: collaboration-service
+    volumes:
+      - ./collaboration-service:/app
+      - /app/node_modules
+    command: npm run start:dev
+    env_file:
+      - ./collaboration-service/.env
+    networks:
+      - backend-network
+    ports:
+      - "3005:4000"
+
+  y-websocket-service:
+    build:
+      context: ./y-websocket-service
+      target: production
+    image: 235494786522.dkr.ecr.ap-southeast-1.amazonaws.com/peerprep/y-websocket-service
+    container_name: y-websocket-service
+    volumes:
+      - ./y-websocket-service:/app
+      - /app/node_modules
+    command: npm run start:dev
+    ports:
+      - "4001:4001"
+    networks:
+      - backend-network
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
     networks:
       - backend-network
 
 networks:
   backend-network:
+    driver: bridge
+  shared-network:
     driver: bridge

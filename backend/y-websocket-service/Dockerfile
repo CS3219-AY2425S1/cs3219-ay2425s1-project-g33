@@ -34,7 +34,7 @@ ENV NODE_ENV=${NODE_ENV}
 WORKDIR /app
 
 # Copy only the necessary files from the previous build stage
-COPY --from=development /peerprep/app/dist ./dist
+COPY --from=development /app/dist ./dist
 COPY package*.json ./
 
 # Install production dependencies only
