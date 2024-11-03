@@ -1,21 +1,14 @@
-import { getCurrentUser } from "@/services/userService";
-import { UserProfileResponse, UserProfileSchema } from "@/types/User";
 import CollaborativeWhiteboard from "./CollaborativeWhiteboard";
+import { useSessionContext } from "@/contexts/SessionContext";
 
-export default async function CollaborativeEditorTab({
-  sessionId,
-}: {
-  sessionId: string;
-}) {
-  const userProfileResponse: UserProfileResponse = await getCurrentUser();
-
-  if (userProfileResponse.statusCode !== 200) {
-    return <div>Something went wrong...</div>;
-  }
-
-  const userProfile = UserProfileSchema.parse(userProfileResponse.data);
+export default function CollaborativeEditorTab() {
+  const {userProfile, sessionId} = useSessionContext()
 
   const socketUrl = process.env.PUBLIC_Y_WEBSOCKET_URL || "ws://localhost:4001";
+
+  if (!userProfile) {
+    return <div>Loading user profile...</div>;
+  }
 
   return (
     <CollaborativeWhiteboard

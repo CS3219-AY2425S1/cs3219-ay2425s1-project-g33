@@ -72,7 +72,7 @@ function TabButton({ value, label, Icon, ...props }: TabButtonProps) {
     <TabsTrigger key={value} value={value} asChild={true}>
       <Button
         variant="ghost"
-        className="h-auto p-0 hover:bg-transparent hover:text-primary text-card-foreground-100 data-[state=active]:text-foreground"
+        className="h-auto hover:bg-transparent hover:text-primary text-card-foreground-100 data-[state=active]:text-foreground"
         {...props}
       >
         {Icon && <Icon size={15} className="mr-1" />}

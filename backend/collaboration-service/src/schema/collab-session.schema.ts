@@ -18,6 +18,10 @@ export class CollabSession extends Document {
   @Prop({ enum: ['active', 'completed'], default: 'active' })
   status: string;
 
+  createdAt: Date;
+
+  updatedAt: Date;
+
   @Prop({ default: null })
   endedAt: Date;
 }

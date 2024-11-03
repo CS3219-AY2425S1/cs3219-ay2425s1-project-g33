@@ -1,9 +1,11 @@
 import {
+  Body,
   Controller,
   ForbiddenException,
   Get,
   Inject,
   Param,
+  Post,
   UnauthorizedException,
 } from '@nestjs/common';
 import {
@@ -13,7 +15,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { ClientProxy } from '@nestjs/microservices';
-import { GetCollabSessionDto } from './dto';
+import { CodeReviewDto, GetCollabSessionDto } from './dto';
 import { firstValueFrom } from 'rxjs';
 import { GetCurrentUserId } from 'src/common/decorators';
 
@@ -26,6 +28,22 @@ export class CollaborationController {
     private readonly collaborationClient: ClientProxy,
   ) {}
 
+  @Post('review')
+  @ApiOkResponse({ description: 'Code review successfully' })
+  async codeReview(@Body() dto: CodeReviewDto) {
+    // To implement middleware to check for session authentication if needed (similar to getSessionDetailsById)
+    return this.collaborationClient.send({ cmd: 'review-code' }, dto);
+  }
+
+  @Get('history')
+  @ApiOkResponse({ description: 'Get user session history successfully' })
+  async getUserSessionHistory(@GetCurrentUserId() currentUserId) {
+    return this.collaborationClient.send(
+      { cmd: 'get-user-session-history' },
+      { userId: currentUserId },
+    );
+  }
+  
   // Get session details by id
   @Get(':id')
   @ApiOkResponse({
@@ -63,4 +81,8 @@ export class CollaborationController {
       ...sessionDetail,
     };
   }
+
+
+
+
 }

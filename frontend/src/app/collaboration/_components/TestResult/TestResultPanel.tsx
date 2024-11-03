@@ -1,7 +1,8 @@
-import { FlaskConical, Play } from "lucide-react";
+import { FlaskConical, Play, Bot } from "lucide-react";
 import TabPanel, { Tab } from "@/app/collaboration/_components/TabPanel";
 import TestCasesTabContent from "./TestCasesTabContent";
 import TestResultTabContent from "./TestResultTabContent";
+import AICodeReviewTabContent from "./AICodeReviewTabContent";
 
 export default function TestResultPanel() {
   const tabs: Tab[] = [
@@ -17,6 +18,12 @@ export default function TestResultPanel() {
       Icon: Play,
       content: <TestResultTabContent />,
     },
+    {
+      value: "ai-code-review",
+      label: "AI Code review",
+      Icon: Bot,
+      content: <AICodeReviewTabContent />
+    }
   ];
 
   return <TabPanel tabs={tabs} defaultValue="test-cases" />;
