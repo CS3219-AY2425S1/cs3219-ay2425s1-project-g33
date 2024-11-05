@@ -1,12 +1,11 @@
 #################
-## PRODUCTION ##
+## DEVELOPMENT ##
 #################
 services:
   gateway-service:
     build:
       context: ./gateway-service
-      target: production
-    image: 235494786522.dkr.ecr.ap-southeast-1.amazonaws.com/peerprep/gateway-service
+      target: development
     container_name: gateway-service
     command: npm run start:dev
     env_file:
@@ -31,8 +30,7 @@ services:
   question-service:
     build:
       context: ./question-service
-      target: production
-    image: 235494786522.dkr.ecr.ap-southeast-1.amazonaws.com/peerprep/question-service
+      target: development
     container_name: question-service
     volumes:
       - ./question-service:/app
@@ -48,8 +46,7 @@ services:
   user-service:
     build:
       context: ./user-service
-      target: production
-    image: 235494786522.dkr.ecr.ap-southeast-1.amazonaws.com/peerprep/user-service
+      target: development
     container_name: user-service
     command: npm run start:dev
     volumes:
@@ -65,8 +62,7 @@ services:
   auth-service:
     build:
       context: ./auth-service
-      target: production
-    image: 235494786522.dkr.ecr.ap-southeast-1.amazonaws.com/peerprep/auth-service
+      target: development
     container_name: auth-service
     volumes:
       - ./auth-service:/app
@@ -82,8 +78,7 @@ services:
   matching-service:
     build:
       context: ./matching-service
-      target: production
-    image: 235494786522.dkr.ecr.ap-southeast-1.amazonaws.com/peerprep/matching-service
+      target: development
     container_name: matching-service
     volumes:
       - ./matching-service:/app
@@ -96,11 +91,17 @@ services:
     ports:
       - "3004:4000"
 
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    networks:
+      - backend-network
+
   collaboration-service:
     build:
       context: ./collaboration-service
-      target: production
-    image: 235494786522.dkr.ecr.ap-southeast-1.amazonaws.com/peerprep/collaboration-service
+      target: development
     container_name: collaboration-service
     volumes:
       - ./collaboration-service:/app
@@ -116,8 +117,7 @@ services:
   y-websocket-service:
     build:
       context: ./y-websocket-service
-      target: production
-    image: 235494786522.dkr.ecr.ap-southeast-1.amazonaws.com/peerprep/y-websocket-service
+      target: development
     container_name: y-websocket-service
     volumes:
       - ./y-websocket-service:/app
@@ -125,13 +125,6 @@ services:
     command: npm run start:dev
     ports:
       - "4001:4001"
-    networks:
-      - backend-network
-
-  redis:
-    image: redis:latest
-    ports:
-      - "6379:6379"
     networks:
       - backend-network
 

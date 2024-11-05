@@ -5,7 +5,7 @@ services:
   gateway-service:
     build:
       context: ./gateway-service
-      target: development
+      target: builder
     container_name: gateway-service
     command: npm run start:dev
     env_file:
@@ -21,7 +21,6 @@ services:
       - auth-service
       - matching-service
       - collaboration-service
-      # - eventstore.db
       - redis
     networks:
       - backend-network
@@ -30,7 +29,7 @@ services:
   question-service:
     build:
       context: ./question-service
-      target: development
+      target: builder
     container_name: question-service
     volumes:
       - ./question-service:/app
@@ -41,12 +40,12 @@ services:
     networks:
       - backend-network
     ports:
-      - "3002:4000"
+      - "3002:3002"
 
   user-service:
     build:
       context: ./user-service
-      target: development
+      target: builder
     container_name: user-service
     command: npm run start:dev
     volumes:
@@ -57,12 +56,12 @@ services:
     networks:
       - backend-network
     ports:
-      - "3001:4000"
+      - "3001:3001"
 
   auth-service:
     build:
       context: ./auth-service
-      target: development
+      target: builder
     container_name: auth-service
     volumes:
       - ./auth-service:/app
@@ -73,12 +72,12 @@ services:
     networks:
       - backend-network
     ports:
-      - "3003:4000"
+      - "3003:3003"
 
   matching-service:
     build:
       context: ./matching-service
-      target: development
+      target: builder
     container_name: matching-service
     volumes:
       - ./matching-service:/app
@@ -89,7 +88,7 @@ services:
     networks:
       - backend-network
     ports:
-      - "3004:4000"
+      - "3004:3004"
 
   redis:
     image: redis:latest
@@ -101,7 +100,7 @@ services:
   collaboration-service:
     build:
       context: ./collaboration-service
-      target: development
+      target: builder
     container_name: collaboration-service
     volumes:
       - ./collaboration-service:/app
@@ -112,12 +111,12 @@ services:
     networks:
       - backend-network
     ports:
-      - "3005:4000"
+      - "3005:3005"
 
   y-websocket-service:
     build:
       context: ./y-websocket-service
-      target: development
+      target: builder
     container_name: y-websocket-service
     volumes:
       - ./y-websocket-service:/app
