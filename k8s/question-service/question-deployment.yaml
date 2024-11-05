@@ -17,24 +17,12 @@ spec:
     spec:
       containers:
         - name: question-service
-          image: evanyan13/peerprep-question-service:dev
+          image: evanyan13/peerprep-question-service:latest
           ports:
             - containerPort: 3002
-          env:
-            - name: NODE_ENV
-              value: "production"
-            - name: MONGO_CONNECTION_STRING
-              value: "mongodb+srv://jajawong09:C28Jp33U4Rutdl5m@cluster0.7zvfh.mongodb.net/development?retryWrites=true&w=majority&appName=Cluster0"
-            - name: QUESTION_SERVICE_HOST
-              value: "0.0.0.0"
-            - name: QUESTION_SERVICE_PORT
-              value: "3002"
-            - name: QUESTION_SERVICE_TRANSPORT
-              value: "TCP"
-          resources:
-            requests:
-              memory: "128Mi"
-              cpu: "100m"
-            limits:
-              memory: "256Mi"
-              cpu: "200m"
+          envFrom:
+            - secretRef:
+                name: peerprep-secrets
+            - configMapRef:
+                name: question-configmap
+      restartPolicy: Always

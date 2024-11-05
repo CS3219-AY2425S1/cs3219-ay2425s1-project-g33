@@ -1,29 +1,28 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: gateway-service
+  name: auth-service
   namespace: peerprep
+  labels:
+    app: auth-service
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: gateway-service
+      app: auth-service
   template:
     metadata:
       labels:
-        app: gateway-service
+        app: auth-service
     spec:
       containers:
-        - name: gateway-service
-          image: evanyan13/peerprep-gateway-service:latest
+        - name: auth-service
+          image: evanyan13/peerprep-auth-service:latest
           ports:
-            - containerPort: 4000
-          env:
-            - name: NODE_ENV
-              value: "production"
+            - containerPort: 3003
           envFrom:
             - secretRef:
                 name: peerprep-secrets
             - configMapRef:
-                name: gateway-configmap
+                name: auth-configmap
       restartPolicy: Always

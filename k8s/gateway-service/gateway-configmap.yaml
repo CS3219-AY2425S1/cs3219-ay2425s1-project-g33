@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gateway-configmap
+  namespace: peerprep
+data:
+  FRONTEND_URL: "http://localhost:3000"
+
+  GATEWAY_SERVICE_PORT: "4000"
+
+  USER_SERVICE_HOST: "user-service"
+  USER_SERVICE_PORT: "3001"
+  USER_SERVICE_TRANSPORT: "TCP"
+
+  QUESTION_SERVICE_HOST: "question-service"
+  QUESTION_SERVICE_PORT: "3002"
+  QUESTION_SERVICE_TRANSPORT: "TCP"
+
+  AUTH_SERVICE_HOST: "auth-service"
+  AUTH_SERVICE_PORT: "3003"
+  AUTH_SERVICE_TRANSPORT: "TCP"
+
+  MATCHING_SERVICE_HOST: "matching-service"
+  MATCHING_SERVICE_PORT: "3004"
+  MATCHING_SERVICE_TRANSPORT: "TCP"
+
+  COLLABORATION_SERVICE_HOST: "collaboration-service"
+  COLLABORATION_SERVICE_PORT: "3005"
+  COLLABORATION_SERVICE_TRANSPORT: "TCP"
+
+  REDIS_HOST: "redis"
+  REDIS_PORT: "6379"

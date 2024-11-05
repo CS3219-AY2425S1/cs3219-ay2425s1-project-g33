@@ -1,29 +1,28 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: gateway-service
+  name: y-websocket-service
   namespace: peerprep
+  labels:
+    app: y-websocket-service
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: gateway-service
+      app: y-websocket-service
   template:
     metadata:
       labels:
-        app: gateway-service
+        app: y-websocket-service
     spec:
       containers:
-        - name: gateway-service
-          image: evanyan13/peerprep-gateway-service:latest
+        - name: y-websocket-service
+          image: evanyan13/peerprep-y-websocket-service:latest
           ports:
-            - containerPort: 4000
-          env:
-            - name: NODE_ENV
-              value: "production"
+            - containerPort: 4001
           envFrom:
             - secretRef:
                 name: peerprep-secrets
             - configMapRef:
-                name: gateway-configmap
+                name: ywebsocket-configmap
       restartPolicy: Always
