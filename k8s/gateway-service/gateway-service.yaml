@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: gateway-service
+  namespace: peerprep
+spec:
+  type: ClusterIP
+  ports:
+    - protocol: TCP
+      port: 4000
+      targetPort: 4000
+      # nodePort: 30020
+  selector:
+    app: gateway-service

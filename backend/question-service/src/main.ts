@@ -8,28 +8,39 @@ import * as dotenv from 'dotenv';
 dotenv.config();
 
 async function bootstrap() {
-  const app = await NestFactory.createMicroservice<MicroserviceOptions>(
-    AppModule,
-    {
-      transport: config.questionService.transport,
-      options: {
-        host: config.questionService.host,
-        port: config.questionService.port,
+  try {
+    const app = await NestFactory.createMicroservice<MicroserviceOptions>(
+      AppModule,
+      {
+        transport: config.questionService.transport,
+        options: {
+          host: config.questionService.host,
+          port: config.questionService.port,
+        },
       },
-    },
-  );
-  app.useGlobalPipes(
-    new ValidationPipe({
-      transform: true,
-      transformOptions: { enableImplicitConversion: true },
-      whitelist: true,
-      forbidNonWhitelisted: true,
-    }),
-  );
-  await app.listen();
-  console.log(
-    'Question Service is listening on port',
-    config.questionService.port,
-  );
+    );
+
+    app.useGlobalPipes(
+      new ValidationPipe({
+        transform: true,
+        transformOptions: { enableImplicitConversion: true },
+        whitelist: true,
+        forbidNonWhitelisted: true,
+      }),
+    );
+
+    await app.listen();
+    console.log(
+      'Question Service is listening on port',
+      config.questionService.port,
+    );
+  } catch (error) {
+    console.error('Failed to start question service:', error);
+    process.exit(1);
+  }
 }
-bootstrap();
+
+bootstrap().catch((err) => {
+  console.error('Unhandled bootstrap error:', err);
+  process.exit(1);
+});
