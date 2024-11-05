@@ -1,4 +1,4 @@
-"use client";
+"use client"
 
 import {
   ColumnDef,
@@ -28,18 +28,19 @@ import { DataTablePagination } from "./data-table-pagination";
 import DataTableToolbar from "./data-table-toolbar";
 
 import { Card } from "@/components/ui/card";
-import { QuestionTableProvider } from "@/contexts/QuestionTableContext";
+import { HistoryTableProvider } from "@/contexts/HistoryTableContext";
 
-interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[];
-  data: TData[];
+interface DataTableProps<HistoryItem> {
+  columns: ColumnDef<HistoryItem>[];
+  data: HistoryItem[];
   categories?: string[];
 }
 
-export function DataTable<TData, TValue>({
+export function DataTable<HistoryItem>({
   columns,
   data,
-}: DataTableProps<TData, TValue>) {
+  categories,
+}: DataTableProps<HistoryItem>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
@@ -59,7 +60,7 @@ export function DataTable<TData, TValue>({
   });
 
   return (
-    <QuestionTableProvider>
+    <HistoryTableProvider>
       <div className="flex flex-col gap-4">
         <DataTableToolbar table={table} />
 
@@ -69,18 +70,16 @@ export function DataTable<TData, TValue>({
               <TableHeader>
                 {table.getHeaderGroups().map((headerGroup) => (
                   <TableRow key={headerGroup.id}>
-                    {headerGroup.headers.map((header) => {
-                      return (
-                        <TableHead key={header.id}>
-                          {header.isPlaceholder
-                            ? null
-                            : flexRender(
-                                header.column.columnDef.header,
-                                header.getContext()
-                              )}
-                        </TableHead>
-                      );
-                    })}
+                    {headerGroup.headers.map((header) => (
+                      <TableHead key={header.id}>
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                      </TableHead>
+                    ))}
                   </TableRow>
                 ))}
               </TableHeader>
@@ -118,6 +117,6 @@ export function DataTable<TData, TValue>({
 
         <DataTablePagination table={table} />
       </div>
-    </QuestionTableProvider>
+    </HistoryTableProvider>
   );
 }
