@@ -4,10 +4,11 @@ metadata:
   name: gateway-service
   namespace: peerprep
 spec:
-  type: NodePort
+  type: ClusterIP
   ports:
-    - port: 4000
+    - protocol: TCP
+      port: 4000
       targetPort: 4000
-      nodePort: 30001
+      # nodePort: 30020
   selector:
     app: gateway-service

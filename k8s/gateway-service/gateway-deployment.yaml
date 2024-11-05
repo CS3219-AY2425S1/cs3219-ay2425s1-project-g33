@@ -15,15 +15,47 @@ spec:
     spec:
       containers:
         - name: gateway-service
-          image: evanyan13/peerprep-gateway-service:latest
+          image: evanyan13/peerprep-gateway-service:dev
           ports:
             - containerPort: 4000
           env:
             - name: NODE_ENV
-              value: "production"
-          envFrom:
-            - secretRef:
-                name: peerprep-secrets
-            - configMapRef:
-                name: gateway-configmap
-      restartPolicy: Always
+              value: "development"
+            - name: FRONTEND_URL
+              value: "http://192.168.49.2:30000"
+            - name: GATEWAY_SERVICE_PORT
+              value: "4000"
+            - name: USER_SERVICE_HOST
+              value: "user-service"
+            - name: USER_SERVICE_PORT
+              value: "3001"
+            - name: USER_SERVICE_TRANSPORT
+              value: "TCP"
+            - name: QUESTION_SERVICE_HOST
+              value: "question-service"
+            - name: QUESTION_SERVICE_PORT
+              value: "3002"
+            - name: QUESTION_SERVICE_TRANSPORT
+              value: "TCP"
+            - name: AUTH_SERVICE_HOST
+              value: "auth-service"
+            - name: AUTH_SERVICE_PORT
+              value: "3003"
+            - name: AUTH_SERVICE_TRANSPORT
+              value: "TCP"
+            - name: MATCHING_SERVICE_HOST
+              value: "matching-service"
+            - name: MATCHING_SERVICE_PORT
+              value: "3004"
+            - name: MATCHING_SERVICE_TRANSPORT
+              value: "TCP"
+            - name: COLLABORATION_SERVICE_HOST
+              value: "collaboration-service"
+            - name: COLLABORATION_SERVICE_PORT
+              value: "3005"
+            - name: COLLABORATION_SERVICE_TRANSPORT
+              value: "TCP"
+            - name: REDIS_HOST
+              value: "backend-redis-1"
+            - name: REDIS_PORT
+              value: "6379"
