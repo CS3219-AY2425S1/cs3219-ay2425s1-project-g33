@@ -1,32 +1,35 @@
-import { Question, QuestionSchema } from "@/types/Question";
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTableColumnHeader } from "../data-table-column-header";
 import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "@/components/ui/hover-card";
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { HistoryItem, HistoryItemSchema } from "@/types/History";
 
-const TitleColumn: ColumnDef<Question> = {
-  accessorKey: "title",
+const TitleColumn: ColumnDef<HistoryItem> = {
+  accessorKey: "questionTitle",
   header: ({ column }) => {
     return (
       <DataTableColumnHeader column={column} title="Title" className="w-1/2" />
     );
   },
   cell: ({ row }) => {
-    const question = QuestionSchema.parse(row.original);
+    const historyItem = HistoryItemSchema.parse(row.original);
 
     return (
-      <HoverCard>
-        <HoverCardTrigger className="hover:cursor-pointer">
-          {question.title}
-        </HoverCardTrigger>
-        <HoverCardContent>
-          <h2 className="mb-2 text-2xl">{question.title}</h2>
-          <p>{question.description}</p>
-        </HoverCardContent>
-      </HoverCard>
+      <Dialog>
+        <DialogTrigger asChild className="hover:cursor-pointer">
+          <p>{historyItem.question.title}</p>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>{historyItem.question.title}</DialogTitle>
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>
     );
   },
 };
