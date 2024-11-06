@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: y-websocket-service
-          image: evanyan13/peerprep-y-websocket-service:latest
+          image: asia-southeast1-docker.pkg.dev/peerprep-438213/peerprep/y-websocket-service:latest
           ports:
             - containerPort: 4001
           envFrom:

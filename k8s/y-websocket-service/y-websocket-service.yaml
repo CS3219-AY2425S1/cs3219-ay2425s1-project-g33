@@ -4,7 +4,7 @@ metadata:
   name: y-websocket-service
   namespace: peerprep
 spec:
-  type: ClusterIP
+  type: LoadBalancer
   ports:
     - name: ws
       port: 4001

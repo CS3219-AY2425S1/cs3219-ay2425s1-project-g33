@@ -9,6 +9,7 @@ import { AtAuthGuard, RtAuthGuard } from './common/guards';
 import { MatchGateway } from './modules/match/match.controller';
 import { RedisMatchService } from './modules/match/redis.service';
 import { config } from './common/configs';
+import { HealthController } from './modules/health/health.controller';
 
 @Module({
   imports: [
@@ -60,6 +61,7 @@ import { config } from './common/configs';
     QuestionController,
     AuthController,
     CollaborationController,
+    HealthController,
   ],
   providers: [
     RtAuthGuard,

@@ -4,10 +4,10 @@ metadata:
   name: gateway-service
   namespace: peerprep
 spec:
-  type: NodePort
+  type: LoadBalancer
+  # type: NodePort
   ports:
     - port: 4000
       targetPort: 4000
-      nodePort: 30001
   selector:
     app: gateway-service

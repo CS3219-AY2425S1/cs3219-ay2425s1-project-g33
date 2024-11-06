@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: auth-service
-          image: evanyan13/peerprep-auth-service:latest
+          image: asia-southeast1-docker.pkg.dev/peerprep-438213/peerprep/auth-service:latest
           ports:
             - containerPort: 3003
           envFrom:
