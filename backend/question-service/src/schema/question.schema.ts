@@ -33,6 +33,10 @@ export class Question extends Document {
   // Difficulty level (Easy, Medium, Hard)
   @Prop({ required: true, enum: Difficulty })
   difficulty: Difficulty;
+
+  // Test cases for the question
+  @Prop({ required: true, type: [{ input: String, expectedOutput: String }] })
+  testCases: { input: string; expectedOutput: string }[];
 }
 
 // Generate the Mongoose schema

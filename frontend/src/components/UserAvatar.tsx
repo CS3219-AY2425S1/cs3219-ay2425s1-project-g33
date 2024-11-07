@@ -13,10 +13,12 @@ interface UserAvatarProps {
 export default function UserAvatar({
   userProfile,
   isHoverEnabled = true,
+  isViewProfileEnabled = true,
   className,
 }: UserAvatarProps) {
   return isHoverEnabled ? (
     <ProfileMiniDetailsHoverCard
+      isViewProfileEnabled={isViewProfileEnabled}
       userProfile={userProfile}
     >
       <AvatarWrapper userProfile={userProfile} className={className} />
@@ -39,7 +41,7 @@ function AvatarWrapper({ userProfile, className }: AvatarWrapperProps) {
       return initials.join("");
     } else {
       const [fname, lname] = chunks[0].split(" ");
-      return `${fname[0]}${lname ? lname[0] : ""}`;
+      return `${fname[0]}${lname ? lname[0] : ""}`.toUpperCase();
     }
   }
 

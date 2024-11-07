@@ -1,8 +1,8 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { TabsProps } from "@radix-ui/react-tabs";
 import { LucideProps } from "lucide-react";
-import { ComponentType, HTMLAttributes, ReactNode, RefAttributes } from "react";
+import { ComponentType, ReactNode, RefAttributes } from "react";
 import { ButtonProps } from "react-day-picker";
 
 export interface Tab {
@@ -12,33 +12,45 @@ export interface Tab {
   content: ReactNode;
 }
 
-export interface TabPanelProps extends HTMLAttributes<HTMLDivElement> {
+export interface TabPanelProps extends TabsProps {
   tabs: Tab[];
-  defaultValue: string;
+  defaultValue?: string;
+  value?: string;
+  onValueChange?: (value: string) => void;
 }
 
 export default function TabPanel({
   tabs,
   defaultValue,
+  value,
+  onValueChange,
   ...props
 }: TabPanelProps) {
   return (
-    <Card className="h-full p-0" {...props}>
-      <Tabs defaultValue={defaultValue} className="flex flex-col h-full">
-        <CardHeader className="flex-shrink-0 p-0 overflow-x-hidden rounded-t-lg bg-background-200">
-          <TabOptions
-            options={tabs.map((tab) => {
-              return { value: tab.value, label: tab.label, Icon: tab.Icon };
-            })}
-          />
-        </CardHeader>
-        {tabs.map((tab) => (
-          <TabsContent className="data-[state=active]:flex-1 m-0" value={tab.value} key={tab.value}>
-            {tab.content}
-          </TabsContent>
-        ))}
-      </Tabs>
-    </Card>
+    <Tabs
+      defaultValue={defaultValue}
+      value={value}
+      onValueChange={onValueChange}
+      className="flex flex-col w-full h-full overflow-hidden bg-card rounded-xl"
+      {...props}
+    >
+      <div className="flex-shrink-0 overflow-x-hidden rounded-t-lg bg-background-200">
+        <TabOptions
+          options={tabs.map((tab) => {
+            return { value: tab.value, label: tab.label, Icon: tab.Icon };
+          })}
+        />
+      </div>
+      {tabs.map((tab) => (
+        <TabsContent
+          className="data-[state=active]:flex-1 m-0 h-full w-full"
+          value={tab.value}
+          key={tab.value}
+        >
+          {tab.content}
+        </TabsContent>
+      ))}
+    </Tabs>
   );
 }
 

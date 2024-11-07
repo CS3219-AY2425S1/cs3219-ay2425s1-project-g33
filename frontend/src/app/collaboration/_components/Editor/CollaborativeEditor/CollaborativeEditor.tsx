@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import draculaTheme from "monaco-themes/themes/Dracula.json";
+import cloudsMidnight from "monaco-themes/themes/Clouds Midnight.json";
 import Editor, { Monaco } from "@monaco-editor/react";
 import * as Y from "yjs";
 import { WebsocketProvider } from "y-websocket";
@@ -11,6 +11,8 @@ import InjectableCursorStyles from "./InjectableCursorStyles";
 import { UserProfile } from "@/types/User";
 import { getRandomColor } from "@/lib/cursorColors";
 import { useSessionContext } from "@/contexts/SessionContext";
+import { Button } from "@/components/ui/button";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
 
 interface CollaborativeEditorProps {
   sessionId: string;
@@ -20,8 +22,14 @@ interface CollaborativeEditorProps {
   themeName?: string;
 }
 
-export default function CollaborativeEditor({ sessionId, currentUser, socketUrl = "ws://localhost:4001", language = "typescript", themeName = "dracula" }: CollaborativeEditorProps) {
-  const { codeReview } = useSessionContext();
+export default function CollaborativeEditor({
+  sessionId,
+  currentUser,
+  socketUrl = "ws://localhost:4001",
+  language = "python",
+  themeName = "clouds-midnight",
+}: CollaborativeEditorProps) {
+  const { codeReview, submitCode, submitting } = useSessionContext();
   const { setCurrentClientCode } = codeReview;
   const [editorRef, setEditorRef] = useState<editor.IStandaloneCodeEditor>();
   const [provider, setProvider] = useState<WebsocketProvider>();
@@ -33,10 +41,19 @@ export default function CollaborativeEditor({ sessionId, currentUser, socketUrl 
 
     const yDoc = new Y.Doc();
     const yTextInstance = yDoc.getText("monaco");
-    const yProvider = new WebsocketProvider(`${socketUrl}/yjs?sessionId=${sessionId}&userId=${currentUser.id}`, `c_${sessionId}`, yDoc);
+    const yProvider = new WebsocketProvider(
+      `${socketUrl}/yjs?sessionId=${sessionId}&userId=${currentUser.id}`,
+      `c_${sessionId}`,
+      yDoc
+    );
     setProvider(yProvider);
 
-    const binding = new MonacoBinding(yTextInstance, editorRef.getModel() as editor.ITextModel, new Set([editorRef]), yProvider.awareness);
+    const binding = new MonacoBinding(
+      yTextInstance,
+      editorRef.getModel() as editor.ITextModel,
+      new Set([editorRef]),
+      yProvider.awareness
+    );
 
     // Observe changes to the Y.Text document
     const updateCode = () => {
@@ -57,7 +74,7 @@ export default function CollaborativeEditor({ sessionId, currentUser, socketUrl 
     (e: editor.IStandaloneCodeEditor, monaco: Monaco) => {
       // @ts-expect-error: we ignore since monaco-theme library is outdated with the latest
       // monaco expected theme types but it still works
-      monaco.editor.defineTheme(themeName, draculaTheme);
+      monaco.editor.defineTheme(themeName, cloudsMidnight);
       monaco.editor.setTheme(themeName);
       setEditorRef(e);
     },
@@ -65,13 +82,31 @@ export default function CollaborativeEditor({ sessionId, currentUser, socketUrl 
   );
 
   return (
-    <div className="w-full h-full overflow-scroll">
-      {provider && <InjectableCursorStyles yProvider={provider} cursorName={currentUser.username} cursorColor={colorRef.current} />}
+    <div className="relative w-full h-full min-h-24 min-w-24">
+      <Button
+        className="absolute bottom-10 right-8 z-10"
+        onClick={submitCode}
+        disabled={submitting}
+      >
+        {submitting ? (
+          <span className="flex flex-row items-center gap-2">
+            <LoadingSpinner />
+            <p>Submitting</p>
+          </span>
+        ) : (
+          "Submit"
+        )}
+      </Button>
+      {provider && (
+        <InjectableCursorStyles
+          yProvider={provider}
+          cursorName={currentUser.username}
+          cursorColor={colorRef.current}
+        />
+      )}
       <Editor
-        defaultValue={"class Solution {\n" + "  \n" + "}"}
         onMount={handleEditorOnMount}
-        height={"100%"}
-        width={"100%"}
+        className="w-full h-full"
         theme={themeName}
         language={language}
         options={{

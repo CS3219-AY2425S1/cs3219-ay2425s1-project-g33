@@ -3,7 +3,7 @@ import { IsNotEmpty, IsString } from 'class-validator';
 export class CodeReviewDto {
   @IsString()
   @IsNotEmpty()
-  sessionId: string
+  sessionId: string;
 
   @IsString()
   @IsNotEmpty()

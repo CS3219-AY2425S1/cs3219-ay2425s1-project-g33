@@ -6,6 +6,8 @@ import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { CreateSessionDto } from './dto';
 import { CollabSessionHistory } from './interfaces/collab-history.interface';
 import { firstValueFrom } from 'rxjs';
+import { ChatSendMessageRequestDto } from './dto/add-chat-message-request.dto';
+import { RedisService } from './services/redis.service';
 
 @Injectable()
 export class AppService {
@@ -13,9 +15,11 @@ export class AppService {
     @InjectModel('CollabSession')
     private readonly sessionModel: Model<CollabSession>,
     @Inject('QUESTION_SERVICE') private readonly questionClient: ClientProxy,
+    private redisService: RedisService,
   ) {}
 
   async getSessionDetails(id: string): Promise<CollabSession> {
+    console.log('session details: ' + id);
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new RpcException('Invalid session Id format');
     }
@@ -80,5 +84,14 @@ export class AppService {
         `Failed to get user session history: ${error.message}`,
       );
     }
+  }
+
+  async addChatMessage(data: ChatSendMessageRequestDto) {
+    await this.redisService.addChatMessage(data);
+    return true;
+  }
+
+  async getAllChatMessages(id: string) {
+    return await this.redisService.getAllChatMessages(id);
   }
 }

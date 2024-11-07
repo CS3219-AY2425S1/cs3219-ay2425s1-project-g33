@@ -13,6 +13,7 @@ import { MoreHorizontal } from "lucide-react";
 import { useState } from "react";
 import { EditQuestionModal } from "../../Forms/EditQuestionModal";
 import DeleteQuestionDialog from "../../Forms/DeleteQuestionDialog";
+import { ManageTestCasesModal } from "../../Forms/ManageTestCasesModal";
 
 const ActionsColumn: ColumnDef<Question> = {
   id: "Action",
@@ -23,6 +24,8 @@ const ActionsColumn: ColumnDef<Question> = {
 function ActionsColumnCell({ row }: { row: Row<Question> }) {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isManageTestCasesModalOpen, setIsManageTestCasesModalOpen] =
+    useState(false);
   const question = QuestionSchema.parse(row.original);
 
   return (
@@ -35,6 +38,11 @@ function ActionsColumnCell({ row }: { row: Row<Question> }) {
       <EditQuestionModal
         isOpen={isEditModalOpen}
         setIsOpen={setIsEditModalOpen}
+        question={question}
+      />
+      <ManageTestCasesModal
+        isOpen={isManageTestCasesModalOpen}
+        setIsOpen={setIsManageTestCasesModalOpen}
         question={question}
       />
       <DropdownMenu>
@@ -52,6 +60,15 @@ function ActionsColumnCell({ row }: { row: Row<Question> }) {
           >
             Edit
           </DropdownMenuItem>
+
+          <DropdownMenuItem
+            onClick={() => {
+              setIsManageTestCasesModalOpen(true);
+            }}
+          >
+            Manage Test Cases
+          </DropdownMenuItem>
+
           <DropdownMenuItem onClick={() => setIsDeleteDialogOpen(true)}>
             Delete
           </DropdownMenuItem>

@@ -8,6 +8,7 @@ import {
   GetQuestionsDto,
   UpdateQuestionDto,
   FindQuestionByIdDto,
+  UpdateQuestionTestCasesDto,
 } from './dto';
 
 @Controller()
@@ -54,17 +55,22 @@ export class AppController {
     return this.appService.updateQuestion(id, updatedQuestionInfo);
   }
 
-  @MessagePattern({cmd: 'get-categories'})
-  async getCategories() {
-    return this.appService.getCategories()
+  @MessagePattern({ cmd: 'update-question-testcases' })
+  async updateQuestionTestCases(@Payload() data: UpdateQuestionTestCasesDto) {
+    const { id, testCases } = data;
+    return this.appService.updateQuestionTestCases(id, testCases);
   }
 
-  @MessagePattern({cmd: 'get-question-by-preferences'})
-  async getQuestionsByPreferences(@Payload() data: GetQuestionsByPreferencesDto) {
+  @MessagePattern({ cmd: 'get-categories' })
+  async getCategories() {
+    return this.appService.getCategories();
+  }
+
+  @MessagePattern({ cmd: 'get-question-by-preferences' })
+  async getQuestionsByPreferences(
+    @Payload() data: GetQuestionsByPreferencesDto,
+  ) {
     const { topics, difficulty } = data;
-    return this.appService.getQuestionsByPreferences(
-      topics,
-      difficulty,
-    );
+    return this.appService.getQuestionsByPreferences(topics, difficulty);
   }
 }

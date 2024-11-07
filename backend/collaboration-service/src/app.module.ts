@@ -6,6 +6,7 @@ import { config } from './configs';
 import { CollabSessionSchema } from './schema/collab-session.schema';
 import { CodeReviewService } from './code-review.service';
 import { ClientsModule } from '@nestjs/microservices';
+import { RedisService } from './services/redis.service';
 
 @Module({
   imports: [
@@ -24,10 +25,20 @@ import { ClientsModule } from '@nestjs/microservices';
           host: config.questionService.host,
           port: config.questionService.port,
         },
+        
+      },
+      {
+        name: 'USER_SERVICE',
+        transport: config.userService.transport,
+        options: {
+          host: config.userService.host,
+          port: config.userService.port,
+        },
+        
       },
     ]),
   ],
   controllers: [AppController],
-  providers: [AppService, CodeReviewService],
+  providers: [AppService, CodeReviewService, RedisService],
 })
 export class AppModule {}

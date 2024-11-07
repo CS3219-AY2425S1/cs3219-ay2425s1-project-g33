@@ -88,7 +88,7 @@ export function ProfileMiniDetailsHoverCard({
   return (
     <HoverCard openDelay={300}>
       <HoverCardTrigger asChild>
-        <Button variant="link">{children}</Button>
+        <Button variant="link" className="p-0">{children}</Button>
       </HoverCardTrigger>
       <HoverCardContent className="w-80">
         <ProfileMiniDetails

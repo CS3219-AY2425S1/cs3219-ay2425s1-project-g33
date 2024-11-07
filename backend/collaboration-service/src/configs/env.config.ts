@@ -32,6 +32,10 @@ export const config = {
   mongo: {
     connectionString: getEnvVar('MONGO_CONNECTION_STRING'),
   },
+  redis: {
+    host: getEnvVar('REDIS_HOST'),
+    port: parseInt(getEnvVar('REDIS_PORT')),
+  },
   openai: {
     apiKey: getEnvVar('OPENAI_API_KEY'),
   },

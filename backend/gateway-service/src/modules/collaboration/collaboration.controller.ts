@@ -43,7 +43,7 @@ export class CollaborationController {
       { userId: currentUserId },
     );
   }
-  
+
   // Get session details by id
   @Get(':id')
   @ApiOkResponse({
@@ -81,8 +81,4 @@ export class CollaborationController {
       ...sessionDetail,
     };
   }
-
-
-
-
 }

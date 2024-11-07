@@ -58,6 +58,7 @@
     "tailwindcss-animate": "^1.0.7",
     "tldraw": "^3.3.2",
     "usehooks-ts": "^3.1.0",
+    "uuid": "^11.0.2",
     "y-monaco": "^0.1.6",
     "y-utility": "^0.1.4",
     "y-websocket": "^2.0.4",

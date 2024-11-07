@@ -15,9 +15,15 @@ export const SessionInfoSchema = z.object({
   updatedAt: z.string().datetime(), // ISO date string
 });
 
+export const SessionJoinRequestSchema = z.object({
+  userId: z.string(),
+  sessionId: z.string(),
+});
+
 export const SessionInfoResponseSchema =
   createResponseSchema(SessionInfoSchema);
 
 export type SessionInfo = z.infer<typeof SessionInfoSchema>;
 
+export type SessionJoinRequest = z.infer<typeof SessionJoinRequestSchema>;
 export type SessionInfoResponse = z.infer<typeof SessionInfoResponseSchema>;

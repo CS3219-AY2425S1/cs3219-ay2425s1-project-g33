@@ -115,8 +115,8 @@ export function CreateQuestionModal({ children }: PropsWithChildren) {
                 }))}
               />
               <QuillEditor
-                value={form.watch('description')}
-                onChange={(value) => form.setValue('description', value)}
+                value={form.watch("description")}
+                onChange={(value) => form.setValue("description", value)}
               />
               <Button className="self-center" type="submit">
                 {form.formState.isSubmitting

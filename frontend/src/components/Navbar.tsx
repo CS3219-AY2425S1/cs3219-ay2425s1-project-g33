@@ -95,7 +95,7 @@ async function NavUserDetails() {
   const noOfStreakDays = 1;
 
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex items-center gap-5">
       <Flame
         className={noOfStreakDays > 0 ? "stroke-primary" : "stroke-muted"}
         size={20}

@@ -3,13 +3,14 @@
 import { getAccessToken } from "@/lib/auth";
 import { CategoriesResponse, CategoriesResponseSchema } from "@/types/Category";
 import {
-  Question,
   NewQuestion,
   QuestionResponse,
   QuestionsResponse,
   QuestionResponseSchema,
   QuestionsResponseSchema,
   NewQuestionSchema,
+  TestCase,
+  EditQuestion,
 } from "@/types/Question";
 import { revalidatePath } from "next/cache";
 
@@ -154,7 +155,7 @@ export async function deleteQuestion(questionId: string): Promise<void> {
 }
 
 export async function editQuestion(
-  question: Question
+  question: EditQuestion
 ): Promise<QuestionResponse> {
   try {
     const access_token = await getAccessToken();
@@ -169,6 +170,38 @@ export async function editQuestion(
           Authorization: `Bearer ${access_token}`,
         },
         body: JSON.stringify(updatedQuestion),
+      }
+    );
+
+    const data = await res.json();
+
+    revalidatePath("/dashboard");
+
+    return QuestionResponseSchema.parse(data);
+  } catch (error) {
+    return {
+      statusCode: 500,
+      message: String(error),
+    };
+  }
+}
+
+export async function updateQuestionTestCases(
+  questionId: string,
+  testCases: Array<TestCase>
+): Promise<QuestionResponse> {
+  try {
+    const access_token = await getAccessToken();
+
+    const res = await fetch(
+      process.env.PUBLIC_API_URL + `/api/questions/${questionId}/testcases`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${access_token}`,
+        },
+        body: JSON.stringify({ testCases: testCases }),
       }
     );
 

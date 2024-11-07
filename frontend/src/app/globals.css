@@ -157,7 +157,7 @@
 
 /* Change Autocomplete styles in Browsers*/
 input:-webkit-autofill,
-input:-webkit-autofill:hover, 
+input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,
 textarea:-webkit-autofill,
 textarea:-webkit-autofill:hover,
@@ -185,14 +185,13 @@ select:-webkit-autofill:focus {
   border-left: 2px solid var(--user-color);
 }
 
-
 @keyframes fadeOut {
   0% {
-      opacity: 1;
+    opacity: 1;
   }
   100% {
-      opacity: 0;
-      visibility: hidden;
+    opacity: 0;
+    visibility: hidden;
   }
 }
 
@@ -217,4 +216,8 @@ select:-webkit-autofill:focus {
   user-select: none;
   z-index: 1000;
   animation: fadeOut 0.35s forwards 1s;
+}
+
+nextjs-portal {
+  display: none;
 }

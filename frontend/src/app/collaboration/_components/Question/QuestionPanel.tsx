@@ -4,7 +4,7 @@ import SolutionTabContent from "./SolutionTabContent";
 import DescriptionTabContent from "./DescriptionTabContent";
 import { Question } from "@/types/Question";
 
-export default function QuestionTabPanel({ question }: {question: Question}) {
+export default function QuestionTabPanel({ question }: { question: Question }) {
   const tabs: Tab[] = [
     {
       value: "description",

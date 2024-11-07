@@ -7,17 +7,21 @@ import {
 } from "@/components/ui/form";
 import { FieldPath, FieldValues, useFormContext } from "react-hook-form";
 import { Textarea } from "@/components/ui/textarea";
+import { InputHTMLAttributes } from "react";
+import { cn } from "@/lib/utils";
 
-interface TextAreaInputProps<TFieldValues extends FieldValues> {
+interface TextAreaInputProps<TFieldValues extends FieldValues>
+  extends InputHTMLAttributes<HTMLTextAreaElement> {
   label: string;
   name: FieldPath<TFieldValues>;
-  placeholder: string;
 }
 
 export function TextAreaInput<TFieldValues extends FieldValues>({
   label,
   name,
   placeholder,
+  className,
+  ...props
 }: TextAreaInputProps<TFieldValues>) {
   const form = useFormContext();
 
@@ -26,13 +30,14 @@ export function TextAreaInput<TFieldValues extends FieldValues>({
       control={form.control}
       name={name}
       render={({ field }) => (
-        <FormItem>
+        <FormItem className={`w-full`}>
           <FormLabel>{label}</FormLabel>
           <FormControl>
             <Textarea
-              className="bg-input h-52"
+              className={cn("bg-input h-52", className)}
               placeholder={placeholder}
               {...field}
+              {...props}
             />
           </FormControl>
           <FormMessage />

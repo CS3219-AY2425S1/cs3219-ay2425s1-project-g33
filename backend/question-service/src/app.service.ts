@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Question } from './schema/question.schema';
-import { CreateQuestionDto, GetQuestionsResponse } from './dto';
+import { CreateQuestionDto, GetQuestionsResponse, TestCase } from './dto';
 import { RpcException } from '@nestjs/microservices';
 import { QUESTION_CATEGORIES } from './constants/question-categories.constant';
 
@@ -40,6 +40,7 @@ export class AppService {
       questionNumber: 1,
       difficulty: 1,
       categories: 1,
+      testCases: 1,
     };
     try {
       // Get the total count of documents matching the filters
@@ -76,9 +77,7 @@ export class AppService {
   }
 
   async getQuestionById(id: string): Promise<Question> {
-    const question = await this.questionModel
-      .findById(id)
-      .exec();
+    const question = await this.questionModel.findById(id).exec();
     if (!question) {
       throw new RpcException('Question not found');
     }
@@ -117,7 +116,7 @@ export class AppService {
 
       return newQuestion.save();
     } catch (error) {
-      console.error(error)
+      console.error(error);
       throw new RpcException(error.message);
     }
   }
@@ -159,8 +158,31 @@ export class AppService {
     }
   }
 
-  async getCategories():Promise<{ categories: string[] }>{
-    return {categories: QUESTION_CATEGORIES}
+  async updateQuestionTestCases(
+    id: string,
+    testCases: TestCase[],
+  ): Promise<Question> {
+    try {
+      const updatedQuestion = await this.questionModel
+        .findOneAndUpdate(
+          { _id: new Types.ObjectId(id) },
+          { testCases },
+          { new: true },
+        )
+        .exec();
+
+      if (!updatedQuestion) {
+        throw new RpcException('Question not found');
+      }
+
+      return updatedQuestion;
+    } catch (error) {
+      throw new RpcException(error.message);
+    }
+  }
+
+  async getCategories(): Promise<{ categories: string[] }> {
+    return { categories: QUESTION_CATEGORIES };
   }
 
   async getQuestionsByPreferences(
@@ -176,15 +198,11 @@ export class AppService {
 
       if (questions.length === 0) {
         // If no questions match both topics and difficulty, find questions by difficulty only
-        questions = await this.questionModel
-        .find({ difficulty })
-        .exec();
+        questions = await this.questionModel.find({ difficulty }).exec();
       }
       return questions;
     } catch (error) {
       throw new RpcException(error.message);
     }
   }
-
-
 }
