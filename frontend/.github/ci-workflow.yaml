@@ -1,0 +1,32 @@
+name: Frontend Docker Compose CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test-frontend:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Set up Docker Compose
+        run: sudo apt-get install docker-compose -y
+
+      - name: Build and Run Docker Compose
+        run: docker-compose up -d --build
+
+      - name: Test Frontend Health
+        run: |
+          sleep 10  # Allow time for services to start
+          curl -f http://localhost:3000 || exit 1  # Replace with actual frontend health check endpoint
+
+      - name: Stop and Remove Containers
+        run: docker-compose down
+
