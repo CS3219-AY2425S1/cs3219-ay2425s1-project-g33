@@ -13,7 +13,6 @@ import {
 import {
   CreateQuestionDto,
   FindQuestionByIdDto,
-  FindQuestionBySlugDto,
   GetQuestionsDto,
   UpdateQuestionDto,
 } from './dto';

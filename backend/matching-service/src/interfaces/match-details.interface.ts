@@ -6,5 +6,5 @@ export interface MatchDetails {
   score: number;
   generatedTopics: string[];
   generatedDifficulty: string;
-  selectedQuestionId: string
+  selectedQuestionId: string;
 }

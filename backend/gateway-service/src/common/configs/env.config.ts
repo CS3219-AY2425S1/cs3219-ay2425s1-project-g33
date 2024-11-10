@@ -1,4 +1,4 @@
-import { RpcException, Transport } from '@nestjs/microservices';
+import { Transport } from '@nestjs/microservices';
 import * as dotenv from 'dotenv';
 
 dotenv.config();

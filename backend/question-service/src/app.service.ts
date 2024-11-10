@@ -76,9 +76,7 @@ export class AppService {
   }
 
   async getQuestionById(id: string): Promise<Question> {
-    const question = await this.questionModel
-      .findById(id)
-      .exec();
+    const question = await this.questionModel.findById(id).exec();
     if (!question) {
       throw new RpcException('Question not found');
     }
@@ -117,7 +115,7 @@ export class AppService {
 
       return newQuestion.save();
     } catch (error) {
-      console.error(error)
+      console.error(error);
       throw new RpcException(error.message);
     }
   }
@@ -159,8 +157,8 @@ export class AppService {
     }
   }
 
-  async getCategories():Promise<{ categories: string[] }>{
-    return {categories: QUESTION_CATEGORIES}
+  async getCategories(): Promise<{ categories: string[] }> {
+    return { categories: QUESTION_CATEGORIES };
   }
 
   async getQuestionsByPreferences(
@@ -176,15 +174,11 @@ export class AppService {
 
       if (questions.length === 0) {
         // If no questions match both topics and difficulty, find questions by difficulty only
-        questions = await this.questionModel
-        .find({ difficulty })
-        .exec();
+        questions = await this.questionModel.find({ difficulty }).exec();
       }
       return questions;
     } catch (error) {
       throw new RpcException(error.message);
     }
   }
-
-
 }

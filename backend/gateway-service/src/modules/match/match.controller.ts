@@ -11,7 +11,6 @@ import { ClientProxy } from '@nestjs/microservices';
 import { Inject } from '@nestjs/common';
 import { firstValueFrom } from 'rxjs';
 import { RedisMatchService } from './redis.service';
-import { v4 as uuidv4 } from 'uuid';
 import { MatchAcceptDto, MatchDeclineDto, MatchRequestDto } from './dto';
 import {
   MATCH_FOUND,
