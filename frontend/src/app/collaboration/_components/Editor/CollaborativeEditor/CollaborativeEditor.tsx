@@ -14,11 +14,20 @@ import { useSessionContext } from "@/contexts/SessionContext";
 import { Button } from "@/components/ui/button";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 
+const defaultEditorValues: { [key: string]: string } = {
+  python3: "# Start coding here",
+  java: "public class solution {\n    public static void main(String[] args) {\n        // Start coding here\n    }\n}",
+};
+
+const editorLanguageMap: { [key: string]: string } = {
+  python3: "python",
+  java: "java",
+};
+
 interface CollaborativeEditorProps {
   sessionId: string;
   currentUser: UserProfile;
   socketUrl?: string;
-  language?: string;
   themeName?: string;
 }
 
@@ -26,11 +35,11 @@ export default function CollaborativeEditor({
   sessionId,
   currentUser,
   socketUrl = "ws://localhost:4001",
-  language = "python",
   themeName = "clouds-midnight",
 }: CollaborativeEditorProps) {
-  const { codeReview, submitCode, submitting } = useSessionContext();
+  const { codeReview, language, submitCode, submitting } = useSessionContext();
   const { setCurrentClientCode } = codeReview;
+
   const [editorRef, setEditorRef] = useState<editor.IStandaloneCodeEditor>();
   const [provider, setProvider] = useState<WebsocketProvider>();
 
@@ -40,7 +49,7 @@ export default function CollaborativeEditor({
     if (!editorRef) return;
 
     const yDoc = new Y.Doc();
-    const yTextInstance = yDoc.getText("monaco");
+    const yTextInstance = yDoc.getText(`code-${language}`);
     const yProvider = new WebsocketProvider(
       `${socketUrl}/yjs?sessionId=${sessionId}&userId=${currentUser.id}`,
       `c_${sessionId}`,
@@ -68,7 +77,14 @@ export default function CollaborativeEditor({
       yDoc.destroy();
       binding.destroy();
     };
-  }, [sessionId, currentUser, socketUrl, editorRef, setCurrentClientCode]);
+  }, [
+    sessionId,
+    currentUser,
+    socketUrl,
+    editorRef,
+    setCurrentClientCode,
+    language,
+  ]);
 
   const handleEditorOnMount = useCallback(
     (e: editor.IStandaloneCodeEditor, monaco: Monaco) => {
@@ -84,7 +100,7 @@ export default function CollaborativeEditor({
   return (
     <div className="relative w-full h-full min-h-24 min-w-24">
       <Button
-        className="absolute bottom-10 right-8 z-10"
+        className="absolute z-10 bottom-10 right-8"
         onClick={submitCode}
         disabled={submitting}
       >
@@ -108,11 +124,17 @@ export default function CollaborativeEditor({
         onMount={handleEditorOnMount}
         className="w-full h-full"
         theme={themeName}
-        language={language}
+        language={editorLanguageMap[language]}
         options={{
           tabSize: 4,
           padding: { top: 20 },
+          minimap: { enabled: false },
         }}
+        defaultValue={defaultEditorValues[language]}
+        // value={code[language]}
+        // onChange={(value) => {
+        //   setCode((prevCode) => ({ ...prevCode, [language]: value || "" }));
+        // }}
       />
     </div>
   );

@@ -63,27 +63,27 @@ export default async function Page(props: { params: Params }) {
       socketUrl={socketUrl}
     >
       <div className="flex flex-row w-full h-full overflow-hidden">
-        <ResizablePanelGroup
-          className="flex w-full h-full"
-          direction="horizontal"
-        >
-          <ResizablePanel className="p-1" defaultSize={30}>
-            <QuestionTabPanel question={question} />
-          </ResizablePanel>
+      <ResizablePanelGroup
+        className="flex w-full h-full"
+        direction="horizontal"
+      >
+        <ResizablePanel className="p-1" defaultSize={30}>
+          <QuestionTabPanel question={question} />
+        </ResizablePanel>
 
-          <ResizableHandle withHandle={true} />
+        <ResizableHandle withHandle={true} />
 
-          <ResizablePanel defaultSize={70}>
-            <CenterPanel question={question} />
-          </ResizablePanel>
-        </ResizablePanelGroup>
+        <ResizablePanel defaultSize={70}>
+          <CenterPanel question={question} />
+        </ResizablePanel>
+      </ResizablePanelGroup>
 
-        {chatFeature && (
-          <div className="flex p-1">
-            <Chatbox />
-          </div>
-        )}
-      </div>
+      {chatFeature && (
+        <div className="flex p-1">
+          <Chatbox />
+        </div>
+      )}
+    </div>
     </SessionProvider>
   );
 }

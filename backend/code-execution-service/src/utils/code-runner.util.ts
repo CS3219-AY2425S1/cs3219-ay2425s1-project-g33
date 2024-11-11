@@ -12,22 +12,23 @@ export async function runCode(
   const folder = `./code/${Date.now()}`;
   await fs.mkdir(folder, { recursive: true });
 
-  const sourceFile = `${folder}/solution.${extensions[lang]}`;
-  const inputFile = `${folder}/input.txt`;
+  // Create a ran between 1 and 100
+  const rand = Math.floor(Math.random() * 100) + 1;
+
+  const sourceFileName = `solution`;
+  const sourceFile = `${folder}/${sourceFileName}.${extensions[lang]}`;
+  const inputFile = `${folder}/input-${rand}.txt`;
   const outputFile = `${folder}/output.txt`;
 
   await fs.writeFile(sourceFile, code);
   await fs.writeFile(inputFile, input);
-
-  // Input -> Generates output
-  // Compare generated output with expected output
 
   let compileCommand = '';
   let runCommand = `timeout ${timeout} `;
 
   if (lang === 'java') {
     compileCommand = `javac ${sourceFile}`;
-    runCommand += `java -cp ${folder} main < ${inputFile}`;
+    runCommand += `java -cp ${folder} ${sourceFileName} < ${inputFile}`;
   } else if (lang === 'python3') {
     runCommand += `python3 ${sourceFile} < ${inputFile}`;
   }

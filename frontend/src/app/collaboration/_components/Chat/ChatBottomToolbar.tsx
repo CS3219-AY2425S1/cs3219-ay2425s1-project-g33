@@ -31,11 +31,14 @@ export default function ChatBottomToolbar({
 
   const { handleSubmit, formState, reset } = methods;
 
-  const onSubmit = useCallback(async (data: z.infer<typeof FormSchema>) => {
-    if (formState.isSubmitting || data.message.length === 0) return;
-    handleSendMessage(data.message);
-    reset({ message: "" });
-  }, []);
+  const onSubmit = useCallback(
+    async (data: z.infer<typeof FormSchema>) => {
+      if (formState.isSubmitting || data.message.length === 0) return;
+      handleSendMessage(data.message);
+      reset({ message: "" });
+    },
+    [formState.isSubmitting, handleSendMessage, reset]
+  );
 
   return (
     <CardFooter

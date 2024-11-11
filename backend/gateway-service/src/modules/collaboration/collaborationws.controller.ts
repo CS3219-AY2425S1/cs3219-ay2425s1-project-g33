@@ -9,6 +9,7 @@ import {
 import { Server, Socket } from 'socket.io';
 import { JoinCollabSessionRequestDto } from './dto/join-collab-session-request.dto';
 import {
+  CHANGE_LANGUAGE,
   CHAT_SEND_MESSAGE,
   SESSION_JOIN,
   SESSION_LEAVE,
@@ -17,6 +18,7 @@ import {
 import {
   CHAT_RECIEVE_MESSAGE,
   EXCEPTION,
+  LANGUAGE_CHANGED,
   SESSION_ERROR,
   SESSION_JOINED,
   SESSION_LEFT,
@@ -44,6 +46,8 @@ export class CollaborationGateway implements OnGatewayDisconnect {
   @WebSocketServer() server: Server;
   private socketUserMap = new Map<string, string>(); // socketId -> userId
   private userSocketMap = new Map<string, string>(); // userId -> socktId
+
+  private sessionLanguageMap = new Map<string, string>(); // sessionId -> language
 
   constructor(
     @Inject('QUESTION_SERVICE') private questionService: ClientProxy,
@@ -92,13 +96,24 @@ export class CollaborationGateway implements OnGatewayDisconnect {
       console.log('sessionjoin and messages retrieved:');
       console.log(messages);
 
+      const existingLanguage = this.sessionLanguageMap.get(sessionId);
+      this.sessionLanguageMap.set(sessionId, existingLanguage || 'python3');
+
       // emit joined event
       this.server.to(sessionId).emit(SESSION_JOINED, {
         userId, // the user who recently joined
         sessionId,
         messages, // chat messages
+        language: existingLanguage || 'python3', // default language
         sessionUserProfiles, // returns the all session member profiles
       });
+
+      return {
+        success: true,
+        data: {
+          messages, // chat messages
+        }
+      };
     } catch (e) {
       console.log(e);
       return {
@@ -198,10 +213,11 @@ export class CollaborationGateway implements OnGatewayDisconnect {
       sessionId: string;
       questionId: string;
       code: string;
+      language: string;
     },
   ) {
     try {
-      const { userId, sessionId, questionId, code } = payload;
+      const { userId, sessionId, questionId, code, language } = payload;
 
       if (!userId || !sessionId || !code) {
         client.emit(SESSION_ERROR, 'Invalid submit request payload.');
@@ -229,7 +245,7 @@ export class CollaborationGateway implements OnGatewayDisconnect {
               {
                 code: code,
                 input: testCase.input,
-                language: 'python3',
+                language: language,
                 timeout: 5, // TODO: update this to the correct timeout, default is 5 seconds
               },
             ),
@@ -280,6 +296,36 @@ export class CollaborationGateway implements OnGatewayDisconnect {
       });
     } catch (error) {
       client.emit(EXCEPTION, `Error submitting code: ${error.message}`);
+      return;
+    }
+  }
+
+  @SubscribeMessage(CHANGE_LANGUAGE)
+  async handleChangeLanguage(
+    @ConnectedSocket() client: Socket,
+    @MessageBody()
+    payload: {
+      userId: string;
+      sessionId: string;
+      language: string;
+    },
+  ) {
+    try {
+      const { userId, sessionId, language } = payload;
+
+      if (!userId || !sessionId || !language) {
+        client.emit(SESSION_ERROR, 'Invalid change language request payload.');
+        return;
+      }
+
+      this.sessionLanguageMap.set(sessionId, language);
+
+      this.server.to(sessionId).emit(LANGUAGE_CHANGED, {
+        changedBy: userId,
+        language,
+      });
+    } catch (error) {
+      client.emit(EXCEPTION, `Error changing language: ${error.message}`);
       return;
     }
   }
