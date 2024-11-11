@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: code-execution-service
+  namespace: peerprep
+  labels:
+    app: code-execution-service
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3006
+      targetPort: 3006
+      protocol: TCP
+  selector:
+    app: code-execution-service
