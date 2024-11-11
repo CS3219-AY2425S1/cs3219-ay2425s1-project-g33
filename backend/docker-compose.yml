@@ -5,7 +5,6 @@ services:
   gateway-service:
     build:
       context: ./gateway-service
-      target: builder
     container_name: gateway-service
     command: npm run start:dev
     env_file:
@@ -30,7 +29,6 @@ services:
   question-service:
     build:
       context: ./question-service
-      target: builder
     container_name: question-service
     volumes:
       - ./question-service:/app
@@ -46,7 +44,6 @@ services:
   user-service:
     build:
       context: ./user-service
-      target: builder
     container_name: user-service
     command: npm run start:dev
     volumes:
@@ -62,7 +59,6 @@ services:
   auth-service:
     build:
       context: ./auth-service
-      target: builder
     container_name: auth-service
     volumes:
       - ./auth-service:/app
@@ -78,7 +74,6 @@ services:
   matching-service:
     build:
       context: ./matching-service
-      target: builder
     container_name: matching-service
     volumes:
       - ./matching-service:/app
@@ -101,7 +96,6 @@ services:
   collaboration-service:
     build:
       context: ./collaboration-service
-      target: builder
     container_name: collaboration-service
     volumes:
       - ./collaboration-service:/app
@@ -117,7 +111,6 @@ services:
   code-execution-service:
     build:
       context: ./code-execution-service
-      target: development
     container_name: code-execution-service
     volumes:
       - ./code-execution-service:/app
@@ -133,7 +126,6 @@ services:
   y-websocket-service:
     build:
       context: ./y-websocket-service
-      target: builder
     container_name: y-websocket-service
     volumes:
       - ./y-websocket-service:/app
