@@ -1,0 +1,26 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: peerprep-ingress
+  namespace: peerprep
+  annotations:
+    kubernetes.io/ingress.global-static-ip-name: "peerprep33-ip"
+spec:
+  ingressClassName: gce
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: gateway-service
+                port:
+                  number: 4000
+          - path: /yjs
+            pathType: Prefix
+            backend:
+              service:
+                name: y-websocket-service
+                port:
+                  number: 4001

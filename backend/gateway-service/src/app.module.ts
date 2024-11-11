@@ -10,6 +10,7 @@ import { AtAuthGuard, RtAuthGuard } from './common/guards';
 import { MatchGateway } from './modules/match/match.controller';
 import { RedisMatchService } from './modules/match/redis.service';
 import { config } from './common/configs';
+import { HealthController } from './modules/health/health.controller';
 import { CollaborationGateway } from './modules/collaboration/collaborationws.controller';
 
 @Module({
@@ -70,6 +71,7 @@ import { CollaborationGateway } from './modules/collaboration/collaborationws.co
     QuestionController,
     AuthController,
     CollaborationController,
+    HealthController,
     CodeExecutionController,
   ],
   providers: [

@@ -15,7 +15,7 @@ export class RedisMatchService {
 
   // Subscribe to the Redis Pub/Sub channel for match events
   subscribeToMatchEvents(callback: (matchedUsers: any) => void): void {
-    this.redisSubscriber.subscribe('matchChannel', (err, count) => {
+    this.redisSubscriber.subscribe('matchChannel', (err) => {
       if (err) {
         console.error('Error subscribing to Redis channel:', err);
         return;
@@ -35,11 +35,13 @@ export class RedisMatchService {
             matchId: parsedMessage.matchId,
             matchedUserIds: parsedMessage.matchedUserIds,
           });
-    }}});
+        }
+      }
+    });
   }
 
   subscribeToTimeoutEvents(callback: (matchedUsers: any) => void): void {
-    this.redisSubscriber.subscribe('timeoutChannel', (err, count) => {
+    this.redisSubscriber.subscribe('timeoutChannel', (err) => {
       if (err) {
         console.error('Error subscribing to Redis channel:', err);
         return;

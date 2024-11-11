@@ -12,7 +12,6 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - NODE_ENV=development
       - PUBLIC_API_URL=http://gateway-service:4000
     networks:
       - backend_shared-network

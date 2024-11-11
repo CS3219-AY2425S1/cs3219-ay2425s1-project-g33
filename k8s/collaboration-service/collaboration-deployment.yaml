@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: collaboration-service
+  namespace: peerprep
+  labels:
+    app: collaboration-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: collaboration-service
+  template:
+    metadata:
+      labels:
+        app: collaboration-service
+    spec:
+      containers:
+        - name: collaboration-service
+          image: asia-southeast1-docker.pkg.dev/peerprep-438213/peerprep/collaboration-service:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3005
+          envFrom:
+            - secretRef:
+                name: peerprep-secrets
+            - configMapRef:
+                name: collaboration-configmap
+      restartPolicy: Always

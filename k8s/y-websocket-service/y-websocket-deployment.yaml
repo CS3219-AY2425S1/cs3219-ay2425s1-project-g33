@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: y-websocket-service
+  namespace: peerprep
+  labels:
+    app: y-websocket-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: y-websocket-service
+  template:
+    metadata:
+      labels:
+        app: y-websocket-service
+    spec:
+      containers:
+        - name: y-websocket-service
+          image: asia-southeast1-docker.pkg.dev/peerprep-438213/peerprep/y-websocket-service:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 4001
+          envFrom:
+            - secretRef:
+                name: peerprep-secrets
+            - configMapRef:
+                name: ywebsocket-configmap
+      restartPolicy: Always

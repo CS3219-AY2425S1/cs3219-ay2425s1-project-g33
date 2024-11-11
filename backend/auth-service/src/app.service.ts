@@ -186,7 +186,7 @@ export class AppService {
   }
 
   public async resetPassword(dto: ResetPasswordDto): Promise<boolean> {
-    const { userId, email } = await this.validatePasswordResetToken(dto.token);
+    const { userId } = await this.validatePasswordResetToken(dto.token);
 
     const hashedPassword = await bcrypt.hash(dto.password, SALT_ROUNDS);
 
@@ -218,6 +218,7 @@ export class AppService {
       }
       return { userId, email };
     } catch (err) {
+      console.error(err);
       throw new RpcException({
         statusCode: HttpStatus.UNAUTHORIZED,
         message: 'Unauthorized: Invalid or expired password reset token',
@@ -246,7 +247,7 @@ export class AppService {
       text: `Click here to reset your password: ${resetUrl}`,
     };
 
-    transporter.sendMail(mailOptions, (error, info) => {
+    transporter.sendMail(mailOptions, (error) => {
       if (error) {
         throw new RpcException(`Error sending reset email: ${error.message}`);
       }
@@ -260,6 +261,7 @@ export class AppService {
       });
       return decoded;
     } catch (error) {
+      console.error(error);
       throw new RpcException('Invalid access token');
     }
   }
@@ -271,6 +273,7 @@ export class AppService {
       });
       return decoded;
     } catch (error) {
+      console.error(error);
       throw new RpcException('Invalid Refresh Token');
     }
   }

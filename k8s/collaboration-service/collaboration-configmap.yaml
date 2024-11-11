@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: collaboration-configmap
+  namespace: peerprep
+data:
+  COLLABORATION_SERVICE_HOST: "0.0.0.0"
+  COLLABORATION_SERVICE_PORT: "3005"
+  COLLABORATION_SERVICE_TRANSPORT: "TCP"
+
+  USER_SERVICE_HOST: "user-service"
+  USER_SERVICE_PORT: "3001"
+  USER_SERVICE_TRANSPORT: "TCP"
+
+  QUESTION_SERVICE_HOST: "question-service"
+  QUESTION_SERVICE_PORT: "3002"
+  QUESTION_SERVICE_TRANSPORT: "TCP"
+
+  REDIS_HOST: "redis"
+  REDIS_PORT: "6379"

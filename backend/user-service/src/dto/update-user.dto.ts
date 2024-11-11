@@ -1,12 +1,17 @@
-import { IsNotEmpty, IsString, IsEnum, IsOptional, IsBoolean } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsString,
+  IsEnum,
+  IsOptional,
+  IsBoolean,
+} from 'class-validator';
 import { Languages, Proficiency } from 'src/constants';
 
 export class UpdateUserDto {
-
   @IsString()
   @IsNotEmpty()
   username: string;
-  
+
   @IsString()
   @IsNotEmpty()
   displayName: string;

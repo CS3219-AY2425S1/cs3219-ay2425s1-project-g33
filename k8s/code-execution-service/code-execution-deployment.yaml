@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: code-execution-service
+  namespace: peerprep
+  labels:
+    app: code-execution-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: code-execution-service
+  template:
+    metadata:
+      labels:
+        app: code-execution-service
+    spec:
+      containers:
+        - name: code-execution-service
+          image: asia-southeast1-docker.pkg.dev/peerprep-438213/peerprep/code-execution-service:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3006
+          envFrom:
+            - secretRef:
+                name: peerprep-secrets
+            - configMapRef:
+                name: code-execution-configmap
+      restartPolicy: Always

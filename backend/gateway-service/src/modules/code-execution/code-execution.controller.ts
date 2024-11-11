@@ -1,7 +1,9 @@
 import { Controller, Post, Body, Inject } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { ExecuteCodeDto } from './dto/execute-code.dto'; // Create this DTO
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('code-execution')
 @Controller('code-execution')
 export class CodeExecutionController {
   constructor(

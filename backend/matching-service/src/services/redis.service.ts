@@ -98,15 +98,15 @@ export class RedisService {
     }
   }
 
-  async publishMatchedUsers(matchId: string, matchedUserIds: string[]): Promise<void> {
+  async publishMatchedUsers(
+    matchId: string,
+    matchedUserIds: string[],
+  ): Promise<void> {
     const message = {
       matchId: matchId,
       matchedUserIds: matchedUserIds,
     };
-    await this.redisPublisher.publish(
-      'matchChannel',
-      JSON.stringify(message),
-    );
+    await this.redisPublisher.publish('matchChannel', JSON.stringify(message));
   }
 
   async publishTimedOutUsers(timedOutUserIds: string[]): Promise<void> {
@@ -126,8 +126,17 @@ export class RedisService {
     return users.map((user) => JSON.parse(user));
   }
 
-  async storeMatch(matchId: string, matchData: MatchDetails, ttl: number = 1000): Promise<void> {
-    await this.redisPublisher.set(matchId, JSON.stringify(matchData), 'EX', ttl);
+  async storeMatch(
+    matchId: string,
+    matchData: MatchDetails,
+    ttl: number = 1000,
+  ): Promise<void> {
+    await this.redisPublisher.set(
+      matchId,
+      JSON.stringify(matchData),
+      'EX',
+      ttl,
+    );
   }
 
   async getMatch(matchId: string): Promise<MatchDetails | null> {

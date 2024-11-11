@@ -158,29 +158,6 @@ export class AppService {
     }
   }
 
-  async updateQuestionTestCases(
-    id: string,
-    testCases: TestCase[],
-  ): Promise<Question> {
-    try {
-      const updatedQuestion = await this.questionModel
-        .findOneAndUpdate(
-          { _id: new Types.ObjectId(id) },
-          { testCases },
-          { new: true },
-        )
-        .exec();
-
-      if (!updatedQuestion) {
-        throw new RpcException('Question not found');
-      }
-
-      return updatedQuestion;
-    } catch (error) {
-      throw new RpcException(error.message);
-    }
-  }
-
   async getCategories(): Promise<{ categories: string[] }> {
     return { categories: QUESTION_CATEGORIES };
   }

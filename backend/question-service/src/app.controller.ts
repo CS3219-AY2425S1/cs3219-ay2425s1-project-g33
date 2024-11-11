@@ -55,12 +55,6 @@ export class AppController {
     return this.appService.updateQuestion(id, updatedQuestionInfo);
   }
 
-  @MessagePattern({ cmd: 'update-question-testcases' })
-  async updateQuestionTestCases(@Payload() data: UpdateQuestionTestCasesDto) {
-    const { id, testCases } = data;
-    return this.appService.updateQuestionTestCases(id, testCases);
-  }
-
   @MessagePattern({ cmd: 'get-categories' })
   async getCategories() {
     return this.appService.getCategories();

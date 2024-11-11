@@ -18,6 +18,7 @@ async function bootstrap() {
       },
     },
   );
+
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,
@@ -26,6 +27,7 @@ async function bootstrap() {
       forbidNonWhitelisted: true,
     }),
   );
+
   await app.listen();
   console.log(
     'Question Service is listening on port',
