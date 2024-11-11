@@ -1,0 +1,53 @@
+name: Backend CI Workflow
+
+on: 
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '18'
+
+      - name: Install Dependencies for Each Service
+        run: |
+          cd backend
+          for service in auth-service question-service user-service matching-service gateway-service collaboration-service; do
+            echo "Installing dependencies for $service"
+            cd $service
+            npm install
+            cd ..
+          done
+
+      # Build Check for Each Service
+      - name: Build Each Service
+        run: |
+          cd backend
+          for service in auth-service question-service user-service matching-service gateway-service collaboration-service; do
+            echo "Building $service"
+            cd $service
+            npm run build
+            cd ..
+          done
+
+      # Lint Check for Each Service
+      - name: Lint Each Service
+        run: |
+          cd backend
+          for service in auth-service question-service user-service matching-service gateway-service collaboration-service; do
+            echo "Linting $service"
+            cd $service
+            npm run lint
+            cd ..
+          done

@@ -29,12 +29,12 @@ export class AppController {
     return this.appService.createUser(data);
   }
 
-  @MessagePattern({ cmd: "create-user-socials"})
+  @MessagePattern({ cmd: 'create-user-socials' })
   async createUserSocials(@Payload() data: CreateUserSocialsDto) {
     return this.appService.createUserSocials(data);
   }
 
-  @MessagePattern({ cmd: "update-user-profile"})
+  @MessagePattern({ cmd: 'update-user-profile' })
   async updateUserProfile(@Payload() data: UpdateUserPayload) {
     return this.appService.updateUserProfile(data);
   }
