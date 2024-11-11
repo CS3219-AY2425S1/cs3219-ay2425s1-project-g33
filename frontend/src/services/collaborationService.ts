@@ -8,7 +8,6 @@ import {
 import {
   HistorySessionInfoResponse,
   SessionHistoryResponseSchema,
-  SessionHistorySchema,
   SessionInfoResponse,
   SessionInfoResponseSchema,
 } from "@/types/SessionInfo";

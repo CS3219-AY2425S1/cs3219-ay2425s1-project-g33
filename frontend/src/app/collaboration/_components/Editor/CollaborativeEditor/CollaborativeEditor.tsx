@@ -13,7 +13,6 @@ import { getRandomColor } from "@/lib/cursorColors";
 import { useSessionContext } from "@/contexts/SessionContext";
 import { Button } from "@/components/ui/button";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
-import { Dialog } from "@/components/ui/dialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -133,8 +132,8 @@ export default function CollaborativeEditor({
                 Do you confirm ending the session?
               </AlertDialogTitle>
               <AlertDialogDescription>
-                This will also end the other user's session, and this action
-                cannot be undone.
+                This will also end the other user&apos;s session, and this
+                action cannot be undone.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>

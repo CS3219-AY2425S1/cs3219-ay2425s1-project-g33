@@ -373,7 +373,7 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({
   }, [socket]);
 
   const onSessionEnded = useCallback(
-    ({ endedBy, message }: { endedBy: string; message: string }) => {
+    ({ endedBy }: { endedBy: string; message: string }) => {
       toast({
         title: "Session ended",
         description: `${
