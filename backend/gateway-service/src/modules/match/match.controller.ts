@@ -255,12 +255,14 @@ export class MatchGateway implements OnGatewayInit {
         matchId,
         matchUserId: user2,
         matchUsername: user2Details.username,
+        matchDisplayname: user2Details.displayName,
       });
       this.server.to(user2SocketId).emit(MATCH_FOUND, {
         message: `You have found a match`,
         matchId,
         matchUserId: user1,
         matchUsername: user1Details.username,
+        matchDisplayname: user1Details.displayName,
       });
 
       // Store participants for this matchId

@@ -22,6 +22,7 @@ interface FindMatchContextProps {
   isConnected: boolean;
   matchId?: string;
   matchUsername?: string;
+  matchDisplayname?: string;
   findingMatch: boolean;
   matchFound: boolean;
   isAwaitingConfirmation: boolean;
@@ -83,6 +84,10 @@ export function FindMatchProvider({
   const [matchId, setMatchId] = useState<string | undefined>();
 
   const [matchUsername, setMatchUsername] = useState<string | undefined>();
+
+  const [matchDisplayname, setMatchDisplayname] = useState<
+    string | undefined
+  >();
 
   const matchRequest: MatchRequest = useMemo(() => {
     return {
@@ -155,12 +160,15 @@ export function FindMatchProvider({
     ({
       matchId,
       matchUsername,
+      matchDisplayname,
     }: {
       matchId: string;
       matchUsername: string;
+      matchDisplayname: string;
     }) => {
       setMatchId(matchId);
       setMatchUsername(matchUsername);
+      setMatchDisplayname(matchDisplayname);
       setFindingMatch(false);
       setMatchFound(true);
       setIsAwaitingConfirmation(false);
@@ -270,6 +278,7 @@ export function FindMatchProvider({
     isConnected,
     matchId,
     matchUsername,
+    matchDisplayname,
     findingMatch,
     matchFound,
     isAwaitingConfirmation,

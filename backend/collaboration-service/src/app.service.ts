@@ -86,6 +86,25 @@ export class AppService {
     }
   }
 
+  async updateSessionStatus(
+    id: string,
+    status: string,
+  ): Promise<CollabSession> {
+    try {
+      const session = await this.sessionModel
+        .findByIdAndUpdate(id, { status }, { new: true })
+        .exec();
+      if (!session) {
+        throw new RpcException('Session not found');
+      }
+      return session;
+    } catch (error) {
+      throw new RpcException(
+        `Failed to update session status: ${error.message}`,
+      );
+    }
+  }
+
   async addChatMessage(data: ChatSendMessageRequestDto) {
     await this.redisService.addChatMessage(data);
     return true;

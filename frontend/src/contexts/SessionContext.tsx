@@ -7,6 +7,7 @@ import {
   useMemo,
   useCallback,
   useEffect,
+  // SetStateAction, Dispatch,
 } from "react";
 import {
   SessionUserProfiles,
@@ -16,7 +17,6 @@ import {
 import { createCodeReview } from "@/services/collaborationService";
 import { CodeReview } from "@/types/CodeReview";
 import { io } from "socket.io-client";
-import { SessionJoinRequest } from "@/types/SessionInfo";
 import {
   ChatMessage,
   ChatMessages,
@@ -27,9 +27,15 @@ import {
 import { v4 as uuidv4 } from "uuid";
 import { Question } from "@/types/Question";
 import { SubmissionResult } from "@/types/TestResult";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
+import { SessionJoinRequest } from "@/types/SessionInfo";
+import { Frown } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
+import { useToast } from "@/hooks/use-toast";
 
 interface SessionContextType {
-  isConnected: boolean;
+  connectionStatus: "connecting" | "connected" | "failed";
   sessionId: string;
   sessionUserProfiles: SessionUserProfiles;
   userProfile: UserProfile | null;
@@ -38,12 +44,15 @@ interface SessionContextType {
   handleSendMessage: (message: string) => void;
   setSessionId: (sessionId: string) => void;
   setUserProfile: (userProfile: UserProfile) => void;
+  language: string;
+  changeLanguage: (language: string) => void;
   submitCode: () => void;
   submitting: boolean;
   submissionResult?: SubmissionResult;
   testResultPanel: string;
   setSubmissionResult: (result: SubmissionResult) => void;
   setTestResultPanel: (panel: string) => void;
+  endSession: () => void;
   codeReview: {
     isGeneratingCodeReview: boolean;
     currentClientCode: string;
@@ -71,7 +80,12 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({
   question,
   children,
 }) => {
-  const [isConnected, setIsConnected] = useState<boolean>(false);
+  const router = useRouter();
+  const { toast } = useToast();
+
+  const [connectionStatus, setConnectionStatus] = useState<
+    "connecting" | "connected" | "failed"
+  >("connecting");
   const [sessionId, setSessionId] = useState<string>(initialSessionId);
   const [sessionUserProfiles, setSessionUserProfiles] =
     useState<SessionUserProfiles>([]);
@@ -182,19 +196,126 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({
         }
       );
     },
+    [sessionId, socket, userProfile.id]
+  );
+
+  const handleJoinSession = useCallback(
+    (payload: SessionJoinRequest) => {
+      if (!socket.connected) return;
+
+      socket.emit(
+        "sessionJoin",
+        payload,
+        (ack: {
+          success: boolean;
+          data: { messages: ChatMessages };
+          error: string | undefined;
+        }) => {
+          try {
+            if (!ack.success) throw new Error(ack.error);
+            setConnectionStatus("connected");
+            const currentMessages = ChatMessagesSchema.parse(
+              ack.data.messages.map((message: ChatMessage) => ({
+                ...message,
+                status: ChatMessageStatusEnum.enum.sent,
+              }))
+            );
+            setMessages([...currentMessages]);
+          } catch (e) {
+            setConnectionStatus("failed");
+          }
+        }
+      );
+    },
     [socket]
   );
 
-  const sessionJoinRequest: SessionJoinRequest = {
-    userId: userProfile.id,
-    sessionId,
-  };
+  const onSessionJoined = useCallback(
+    ({
+      language,
+      sessionUserProfiles,
+    }: {
+      language: string;
+      sessionUserProfiles: SessionUserProfiles;
+    }) => {
+      console.log("sessionJoined occured");
+      try {
+        _setLanguage(language);
+
+        const currentSessionUserProfiles =
+          SessionUserProfilesSchema.parse(sessionUserProfiles);
+        setSessionUserProfiles([...currentSessionUserProfiles]);
+      } catch (e) {
+        // TODO toast here
+        console.log(e);
+      }
+    },
+    []
+  );
+
+  const onChatReceiveMessage = useCallback(
+    (newMessage: ChatMessage) => {
+      try {
+        newMessage["status"] = ChatMessageStatusEnum.enum.sent;
+        const messageParsed = ChatMessageSchema.parse(newMessage);
+
+        if (messageParsed.userId === userProfile.id) return;
+
+        setMessages((prev) => [...prev, messageParsed]);
+      } catch (e) {
+        console.log(e);
+      }
+    },
+    [userProfile.id]
+  );
+
+  const onSessionLeft = useCallback(
+    ({
+      sessionUserProfiles,
+    }: {
+      userId: string;
+      sessionUserProfiles: string;
+    }) => {
+      try {
+        console.log("sessionLeft occured");
+
+        const currentSessionUserProfiles =
+          SessionUserProfilesSchema.parse(sessionUserProfiles);
+        setSessionUserProfiles([...currentSessionUserProfiles]);
+
+        console.log(userProfile);
+      } catch (e) {
+        console.error(e);
+      }
+    },
+    [userProfile]
+  );
 
   const [submitting, setSubmitting] = useState(false);
 
   const [submissionResult, setSubmissionResult] = useState<SubmissionResult>();
 
   const [testResultPanel, setTestResultPanel] = useState("test-cases");
+
+  const [language, _setLanguage] = useState("python3");
+
+  const changeLanguage = useCallback(
+    (language: string) => {
+      socket.emit("changeLanguage", {
+        userId: userProfile.id,
+        sessionId: sessionId,
+        language,
+      });
+    },
+    [sessionId, socket, userProfile.id]
+  );
+
+  const onLanguageChanged = useCallback(
+    ({ language }: { changedBy: string; language: string }) => {
+      _setLanguage(language);
+    },
+    []
+  );
 
   const submitCode = useCallback(() => {
     if (submitting) {
@@ -210,8 +331,17 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({
       sessionId: sessionId,
       questionId: question._id,
       code: codeReview.currentClientCode,
+      language: language,
     });
-  }, [socket, userProfile, sessionId, codeReview.currentClientCode]);
+  }, [
+    submitting,
+    socket,
+    userProfile.id,
+    sessionId,
+    question._id,
+    codeReview.currentClientCode,
+    language,
+  ]);
 
   const onSubmitting = useCallback(({}: { message: string }) => {
     setSubmitting(true);
@@ -235,84 +365,78 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({
     []
   );
 
+  const endSession = useCallback(() => {
+    socket.emit("sessionEnd", {
+      userId: userProfile.id,
+      sessionId,
+    });
+  }, [socket]);
+
+  const onSessionEnded = useCallback(
+    ({ endedBy }: { endedBy: string; message: string }) => {
+      toast({
+        title: "Session ended",
+        description: `${
+          userProfile.id === endedBy
+            ? "You have ended the session"
+            : "The other user has ended the session"
+        }, you will be redirected to the dashboard shortly.`,
+      });
+      setTimeout(() => {
+        router.push("/dashboard");
+      }, 4000);
+    },
+    [toast, router]
+  );
+
   // connect to the session socket on mount
   useEffect(() => {
     socket.connect();
 
     socket.on("connect", () => {
-      socket.emit("sessionJoin", sessionJoinRequest);
+      handleJoinSession({
+        userId: userProfile.id,
+        sessionId,
+      });
     });
 
-    socket.on("sessionJoined", ({ userId, messages, sessionUserProfiles }) => {
-      console.log("sessionJoined occured");
-      try {
-        if (userId === userProfile.id) {
-          setIsConnected(true);
-          const currentMessages = ChatMessagesSchema.parse(
-            messages.map((message: ChatMessage) => ({
-              ...message,
-              status: ChatMessageStatusEnum.enum.sent,
-            }))
-          );
-          setMessages([...currentMessages]);
-        }
+    socket.on("sessionJoined", onSessionJoined);
 
-        const currentSessionUserProfiles =
-          SessionUserProfilesSchema.parse(sessionUserProfiles);
-        setSessionUserProfiles([...currentSessionUserProfiles]);
-      } catch (e) {
-        console.log(e);
-      }
-    });
+    socket.on("sessionLeft", onSessionLeft);
 
-    socket.on(
-      "sessionLeft",
-      ({
-        sessionUserProfiles,
-      }: {
-        userId: string;
-        sessionUserProfiles: string;
-      }) => {
-        try {
-          console.log("sessionLeft occured");
+    socket.on("chatReceiveMessage", onChatReceiveMessage);
 
-          const currentSessionUserProfiles =
-            SessionUserProfilesSchema.parse(sessionUserProfiles);
-          setSessionUserProfiles([...currentSessionUserProfiles]);
-
-          console.log(userProfile);
-        } catch (e) {
-          console.log(e);
-        }
-      }
-    );
-
-    socket.on("chatReceiveMessage", (data) => {
-      try {
-        data["status"] = ChatMessageStatusEnum.enum.sent;
-        const messageParsed = ChatMessageSchema.parse(data);
-
-        if (messageParsed.userId === userProfile.id) return;
-
-        setMessages((prev) => [...prev, messageParsed]);
-      } catch (e) {
-        console.log(e);
-      }
-    });
+    socket.on("languageChanged", onLanguageChanged);
 
     socket.on("submitting", onSubmitting);
     socket.on("submitted", onSubmitted);
 
+    socket.on("sessionEnded", onSessionEnded);
+
     return () => {
-      socket.emit("sessionLeave", sessionJoinRequest);
+      socket.emit("sessionLeave", {
+        userId: userProfile.id,
+        sessionId,
+      });
       socket.removeAllListeners();
       socket.disconnect();
     };
-  }, [socket]);
+  }, [
+    onSubmitted,
+    onSubmitting,
+    sessionId,
+    socket,
+    userProfile,
+    handleJoinSession,
+    onChatReceiveMessage,
+    onSessionJoined,
+    onSessionLeft,
+    onLanguageChanged,
+  ]);
 
   const contextValue: SessionContextType = useMemo(
     () => ({
-      isConnected,
+      connectionStatus,
       sessionId,
       setSessionId,
       sessionUserProfiles,
@@ -322,12 +446,15 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({
       messages,
       setMessages,
       handleSendMessage,
+      language,
+      changeLanguage,
       submitCode,
       submitting,
       submissionResult,
       testResultPanel,
       setTestResultPanel,
       setSubmissionResult,
+      endSession,
       codeReview: {
         ...codeReview,
         setCurrentClientCode,
@@ -335,7 +462,7 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({
       },
     }),
     [
-      isConnected,
+      connectionStatus,
       codeReview,
       sessionId,
       sessionUserProfiles,
@@ -343,6 +470,8 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({
       userProfile,
       messages,
       handleSendMessage,
+      language,
+      changeLanguage,
       submitCode,
       submitting,
       submissionResult,
@@ -355,7 +484,13 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({
 
   return (
     <SessionContext.Provider value={contextValue}>
-      {children}
+      {connectionStatus === "connected" ? (
+        children
+      ) : connectionStatus === "connecting" ? (
+        <LoadingSessionComponent />
+      ) : (
+        <LoadingErrorSessionComponent />
+      )}
     </SessionContext.Provider>
   );
 };
@@ -367,3 +502,36 @@ export const useSessionContext = (): SessionContextType => {
   }
   return context;
 };
+
+// Ideally should be extracted as a generic component
+function LoadingSessionComponent() {
+  return (
+    <div className="h-full w-full flex flex-col items-center justify-center gap-5">
+      <LoadingSpinner />
+      <p>Joining the collaboration session...</p>
+    </div>
+  );
+}
+
+function LoadingErrorSessionComponent() {
+  const router = useRouter();
+
+  return (
+    <div className="h-full w-full flex flex-col items-center justify-center gap-5">
+      <Frown size={50} />
+      <div className="text-center">
+        <p>Something went wrong while joining the session.</p>
+        <p>Please try again or find another match.</p>
+      </div>
+      <div className="flex flex-col gap-2">
+        <Button onClick={() => window.location.reload()}>Try Again</Button>
+        <Button
+          variant="secondary"
+          onClick={() => router.replace("/dashboard")}
+        >
+          Back to Dashboard
+        </Button>
+      </div>
+    </div>
+  );
+}

@@ -1,4 +1,5 @@
 import Navbar from "@/components/Navbar";
+import { Toaster } from "@/components/ui/toaster";
 import { PropsWithChildren } from "react";
 
 export default function Layout({ children }: PropsWithChildren) {
@@ -23,6 +24,7 @@ export default function Layout({ children }: PropsWithChildren) {
     <div className="flex flex-col w-full h-screen max-h-screen overflow-hidden">
       <Navbar className="fixed top-0 left-0 w-full" />
       <main className="flex w-full h-full p-2 pt-16">{children}</main>
+      <Toaster />
     </div>
   );
 }

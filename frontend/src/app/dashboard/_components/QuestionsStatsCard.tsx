@@ -20,7 +20,15 @@ import { Label, Pie, PieChart, ResponsiveContainer } from "recharts";
 export function QuestionsStatsCard() {
   return (
     <Card className="flex flex-col items-center gap-1 p-5">
-      <DifficultyPieChart />
+      {/* <DifficultyPieChart /> */}
+      <div className="flex flex-col items-center py-5">
+        <h4 className="text-2xl font-bold">30</h4>
+        <div>
+          <span className="text-xs">Questions</span>
+          <span className="text-xs"> attempted</span>
+        </div>
+      </div>
+
       <div className="flex items-center gap-1">
         <DifficultySubStatCard type="easy" />
         <DifficultySubStatCard type="medium" />

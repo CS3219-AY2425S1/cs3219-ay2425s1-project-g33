@@ -40,6 +40,14 @@ export class AppController {
     return sessionHistory;
   }
 
+  @MessagePattern({ cmd: 'update-session-status' })
+  async handleUpdateSessionStatus(
+    @Payload() data: { id: string; status: string },
+  ) {
+    console.log('called update session status');
+    return await this.appService.updateSessionStatus(data.id, data.status);
+  }
+
   @MessagePattern({ cmd: 'add-chat-message' })
   async handleAddChatMessage(@Payload() data: ChatSendMessageRequestDto) {
     console.log('add-chat-message controller service invoked');

@@ -27,7 +27,7 @@ interface ConfirmationDialogProps {
 export default function ConfirmationDialog({ user }: ConfirmationDialogProps) {
   const {
     matchFound,
-    matchUsername,
+    matchDisplayname,
     isAwaitingConfirmation,
     handleDeclineMatch,
     handleAcceptMatch,
@@ -83,16 +83,21 @@ export default function ConfirmationDialog({ user }: ConfirmationDialogProps) {
           <Avatar>
             <AvatarImage />
             <AvatarFallback>
-              {getInitialsFromName(user.displayName)}
+              {getInitialsFromName(user.displayName.toUpperCase())}
             </AvatarFallback>
           </Avatar>
+
           <Ellipsis />
-          <Avatar>
-            <AvatarImage />
-            <AvatarFallback>
-              {matchUsername ? getInitialsFromName(matchUsername) : "?"}
-            </AvatarFallback>
-          </Avatar>
+          <div>
+            <Avatar>
+              <AvatarImage />
+              <AvatarFallback>
+                {matchDisplayname
+                  ? getInitialsFromName(matchDisplayname.toUpperCase())
+                  : "?"}
+              </AvatarFallback>
+            </Avatar>
+          </div>
         </div>
         <AlertDialogFooter>
           <AlertDialogCancel onClick={handleDeclineMatch}>
