@@ -41,5 +41,5 @@ jobs:
             
             # Build and push the Docker image
             echo "Building and pushing image for $service..."
-            docker buildx build --platform linux/amd64 -t $IMAGE_NAME -f ./$service/Dockerfile ./backend/$service --push
+            docker buildx build --platform linux/amd64 -t $IMAGE_NAME -f ./backend/$service/Dockerfile ./backend/$service --push
           done
