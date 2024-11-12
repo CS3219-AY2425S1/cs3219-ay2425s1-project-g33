@@ -17,6 +17,7 @@ export interface TabPanelProps extends TabsProps {
   defaultValue?: string;
   value?: string;
   onValueChange?: (value: string) => void;
+  tabChildren?: ReactNode;
 }
 
 export default function TabPanel({
@@ -36,6 +37,7 @@ export default function TabPanel({
     >
       <div className="flex-shrink-0 overflow-x-hidden rounded-t-lg bg-background-200">
         <TabOptions
+          tabChildren={props.tabChildren}
           options={tabs.map((tab) => {
             return { value: tab.value, label: tab.label, Icon: tab.Icon };
           })}
@@ -56,9 +58,10 @@ export default function TabPanel({
 
 interface TabOptionsProps {
   options: TabButtonProps[];
+  tabChildren?: ReactNode;
 }
 
-function TabOptions({ options }: TabOptionsProps) {
+function TabOptions({ options, tabChildren }: TabOptionsProps) {
   return (
     <TabsList className="flex items-center justify-start bg-transparent">
       {options.map((option) => (
@@ -69,6 +72,7 @@ function TabOptions({ options }: TabOptionsProps) {
           Icon={option.Icon}
         />
       ))}
+      {tabChildren}
     </TabsList>
   );
 }

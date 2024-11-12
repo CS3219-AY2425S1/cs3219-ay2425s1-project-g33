@@ -52,11 +52,11 @@ function ChatBubble({ message }: ChatBubbleProps) {
 
   const profileDetails = useMemo(() => {
     return getUserProfileDetailByUserId(message.userId);
-  }, [message]);
+  }, [message, getUserProfileDetailByUserId]);
 
   const isSender = useMemo(() => {
     return message.userId === userProfile?.id;
-  }, []);
+  }, [message.userId, userProfile?.id]);
 
   const statusIcon = useMemo(() => {
     switch (message.status) {

@@ -32,6 +32,12 @@ export default async function Page(props: { params: Params }) {
 
   const sessionInfo = SessionInfoSchema.parse(sessionInfoResponse.data);
 
+  console.log(sessionInfo);
+  console.log(sessionInfo.status == "active");
+  if (sessionInfo.status !== "active") {
+    redirect("/dashboard");
+  }
+
   // Get user profile
   const userProfileResponse: UserProfileResponse = await getCurrentUser();
   const parsedProfile = UserProfileSchema.safeParse(userProfileResponse.data);
