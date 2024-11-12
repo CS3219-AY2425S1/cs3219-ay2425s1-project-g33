@@ -13,9 +13,9 @@ export async function runCode(
   await fs.mkdir(folder, { recursive: true });
 
   // Create a ran between 1 and 100
-  const rand = Math.floor(Math.random() * 100) + 1;
+  const rand = Math.floor(Math.random() * 1000) + 1;
 
-  const sourceFileName = `solution`;
+  const sourceFileName = `Solution`;
   const sourceFile = `${folder}/${sourceFileName}.${extensions[lang]}`;
   const inputFile = `${folder}/input-${rand}.txt`;
   const outputFile = `${folder}/output.txt`;
