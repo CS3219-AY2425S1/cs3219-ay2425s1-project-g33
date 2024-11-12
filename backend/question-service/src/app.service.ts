@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Question } from './schema/question.schema';
-import { CreateQuestionDto, GetQuestionsResponse, TestCase } from './dto';
+import { CreateQuestionDto, GetQuestionsResponse } from './dto';
 import { RpcException } from '@nestjs/microservices';
 import { QUESTION_CATEGORIES } from './constants/question-categories.constant';
 

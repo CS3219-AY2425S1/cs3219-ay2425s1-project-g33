@@ -8,7 +8,6 @@ import {
   GetQuestionsDto,
   UpdateQuestionDto,
   FindQuestionByIdDto,
-  UpdateQuestionTestCasesDto,
 } from './dto';
 
 @Controller()
