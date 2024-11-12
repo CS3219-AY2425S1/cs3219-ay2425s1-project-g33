@@ -18,7 +18,7 @@ spec:
       containers:
         - name: collaboration-service
           image: asia-southeast1-docker.pkg.dev/peerprep-438213/peerprep/collaboration-service:latest
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3005
           envFrom:

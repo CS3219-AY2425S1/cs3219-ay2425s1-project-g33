@@ -16,7 +16,7 @@ spec:
       containers:
         - name: gateway-service
           image: asia-southeast1-docker.pkg.dev/peerprep-438213/peerprep/gateway-service:latest
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 4000
           env:
