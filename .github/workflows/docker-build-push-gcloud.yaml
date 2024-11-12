@@ -1,0 +1,46 @@
+name: Build and Push Docker Images to Google Cloud
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Google Cloud CLI
+        uses: google-github-actions/setup-gcloud@v0.2.0
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          service_account_key: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
+          export_default_credentials: true
+
+      - name: Authenticate Docker to Google Artifact Registry
+        run: gcloud auth configure-docker ${{ secrets.GCP_REGION }}-docker.pkg.dev
+
+      - name: Build and Push Docker Images for Each Service
+        env:
+          GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+          GCP_REGION: ${{ secrets.GCP_REGION }}
+          SERVICES: ${{ vars.SERVICES }}
+        run: |
+          # Convert the comma-separated SERVICES string to an array
+          IFS=',' read -ra services <<< "$SERVICES"
+
+          # Loop over each service, build and push its Docker image
+          for service in "${services[@]}"; do
+            # Define the Docker image path
+            IMAGE_NAME="${GCP_REGION}-docker.pkg.dev/${GCP_PROJECT_ID}/peerprep/$service:${GITHUB_SHA}"
+            
+            # Build and push the Docker image
+            echo "Building and pushing image for $service..."
+            docker buildx build --platform linux/amd64 -t $IMAGE_NAME -f ./$service/Dockerfile ./backend/$service --push
+          done
