@@ -13,10 +13,9 @@ import { cache } from "react";
 export const getCurrentUser = cache(
   async function (): Promise<UserProfileResponse> {
     console.log("getCurrentUser service Invoked");
+    const access_token = await getAccessToken();
 
     try {
-      const access_token = await getAccessToken();
-
       const res = await fetch(
         process.env.PUBLIC_API_URL + `/api/users/current`,
         {
