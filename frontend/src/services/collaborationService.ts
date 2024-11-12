@@ -16,9 +16,8 @@ import { cache } from "react";
 export const getSessionInfo = cache(async function (
   sessionId: string
 ): Promise<SessionInfoResponse> {
+  const access_token = await getAccessToken();
   try {
-    const access_token = await getAccessToken();
-
     const res = await fetch(
       process.env.PUBLIC_API_URL + `/api/collaboration/${sessionId}`,
       {
@@ -44,9 +43,8 @@ export const getSessionInfo = cache(async function (
 });
 
 export async function getUserSessionHistory(): Promise<HistorySessionInfoResponse> {
+  const access_token = await getAccessToken();
   try {
-    const access_token = await getAccessToken();
-
     const res = await fetch(
       process.env.PUBLIC_API_URL + `/api/collaboration/history`,
       {
@@ -73,9 +71,8 @@ export async function createCodeReview(
   sessionId: string,
   code: string
 ): Promise<CodeReviewResponse> {
+  const access_token = await getAccessToken();
   try {
-    const access_token = await getAccessToken();
-
     const res = await fetch(
       process.env.PUBLIC_API_URL + "/api/collaboration/review",
       {

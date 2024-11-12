@@ -126,9 +126,8 @@ export async function signup(
 }
 
 export async function logout(): Promise<LogoutResponse> {
+  const access_token = await getAccessToken();
   try {
-    const access_token = await getAccessToken();
-
     const res: Response = await fetch(
       process.env.PUBLIC_API_URL + `/api/auth/logout`,
       {
@@ -155,9 +154,8 @@ export async function logout(): Promise<LogoutResponse> {
 }
 
 export async function refreshAccessToken(): Promise<TokenPairResponse> {
+  const refresh_token = await getRefreshToken();
   try {
-    const refresh_token = await getRefreshToken();
-
     const res: Response = await fetch(
       process.env.PUBLIC_API_URL + `/api/auth/refresh`,
       {
@@ -183,13 +181,14 @@ export async function refreshAccessToken(): Promise<TokenPairResponse> {
   }
 }
 
-export async function resetPassword(email: string): 
-Promise<{statusCode: number; message: string}> {
+export async function resetPassword(
+  email: string
+): Promise<{ statusCode: number; message: string }> {
   try {
     const validatedData = ForgotPasswordSchema.parse({ email });
-    
+
     const response = await fetch(
-      process.env.PUBLIC_API_URL + '/api/auth/reset-password',
+      process.env.PUBLIC_API_URL + "/api/auth/reset-password",
       {
         cache: "no-cache",
         method: "POST",
@@ -213,11 +212,12 @@ Promise<{statusCode: number; message: string}> {
   }
 }
 
-export async function verifyCode(token: string): 
-Promise<{statusCode: number; message: string}> {
+export async function verifyCode(
+  token: string
+): Promise<{ statusCode: number; message: string }> {
   try {
     const response = await fetch(
-      process.env.PUBLIC_API_URL + '/api/auth/reset-password/verify',
+      process.env.PUBLIC_API_URL + "/api/auth/reset-password/verify",
       {
         cache: "no-cache",
         method: "POST",
@@ -241,18 +241,20 @@ Promise<{statusCode: number; message: string}> {
   }
 }
 
-export async function confirmResetPassword(token: string, password: string): 
-Promise<{statusCode: number; message: string}> {
+export async function confirmResetPassword(
+  token: string,
+  password: string
+): Promise<{ statusCode: number; message: string }> {
   try {
     const response = await fetch(
-      process.env.PUBLIC_API_URL + '/api/auth/reset-password/confirm',
+      process.env.PUBLIC_API_URL + "/api/auth/reset-password/confirm",
       {
         cache: "no-cache",
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({token, password}),
+        body: JSON.stringify({ token, password }),
       }
     );
 
@@ -268,4 +270,3 @@ Promise<{statusCode: number; message: string}> {
     };
   }
 }
-

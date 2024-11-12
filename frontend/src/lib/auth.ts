@@ -16,11 +16,15 @@ import {
 export async function getAccessToken(): Promise<AccessToken> {
   "use server";
   const cookieStore = await cookies();
-  const access_token = AccessTokenSchema.parse(
-    cookieStore.get("access_token")?.value
-  );
+  try {
+    const access_token = AccessTokenSchema.parse(
+      cookieStore.get("access_token")?.value
+    );
 
-  return access_token;
+    return access_token;
+  } catch (error) {
+    return "";
+  }
 }
 
 /**
@@ -31,11 +35,15 @@ export async function getAccessToken(): Promise<AccessToken> {
 export async function getRefreshToken(): Promise<RefreshToken> {
   "use server";
   const cookieStore = await cookies();
-  const access_token = AccessTokenSchema.parse(
-    cookieStore.get("refresh_token")?.value
-  );
+  try {
+    const access_token = AccessTokenSchema.parse(
+      cookieStore.get("refresh_token")?.value
+    );
 
-  return access_token;
+    return access_token;
+  } catch (error) {
+    return "";
+  }
 }
 
 /**

@@ -18,7 +18,7 @@ spec:
       containers:
         - name: question-service
           image: asia-southeast1-docker.pkg.dev/peerprep-438213/peerprep/question-service:latest
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3002
           envFrom:

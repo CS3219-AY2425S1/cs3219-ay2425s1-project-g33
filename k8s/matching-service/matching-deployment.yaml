@@ -16,7 +16,7 @@ spec:
       containers:
         - name: matching-service
           image: asia-southeast1-docker.pkg.dev/peerprep-438213/peerprep/matching-service:latest
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3004
           envFrom:

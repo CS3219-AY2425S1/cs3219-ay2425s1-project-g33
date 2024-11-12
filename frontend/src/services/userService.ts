@@ -13,10 +13,9 @@ import { cache } from "react";
 export const getCurrentUser = cache(
   async function (): Promise<UserProfileResponse> {
     console.log("getCurrentUser service Invoked");
+    const access_token = await getAccessToken();
 
     try {
-      const access_token = await getAccessToken();
-
       const res = await fetch(
         process.env.PUBLIC_API_URL + `/api/users/current`,
         {
@@ -44,9 +43,8 @@ export const getCurrentUser = cache(
 export async function editUserProfile(
   userProfile: UserProfile
 ): Promise<UserProfileResponse> {
+  const access_token = await getAccessToken();
   try {
-    const access_token = await getAccessToken();
-
     const updatedUserProfile = UpdateUserProfileSchema.parse(userProfile);
 
     const res = await fetch(process.env.PUBLIC_API_URL + `/api/users/profile`, {

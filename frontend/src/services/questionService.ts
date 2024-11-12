@@ -20,9 +20,8 @@ import { cache } from "react";
 export const getQuestion = cache(async function (
   slug: string
 ): Promise<QuestionResponse> {
+  const access_token = await getAccessToken();
   try {
-    const access_token = await getAccessToken();
-
     const res = await fetch(
       process.env.PUBLIC_API_URL + `/api/questions/${slug}`,
       {
@@ -51,9 +50,8 @@ export const getQuestions = cache(
       limit: 99,
     });
 
+    const access_token = await getAccessToken();
     try {
-      const access_token = await getAccessToken();
-
       const res: Response = await fetch(
         process.env.PUBLIC_API_URL + `/api/questions?${query}`,
         {
@@ -80,9 +78,8 @@ export const getQuestions = cache(
 
 export const getQuestionCategories = cache(
   async function (): Promise<CategoriesResponse> {
+    const access_token = await getAccessToken();
     try {
-      const access_token = await getAccessToken();
-
       const res: Response = await fetch(
         process.env.PUBLIC_API_URL + `/api/questions/categories`,
         {
@@ -110,9 +107,8 @@ export const getQuestionCategories = cache(
 export async function createQuestion(
   question: NewQuestion
 ): Promise<QuestionResponse> {
+  const access_token = await getAccessToken();
   try {
-    const access_token = await getAccessToken();
-
     const res = await fetch(
       process.env.PUBLIC_API_URL + "/api/questions/create",
       {
@@ -139,9 +135,8 @@ export async function createQuestion(
 }
 
 export async function deleteQuestion(questionId: string): Promise<void> {
+  const access_token = await getAccessToken();
   try {
-    const access_token = await getAccessToken();
-
     await fetch(process.env.PUBLIC_API_URL + `/api/questions/${questionId}`, {
       method: "DELETE",
       headers: {
@@ -157,9 +152,8 @@ export async function deleteQuestion(questionId: string): Promise<void> {
 export async function editQuestion(
   question: EditQuestion
 ): Promise<QuestionResponse> {
+  const access_token = await getAccessToken();
   try {
-    const access_token = await getAccessToken();
-
     const updatedQuestion = NewQuestionSchema.parse(question);
     const res = await fetch(
       process.env.PUBLIC_API_URL + `/api/questions/${question._id}`,
@@ -190,9 +184,8 @@ export async function updateQuestionTestCases(
   questionId: string,
   testCases: Array<TestCase>
 ): Promise<QuestionResponse> {
+  const access_token = await getAccessToken();
   try {
-    const access_token = await getAccessToken();
-
     const res = await fetch(
       process.env.PUBLIC_API_URL + `/api/questions/${questionId}/testcases`,
       {
