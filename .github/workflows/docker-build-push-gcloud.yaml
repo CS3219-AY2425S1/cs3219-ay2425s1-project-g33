@@ -17,11 +17,11 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Set up Google Cloud CLI
-      uses: google-github-actions/setup-gcloud@v0.2.0
-      with:
-        project_id: ${{ secrets.GCP_PROJECT_ID }}
-        service_account_key: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
-        export_default_credentials: true
+        uses: google-github-actions/setup-gcloud@v0.2.0
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          service_account_key: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
+          export_default_credentials: true
 
       - name: Authenticate Docker to Google Artifact Registry
         run: gcloud auth configure-docker ${{ secrets.GCP_REGION }}-docker.pkg.dev
@@ -34,7 +34,7 @@ jobs:
         run: |
           # Convert the comma-separated SERVICES string to an array
           IFS=',' read -ra services <<< "$SERVICES"
-          
+
           # Loop over each service, build and push its Docker image
           for service in "${services[@]}"; do
             # Define the Docker image path
