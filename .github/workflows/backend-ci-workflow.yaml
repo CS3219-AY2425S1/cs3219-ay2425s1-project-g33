@@ -1,6 +1,6 @@
 name: Backend CI Workflow
 
-on: 
+on:
   pull_request:
     branches:
       - main
@@ -22,32 +22,32 @@ jobs:
 
       - name: Install Dependencies for Each Service
         run: |
-          cd backend
-          for service in auth-service question-service user-service matching-service gateway-service collaboration-service; do
+          services=("auth-service" "code-execution-service" "collaboration-service" "gateway-service" "matching-service" "question-service" "user-service" "y-websocket-service")
+          for service in "${services[@]}"; do
             echo "Installing dependencies for $service"
-            cd $service
+            cd backend/$service
             npm install
-            cd ..
+            cd ../..
           done
 
       # Build Check for Each Service
       - name: Build Each Service
         run: |
-          cd backend
-          for service in auth-service question-service user-service matching-service gateway-service collaboration-service; do
+          services=("auth-service" "code-execution-service" "collaboration-service" "gateway-service" "matching-service" "question-service" "user-service" "y-websocket-service")
+          for service in "${services[@]}"; do
             echo "Building $service"
-            cd $service
+            cd backend/$service
             npm run build
-            cd ..
+            cd ../..
           done
 
       # Lint Check for Each Service
       - name: Lint Each Service
         run: |
-          cd backend
-          for service in auth-service question-service user-service matching-service gateway-service collaboration-service; do
+          services=("auth-service" "code-execution-service" "collaboration-service" "gateway-service" "matching-service" "question-service" "user-service" "y-websocket-service")
+          for service in "${services[@]}"; do
             echo "Linting $service"
-            cd $service
+            cd backend/$service
             npm run lint
-            cd ..
+            cd ../..
           done

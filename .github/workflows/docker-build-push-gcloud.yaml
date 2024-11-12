@@ -30,10 +30,9 @@ jobs:
         env:
           GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
           GCP_REGION: ${{ secrets.GCP_REGION }}
-          SERVICES: ${{ vars.SERVICES }}
         run: |
-          # Convert the comma-separated SERVICES string to an array
-          IFS=',' read -ra services <<< "$SERVICES"
+          # Define an array with the names of your services
+          services=("auth-service" "code-execution-service" "collaboration-service" "gateway-service" "matching-service" "question-service" "user-service" "y-websocket-service")
 
           # Loop over each service, build and push its Docker image
           for service in "${services[@]}"; do
