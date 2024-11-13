@@ -163,10 +163,10 @@ export default function CollaborativeEditor({
           minimap: { enabled: false },
         }}
         defaultValue={defaultEditorValues[language]}
-        // value={code[language]}
-        // onChange={(value) => {
-        //   setCode((prevCode) => ({ ...prevCode, [language]: value || "" }));
-        // }}
+      // value={code[language]}
+      // onChange={(value) => {
+      //   setCode((prevCode) => ({ ...prevCode, [language]: value || "" }));
+      // }}
       />
     </div>
   );

@@ -29,16 +29,18 @@ export class YjsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   async handleConnection(client: WebSocket, request: Request) {
     try {
+      console.log('New connection:', request.url);
       const url = new URL(request.url, 'http://${request.headers.host}');
       const sessionId = url.searchParams.get('sessionId');
-      // roomId is appended to the end of the URL like so /yjs?sessionId=123&userId=456/roomId789
-      // Thus the reason to split the userIdParam by '/' to get the userId and roomId
-      // Very hacky. App might break if param order changes
       const userIdParam = url.searchParams.get('userId');
-      const userId = userIdParam.split('/')[0];
-      const roomId = userIdParam.split('/')[1];
 
-      setupWSConnection(client, request, { docName: roomId, gc: true });
+      if (!userIdParam || !userIdParam.includes('/')) {
+        console.error('Invalid user ID parameter');
+        client.close(1008, 'Invalid user ID parameter');
+        return;
+      }
+
+      const [userId, roomId] = userIdParam.split('/');
 
       if (!sessionId) {
         console.error('No session ID provided');
@@ -52,7 +54,16 @@ export class YjsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         return;
       }
 
-      console.log('Session ID:', sessionId, 'User ID:', userId);
+      console.log(
+        'Session ID:',
+        sessionId,
+        'User ID:',
+        userId,
+        'Room ID:',
+        roomId,
+      );
+
+      setupWSConnection(client, request, { docName: roomId, gc: true });
 
       const sessionDetails = await this.validateSessionDetails(
         sessionId,
