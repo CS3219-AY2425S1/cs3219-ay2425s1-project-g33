@@ -105,23 +105,16 @@ export class CollaborationGateway implements OnGatewayDisconnect {
       this.server.to(sessionId).emit(SESSION_JOINED, {
         userId, // the user who recently joined
         sessionId,
-        messages, // chat messages
+        sessionMessages: messages, // chat messages
         language: existingLanguage || 'python3', // default language
         sessionUserProfiles, // returns the all session member profiles
       });
-
-      return {
-        success: true,
-        data: {
-          messages, // chat messages
-        },
-      };
     } catch (e) {
       console.log(e);
-      return {
-        success: false,
+      client.emit(SESSION_ERROR, {
+        event: SESSION_JOIN,
         error: `Failed to join session: ${e.message}`,
-      };
+      });
     }
   }
 
@@ -158,10 +151,11 @@ export class CollaborationGateway implements OnGatewayDisconnect {
         sessionUserProfiles,
       });
     } catch (e) {
-      return {
-        success: false,
+      console.log(e);
+      client.emit(SESSION_ERROR, {
+        event: SESSION_LEAVE,
         error: `Failed to leave session: ${e.message}`,
-      };
+      });
     }
   }
 
@@ -191,18 +185,13 @@ export class CollaborationGateway implements OnGatewayDisconnect {
         message,
         timestamp,
       });
-
-      return {
-        success: true,
-        data: { id },
-      };
     } catch (e) {
       console.log(e);
-      return {
-        success: false,
-        data: { id },
+      client.emit(SESSION_ERROR, {
+        event: CHAT_SEND_MESSAGE,
+        data: { id, timestamp },
         error: `Failed to send message: ${e.message}`,
-      };
+      });
     }
   }
 
@@ -222,7 +211,10 @@ export class CollaborationGateway implements OnGatewayDisconnect {
       const { userId, sessionId, questionId, code, language } = payload;
 
       if (!userId || !sessionId || !code) {
-        client.emit(SESSION_ERROR, 'Invalid submit request payload.');
+        client.emit(SESSION_ERROR, {
+          event: SUBMIT,
+          error: 'Invalid submit request payload.',
+        });
         return;
       }
 
@@ -316,7 +308,10 @@ export class CollaborationGateway implements OnGatewayDisconnect {
       const { userId, sessionId, language } = payload;
 
       if (!userId || !sessionId || !language) {
-        client.emit(SESSION_ERROR, 'Invalid change language request payload.');
+        client.emit(SESSION_ERROR, {
+          event: CHANGE_LANGUAGE,
+          error: 'Invalid change language request payload.',
+        });
         return;
       }
 
@@ -345,7 +340,10 @@ export class CollaborationGateway implements OnGatewayDisconnect {
       const { userId, sessionId } = payload;
 
       if (!userId || !sessionId) {
-        client.emit(SESSION_ERROR, 'Invalid change language request payload.');
+        client.emit(SESSION_ERROR, {
+          event: SESSION_END,
+          error: 'Invalid session end request payload.',
+        });
         return;
       }
 
