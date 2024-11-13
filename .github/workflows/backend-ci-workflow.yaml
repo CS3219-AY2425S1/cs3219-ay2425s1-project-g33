@@ -1,0 +1,42 @@
+name: Backend CI Workflow
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+
+      - name: Install Dependencies for Each Service
+        run: |
+          services=("auth-service" "code-execution-service" "collaboration-service" "gateway-service" "matching-service" "question-service" "user-service" "y-websocket-service")
+          for service in "${services[@]}"; do
+            echo "Installing dependencies for $service"
+            cd backend/$service
+            npm install
+            cd ../..
+          done
+
+      # Build Check for Each Service
+      - name: Build Each Service
+        run: |
+          services=("auth-service" "code-execution-service" "collaboration-service" "gateway-service" "matching-service" "question-service" "user-service" "y-websocket-service")
+          for service in "${services[@]}"; do
+            echo "Building $service"
+            cd backend/$service
+            npm run build
+            cd ../..
+          done

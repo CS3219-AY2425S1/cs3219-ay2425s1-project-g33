@@ -1,0 +1,223 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+@layer base {
+  :root {
+    --user-color: #000000;
+    --font-sans: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
+      Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+    --background: #ffffff;
+    --background-100: #fff6f6;
+    --background-200: #ffeeee;
+    --foreground: #010816;
+    --foreground-100: #010816;
+    --card: #ffffff;
+    --card-foreground: #010816;
+    --card-foreground-100: #010816;
+    --popover: #ffffff;
+    --popover-foreground: #010816;
+    --primary: #a855f7;
+    --primary-foreground: #ffffff;
+    --secondary: #f1f5f9;
+    --secondary-foreground: #0f172a;
+    --muted: #f1f5f9;
+    --muted-foreground: #64748b;
+    --accent: #fff6f6;
+    --accent-foreground: #010816;
+    --destructive: #ef4444;
+    --destructive-foreground: #f7f9fb;
+    --border: #e2e8f0;
+    --input: #e2e8f0;
+    --input-foreground: #9ca3af;
+    --input-foreground-100: #010816;
+    --ring: #010816;
+    --chart-1: #e76e4f;
+    --chart-2: #299d8f;
+    --chart-3: #264753;
+    --chart-4: #e8c468;
+    --chart-5: #f4a361;
+    --chart-difficulty-easy: var(--difficulty-easy);
+    --chart-difficulty-medium: var(--difficulty-medium);
+    --chart-difficulty-hard: var(--difficulty-hard);
+    --difficulty-easy: #22c55e;
+    --difficulty-medium: #eab308;
+    --difficulty-hard: #ef4444;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --user-color: #000000;
+    --font-sans: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
+      Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+    --background: #171717;
+    --background-100: #404040;
+    --background-200: #3c3c3c;
+    --foreground: #f3f4f6;
+    --foreground-100: #9ca3af;
+    --card: #262626;
+    --card-foreground: #f3f4f6;
+    --card-foreground-100: #9ca3af;
+    --popover: #010816;
+    --popover-foreground: #f7f9fb;
+    --primary: #a855f7;
+    --primary-foreground: #ffffff;
+    --secondary: #2b3545;
+    --secondary-foreground: #f7f9fb;
+    --muted: #2b3545;
+    --muted-foreground: #6b6b7f;
+    --accent: #2b3545;
+    --accent-foreground: #f7f9fb;
+    --destructive: #ef4444;
+    --destructive-foreground: #f7f9fb;
+    --border: #2b3545;
+    --input: #262626;
+    --input-background-100: #404040;
+    --input-foreground: #f3f4f6;
+    --input-foreground-100: #9ca3af;
+    --input: #262626;
+    --input-foreground: #f3f4f6;
+    --input-foreground-100: #9ca3af;
+    --ring: #6f8ca4;
+    --chart-1: #546ed8;
+    --chart-2: #218c72;
+    --chart-3: #4d5940;
+    --chart-4: #ab60c5;
+    --chart-5: #d63372;
+    --chart-difficulty-easy: var(--difficulty-easy);
+    --chart-difficulty-medium: var(--difficulty-medium);
+    --chart-difficulty-hard: var(--difficulty-hard);
+    --difficulty-easy: #22c55e;
+    --difficulty-medium: #eab308;
+    --difficulty-hard: #ef4444;
+    --radius: 0.5rem;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --user-color: #000000;
+    --font-sans: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
+      Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+    --background: #171717;
+    --background-100: #404040;
+    --background-200: #3c3c3c;
+    --foreground: #f3f4f6;
+    --foreground-100: #9ca3af;
+    --card: #262626;
+    --card-foreground: #f3f4f6;
+    --card-foreground-100: #9ca3af;
+    --popover: #010816;
+    --popover-foreground: #f7f9fb;
+    --primary: #a855f7;
+    --primary-foreground: #ffffff;
+    --secondary: #2b3545;
+    --secondary-foreground: #f7f9fb;
+    --muted: #2b3545;
+    --muted-foreground: #6b6b7f;
+    --accent: #2b3545;
+    --accent-foreground: #f7f9fb;
+    --destructive: #ef4444;
+    --destructive-foreground: #f7f9fb;
+    --border: #2b3545;
+    --input: #262626;
+    --input-background-100: #404040;
+    --input-foreground: #f3f4f6;
+    --input-foreground-100: #9ca3af;
+    --ring: #6f8ca4;
+    --chart-1: #546ed8;
+    --chart-2: #218c72;
+    --chart-3: #4d5940;
+    --chart-4: #ab60c5;
+    --chart-5: #d63372;
+    --chart-difficulty-easy: var(--difficulty-easy);
+    --chart-difficulty-medium: var(--difficulty-medium);
+    --chart-difficulty-hard: var(--difficulty-hard);
+    --difficulty-easy: #22c55e;
+    --difficulty-medium: #eab308;
+    --difficulty-hard: #ef4444;
+    --radius: 0.5rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Change Autocomplete styles in Browsers*/
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus {
+  border: 1px solid var(--input-background-100);
+  -webkit-text-fill-color: var(--input-foreground);
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+/* Cursor selection background */
+.yRemoteSelection {
+  opacity: 0.5;
+  background-color: var(--user-color);
+  margin-right: -1px;
+}
+
+/* Cursor caret */
+.yRemoteSelectionHead {
+  position: absolute;
+  box-sizing: border-box;
+  height: 100%;
+  border-left: 2px solid var(--user-color);
+}
+
+@keyframes fadeOut {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+/* Cursor name */
+.yRemoteSelectionHead::after {
+  position: absolute;
+  top: -1.4em;
+  left: -2px;
+  padding: 2px 6px;
+  background: var(--user-color);
+  color: #fff;
+  border: 0;
+  border-radius: 6px;
+  border-bottom-left-radius: 0;
+  line-height: normal;
+  white-space: nowrap;
+  font-size: 14px;
+  font-family: var(--font-sans);
+  font-style: normal;
+  font-weight: 600;
+  pointer-events: none;
+  user-select: none;
+  z-index: 1000;
+  animation: fadeOut 0.35s forwards 1s;
+}
+
+nextjs-portal {
+  display: none;
+}

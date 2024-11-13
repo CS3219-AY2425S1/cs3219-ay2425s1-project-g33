@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: code-execution-configmap
+  namespace: peerprep
+data:
+  CODE_EXECUTION_SERVICE_HOST: "0.0.0.0"
+  CODE_EXECUTION_SERVICE_PORT: "3006"
+  CODE_EXECUTION_SERVICE_TRANSPORT: "TCP"

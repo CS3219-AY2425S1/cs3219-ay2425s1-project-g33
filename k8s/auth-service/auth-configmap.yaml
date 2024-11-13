@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: auth-configmap
+  namespace: peerprep
+data:
+  JWT_TOKEN_EXPIRATION: "1h"
+  JWT_REFRESH_TOKEN_EXPIRATION: "7d"
+
+  GOOGLE_CALLBACK_URL: "http://localhost:4000/api/auth/google/callback" # Update this to domain later
+  GITHUB_CALLBACK_URL: "http://localhost:4000/api/auth/github/callback" # Update this to domain later
+
+  NODEMAILER_GMAIL_USER: "peerprep33@gmail.com"
+  FRONTEND_URL: "http://localhost:3000" # Update this to domain later
+
+  AUTH_SERVICE_HOST: "0.0.0.0"
+  AUTH_SERVICE_PORT: "3003"
+  AUTH_SERVICE_TRANSPORT: "TCP"
+
+  USER_SERVICE_HOST: "user-service"
+  USER_SERVICE_PORT: "3001"
+  USER_SERVICE_TRANSPORT: "TCP"
+
+  ACCESS_TOKEN_STRATEGY: "jwt"
+  REFRESH_TOKEN_STRATEGY: "jwt-refresh"
+  GOOGLE_STRATEGY: "google"
+  GITHUB_STRATEGY: "github"

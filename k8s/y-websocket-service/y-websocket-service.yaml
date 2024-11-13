@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: y-websocket-service
+  namespace: peerprep
+spec:
+  type: LoadBalancer
+  ports:
+    - name: ws
+      port: 4001
+      targetPort: 4001
+  selector:
+    app: y-websocket-service

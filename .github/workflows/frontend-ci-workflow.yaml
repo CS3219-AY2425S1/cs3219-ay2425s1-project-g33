@@ -1,0 +1,38 @@
+name: Frontend CI Workflow
+
+on: 
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '18'
+
+      - name: Install Dependencies
+        run: |
+          cd frontend
+          npm install
+
+      # Build Check
+      - name: Build Project
+        run: |
+          cd frontend
+          npm run build
+
+      # Lint Check
+      - name: Lint Code
+        run: |
+          cd frontend
+          npm run lint
