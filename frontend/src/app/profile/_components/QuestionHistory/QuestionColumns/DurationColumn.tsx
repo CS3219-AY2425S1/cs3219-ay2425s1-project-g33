@@ -1,8 +1,8 @@
-import { Question } from "@/types/Question";
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTableColumnHeader } from "../data-table-column-header";
+import { HistoryItem } from "@/types/History";
 
-const DurationColumn: ColumnDef<Question> = {
+const DurationColumn: ColumnDef<HistoryItem> = {
   accessorKey: "duration",
   header: ({ column }) => {
     return (

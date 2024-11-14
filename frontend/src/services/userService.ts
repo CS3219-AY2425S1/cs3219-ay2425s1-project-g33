@@ -7,6 +7,7 @@ import {
   UserProfileResponse,
   UserProfileResponseSchema,
 } from "@/types/User";
+import { HistoryResponse, HistoryResponseSchema } from "@/types/History";
 import { revalidateTag } from "next/cache";
 import { cache } from "react";
 
@@ -69,3 +70,37 @@ export async function editUserProfile(
     };
   }
 }
+
+export const fetchHistory = cache(
+  async function (): Promise<HistoryResponse> {
+    const access_token = await getAccessToken();
+
+    try {
+      const res = await fetch(
+        process.env.PUBLIC_API_URL + `/api/collaboration/history`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${access_token}`,
+          }, 
+        }
+      );
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || 'Failed to fetch history');
+      }
+
+      const resObj = await res.json();
+      return HistoryResponseSchema.parse(resObj);
+      
+    } catch (error) {
+      return {
+        statusCode: 500,
+        message: String(error),
+        data: [],
+      };
+    }
+  }
+);

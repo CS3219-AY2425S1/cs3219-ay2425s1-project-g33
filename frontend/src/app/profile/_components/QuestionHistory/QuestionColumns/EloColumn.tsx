@@ -1,8 +1,8 @@
-import { Question } from "@/types/Question";
+import { HistoryItem } from "@/types/History";
 import { ColumnDef } from "@tanstack/react-table";
 import { Zap } from "lucide-react";
 
-const StatusColumn: ColumnDef<Question> = {
+const StatusColumn: ColumnDef<HistoryItem> = {
   accessorKey: "_id",
   header: () => <div className="px-4">Elo</div>,
   cell: () => {

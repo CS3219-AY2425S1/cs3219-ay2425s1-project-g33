@@ -1,7 +1,7 @@
-import { Question } from "@/types/Question";
 import { ColumnDef } from "@tanstack/react-table";
 import UserAvatar from "@/components/UserAvatar";
 import { UserProfile } from "@/types/User";
+import { HistoryItem } from "@/types/History";
 
 const mockCollaborators: UserProfile[] = [
   {
@@ -26,7 +26,7 @@ const mockCollaborators: UserProfile[] = [
   },
 ];
 
-const StatusColumn: ColumnDef<Question> = {
+const StatusColumn: ColumnDef<HistoryItem> = {
   accessorKey: "_id",
   header: () => <div className="px-4">Collaborators</div>,
   cell: () => {
